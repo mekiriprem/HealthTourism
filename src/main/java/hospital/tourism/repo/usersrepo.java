@@ -1,4 +1,4 @@
-package com.example.demo.repo;
+package hospital.tourism.repo;
 
 public interface usersrepo {
 
