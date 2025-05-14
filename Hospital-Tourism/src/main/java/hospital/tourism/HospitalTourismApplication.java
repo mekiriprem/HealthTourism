@@ -10,4 +10,5 @@ public class HospitalTourismApplication {
 		SpringApplication.run(HospitalTourismApplication.class, args);
 	}
 
+	
 }
