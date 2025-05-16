@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 
 import hospital.tourism.Dto.HospitalDTO;
 import hospital.tourism.Dto.LocationDTO;
+import hospital.tourism.Dto.SpaCenterDTO;
 import hospital.tourism.Entity.LocationEntity;
+import hospital.tourism.Entity.SpaCenter;
 import hospital.tourism.repo.LocationRepo;
+import hospital.tourism.repo.SpaCenterRepo;
 
 @Service
 public class LocationService {
@@ -17,7 +20,8 @@ public class LocationService {
 	
 	 @Autowired
 	    private LocationRepo locationRepository;
-
+		@Autowired
+		private SpaCenterRepo spaCenterRepo;
 	    public LocationEntity saveLocation(LocationEntity locationEntity) {
 	        return locationRepository.save(locationEntity);
 	    }
@@ -47,9 +51,29 @@ public class LocationService {
 
 	        return dto;
 	    }
+	    public SpaCenterDTO getSpaCenterDTOById(Integer spaCenterId) {
+	        SpaCenter spaCenter = spaCenterRepo.findById(spaCenterId)
+	            .orElseThrow(() -> new RuntimeException("SpaCenter not found"));
 
-	    
-	  
-	
-	
+	        SpaCenterDTO dto = new SpaCenterDTO();
+	        dto.setSpaName(spaCenter.getSpaName());
+	        dto.setSpaDescription(spaCenter.getSpaDescription());
+	        dto.setSpaImage(spaCenter.getSpaImage());
+	        dto.setRating(spaCenter.getRating());
+	        dto.setAddress(spaCenter.getAddress());
+
+	        if (spaCenter.getLocation() != null) {
+	            dto.setLocationId(spaCenter.getLocation().getLocationId());
+	        }
+
+	        return dto;
+	    }
+		public List<LocationEntity> getAllLocations() {
+			return locationRepository.findAll();
+		}
+
+		public LocationEntity getLocationById(Integer id) {
+			return locationRepository.findById(id)
+					.orElseThrow(() -> new RuntimeException("Location not found with id " + id));
+		}
 }

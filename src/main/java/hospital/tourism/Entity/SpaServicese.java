@@ -1,29 +1,30 @@
 package hospital.tourism.Entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
-public class PhysioAndSpa {
-
-	
+@Table(name = "spa_services")
+public class SpaServicese {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Integer serviceId;
 	private String serviceName;
 	private String serviceDescription;
 	private String serviceImage;
-	private Double servicePrice;
 	private String rating;
-	private String reviews;
+	private String price;
 
-	 	@ManyToOne
-	    @JoinColumn(name = "location_id") 
-	    private LocationEntity location;
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "spa_id")
+	private SpaCenter spaCenter;
+
+
 }

@@ -21,12 +21,11 @@ public class LocationEntity {
     private String state;
     private String country;
   
-//
-//     One location has many physioAndSpa
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PhysioAndSpa> physioAndSpaList;
+
     
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Hospital> hospitalList;
+    
+   
 }
