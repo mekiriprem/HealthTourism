@@ -10,5 +10,7 @@ public interface AdminRepository extends JpaRepository<AdminEntity, Integer> {
 
 	public AdminEntity findByAdminEmailAndAdminPassword(String adminEmail, String adminPassword);
 
-	Optional<AdminEntity> findByApprovalToken(String token);
+	public Optional<AdminEntity> findByAdminEmail(String adminEmail);
+
+	
 }

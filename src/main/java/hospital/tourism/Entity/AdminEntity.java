@@ -1,6 +1,9 @@
 package hospital.tourism.Entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,21 +13,19 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "Admin-Table")
+@Table(name = "Admin_Table")
 public class AdminEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer adminId;
-	private String adminName;
-	private String adminEmail;
-	private String adminPassword;
-	private String adminRole;
-	@Column(name = "approval_token")
-	private String approvalToken;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer adminId;
 
-	@Column(name = "is_approved")
-	private Boolean isApproved = null; // null = pending, true = approved, false = rejected
+    private String adminName;
+    private String adminEmail;
+    private String adminPassword;
+    private String employeeId;
 
-	
+    @ElementCollection
+    @Column(name = "permission")
+    private List<String> permissions;
 }
