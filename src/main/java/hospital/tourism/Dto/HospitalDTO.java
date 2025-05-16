@@ -1,0 +1,16 @@
+package hospital.tourism.Dto;
+
+
+
+import lombok.Data;
+
+@Data
+public class HospitalDTO {
+    private Integer hospitalId;
+    private String hositalName;
+    private String hospitalDescription;
+    private String hospitalImage;
+    private String rating;
+    private String address;
+}
+
