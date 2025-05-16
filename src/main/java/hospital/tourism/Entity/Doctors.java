@@ -1,6 +1,8 @@
 package hospital.tourism.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,6 +23,7 @@ public class Doctors {
 
     @ManyToOne
     @JoinColumn(name = "hospital_id", nullable = false)
+    @JsonBackReference
     private Hospital hospital;
 
 }

@@ -11,5 +11,8 @@ public class LocationDTO {
     private String state;
     private String country;
     private List<HospitalDTO> hospitals;
+    private List<TranslatorDTO> translators;
+    private List<DiagnosticsDTO> diagnostics;
+    private List<ChefDTO> chefs;
 
 }
