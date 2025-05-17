@@ -24,6 +24,11 @@ public class LocationService {
 	    public LocationEntity saveLocation(LocationEntity locationEntity) {
 	        return locationRepository.save(locationEntity);
 	    }
+	    
+	    public List<LocationEntity> getAllLocations() {
+	        return locationRepository.findAll();
+	    }
+	    
 	    public LocationDTO getLocationWithHospitals(Integer id) {
 	        LocationEntity location = locationRepository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("Location not found"));

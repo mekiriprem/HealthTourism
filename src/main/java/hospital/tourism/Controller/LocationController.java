@@ -3,6 +3,9 @@ package hospital.tourism.Controller;
 import hospital.tourism.Dto.LocationDTO;
 import hospital.tourism.Entity.LocationEntity;
 import hospital.tourism.Service.LocationService;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,11 @@ public class LocationController {
         LocationDTO location = locationService.getLocationWithHospitals(id);
         return ResponseEntity.ok(location);
     }
+    @GetMapping
+    public List<LocationEntity> getAllLocations() {
+        return locationService.getAllLocations();
+    }
+
 
 }
 

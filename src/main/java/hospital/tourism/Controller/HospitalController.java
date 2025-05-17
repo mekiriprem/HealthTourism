@@ -25,7 +25,7 @@ public class HospitalController {
     public Hospital addHospital(@RequestBody Hospital hospital) {
         return hospitalService.saveHospital(hospital);
     }
-    
+   
     @GetMapping
     public List<Hospital> getAllHospitals() {
         return hospitalService.getAllHospitals();
