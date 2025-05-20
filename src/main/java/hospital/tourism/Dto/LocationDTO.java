@@ -14,5 +14,7 @@ public class LocationDTO {
     private List<TranslatorDTO> translators;
     private List<DiagnosticsDTO> diagnostics;
     private List<ChefDTO> chefs;
+    private List<SpaCenterDTO> spa; 
+        // TODO Auto-generated metho
 
 }

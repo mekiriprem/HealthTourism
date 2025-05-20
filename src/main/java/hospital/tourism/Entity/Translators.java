@@ -27,6 +27,7 @@ public class Translators {
     private String translatorImage;
     private String translatorRating;
     private String translatorLanguages;
+    private String Status;
     
     
     @ManyToOne

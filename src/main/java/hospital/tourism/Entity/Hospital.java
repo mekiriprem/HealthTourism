@@ -27,7 +27,8 @@ public class Hospital {
         private String hospitalImage;
         private String rating;
         private String address;
-
+        private String Status;
+       
         @ManyToOne
         @JoinColumn(name = "location_id")
         @JsonBackReference

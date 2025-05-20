@@ -1,9 +1,12 @@
 package hospital.tourism.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import hospital.tourism.Entity.Translators;
 import hospital.tourism.Entity.users;
 import hospital.tourism.Service.UserService;
 import hospital.tourism.repo.usersrepo;
@@ -45,4 +48,11 @@ public class UserController {
         users user = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok("Login successful. Welcome " + user.getName() + "!");
     }
+    
+    @GetMapping
+    public List<users> getAllUsers() {
+        return userService.getallUsers();
+    }
+    
+    
 }

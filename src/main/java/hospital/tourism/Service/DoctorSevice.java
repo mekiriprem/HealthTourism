@@ -1,6 +1,7 @@
 package hospital.tourism.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,14 @@ public class DoctorSevice {
     @Autowired
     private HospitalRepo hospitalRepository;
 
-    public Doctors saveDoctor(Doctors doctor,Integer hospitalId) {
-        Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
-        doctor.setHospital(hospital);
-        return doctorRepository.save(doctor);
+    public Doctors saveDoctor(Doctors doctor, int hospitalId) {
+        Optional<Hospital> optionalHospital = hospitalRepository.findById(hospitalId);
+        if (optionalHospital.isPresent()) {
+            doctor.setHospital(optionalHospital.get());
+            return doctorRepository.save(doctor);
+        } else {
+            throw new IllegalArgumentException("Hospital with ID " + hospitalId + " not found.");
+        }
     }
 
     public List<Doctors> getAllDoctors() {

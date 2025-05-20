@@ -15,19 +15,16 @@ public class LocationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer locationId;
 
-
-  
     private String city;
     private String state;
     private String country;
   
 
-
     
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Hospital> hospitalList;
-    
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Translators> translatorsList;
@@ -37,4 +34,8 @@ public class LocationEntity {
     
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Chefs> chefsList;
+    
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SpaCenter> spalists;
+
 }

@@ -17,7 +17,8 @@ public class Chefs {
     private String chefImage;
     private String chefRating;
     private String experience;     // corrected spacing
-    private String styles;         // corrected spacing
+    private String styles;
+    private String Status;// corrected spacing
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)

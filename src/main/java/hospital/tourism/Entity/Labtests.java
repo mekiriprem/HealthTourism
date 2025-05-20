@@ -18,6 +18,7 @@ public class Labtests {
     private double testPrice;
     private String testDepartment;
     private String testImage;
+    private String Status;
 
     @ManyToOne
     @JoinColumn(name = "diognostics_id", nullable = false)
