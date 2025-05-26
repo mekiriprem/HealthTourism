@@ -1,6 +1,5 @@
 package hospital.tourism.Controller;
 
-import hospital.tourism.Dto.TranslatorRequest;
 import hospital.tourism.Entity.Translators;
 import hospital.tourism.Service.TranslatorsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,25 +64,32 @@ public class TranslatorsController {
             translator.setTranslatorDescription(description);
             translator.setTranslatorRating(ratingStr);
             translator.setTranslatorLanguages(languages);
-            translator.setStatus("ACTIVE");
+            translator.setStatus("NUll");
 
-            // Upload image to Supabase
+            // Build storage path
             String fileName = UUID.randomUUID() + "_" + Objects.requireNonNull(imageFile.getOriginalFilename());
-            String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/translator-images/" + fileName;
+            String folder = "translator-images";
+            String objectPath = folder + "/" + fileName;
+
+            // Upload to Supabase Storage via POST
+            String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + objectPath;
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + supabaseApiKey);
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
             HttpEntity<byte[]> entity = new HttpEntity<>(imageFile.getBytes(), headers);
-            ResponseEntity<String> uploadResponse = new RestTemplate().exchange(uploadUrl, HttpMethod.PUT, entity, String.class);
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<String> uploadResponse = restTemplate.exchange(uploadUrl, HttpMethod.POST, entity, String.class);
 
             if (!uploadResponse.getStatusCode().is2xxSuccessful()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Failed to upload image to Supabase: " + uploadResponse.getStatusCode());
             }
 
-            String publicImageUrl = supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/translator-images/" + fileName;
+            // Set public image URL
+            String publicImageUrl = supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + objectPath;
             translator.setTranslatorImage(publicImageUrl);
 
             Translators saved = translatorsService.saveTranslator(translator, locationId);
@@ -95,6 +101,7 @@ public class TranslatorsController {
                     .body("Error saving translator: " + e.getMessage());
         }
     }
+
 
 
     // Get Translators by Location ID

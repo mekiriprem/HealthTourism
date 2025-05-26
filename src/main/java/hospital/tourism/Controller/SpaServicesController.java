@@ -1,16 +1,16 @@
 package hospital.tourism.Controller;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.SpaServiceDTO;
 import hospital.tourism.Entity.SpaServicese;
@@ -20,19 +20,70 @@ import hospital.tourism.Service.SpaServicessImpl;
 @RequestMapping("/spaServices")
 public class SpaServicesController {
 
-	@Autowired
-	private SpaServicessImpl spaServicessImpl;
-	@PostMapping("/save")
-	public ResponseEntity<SpaServiceDTO> saveSpaService(@RequestBody SpaServiceDTO spaServiceDTO) {
-        // Call service to save entity
-        SpaServicese savedEntity = spaServicessImpl.saveSpaService(spaServiceDTO);
+    @Autowired
+    private SpaServicessImpl spaServicessImpl;
 
-        // Convert saved entity back to DTO
-           SpaServiceDTO responseDTO = convertToDTO(savedEntity);
+    @Value("${supabase.url}")
+    private String supabaseProjectUrl;
 
-        // Return ResponseEntity with saved DTO and HTTP status 201 CREATED
-        return ResponseEntity.status(201).body(responseDTO);
+    @Value("${supabase.bucket}")
+    private String supabaseBucketName;
+
+    @Value("${supabase.api.key}")
+    private String supabaseApiKey;
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadSpaService(
+            @RequestParam("serviceName") String serviceName,
+            @RequestParam("description") String description,
+            @RequestParam("spaCenterId") Integer spaCenterId,
+            @RequestParam("spaPrice") Double spaPrice,
+            @RequestPart("image") MultipartFile imageFile
+    ) {
+        try {
+            if (imageFile == null || imageFile.isEmpty()) {
+                return ResponseEntity.badRequest().body("Image file is required");
+            }
+
+            // Upload to Supabase
+            String fileName = UUID.randomUUID() + "_" + Objects.requireNonNull(imageFile.getOriginalFilename());
+            String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/spa-service-images/" + fileName;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + supabaseApiKey);
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            HttpEntity<byte[]> entity = new HttpEntity<>(imageFile.getBytes(), headers);
+            ResponseEntity<String> uploadResponse = new RestTemplate().exchange(uploadUrl, HttpMethod.PUT, entity, String.class);
+
+            if (!uploadResponse.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to upload image to Supabase: " + uploadResponse.getStatusCode());
+            }
+
+            // Create DTO
+            String imageUrl = supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/spa-service-images/" + fileName;
+            SpaServiceDTO dto = new SpaServiceDTO();
+            dto.setServiceName(serviceName);
+            dto.setServiceDescription(description);
+            dto.setPrice(spaPrice);
+            dto.setSpaCenterId(spaCenterId);
+            dto.setServiceImage(imageUrl);
+
+            // Save service
+            SpaServicese savedEntity = spaServicessImpl.saveSpaService(dto);
+            SpaServiceDTO responseDTO = convertToDTO(savedEntity);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error uploading spa service: " + e.getMessage());
+        }
     }
+
+
+
 	
 	
     @GetMapping("/bySpaCenter/{spaId}")
