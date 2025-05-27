@@ -21,7 +21,10 @@ public class AdminEntity {
     private Integer adminId;
 
     private String adminName;
+    @Column(name = "admin_email", unique = true, nullable = false)
     private String adminEmail;
+
+    @Column(name = "admin_password", nullable = false)
     private String adminPassword;
     private String employeeId;
 

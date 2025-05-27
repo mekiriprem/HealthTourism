@@ -2,6 +2,7 @@ package hospital.tourism.Entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -21,9 +22,9 @@ public class Doctors {
     private String department;
     private String profilepic;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // ensure it's fetched
     @JoinColumn(name = "hospital_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties("doctors") // prevent circular reference
     private Hospital hospital;
 
 }

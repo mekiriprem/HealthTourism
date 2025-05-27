@@ -10,7 +10,7 @@ import hospital.tourism.Service.AdminServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "http://localhost:8082")
 @RestController
 @RequestMapping("/admin")
 @Slf4j
@@ -43,5 +43,32 @@ public class AdminController {
             return ResponseEntity.ok(admin);
        
     }
-
+    
+    @PutMapping("/update-subadmin")
+    public ResponseEntity<?> updateSubAdmin(@RequestBody AdminEntity subAdmin) {
+        try {
+            AdminEntity updatedAdmin = adminServiceimpl.updateSubAdmin(subAdmin);
+            return ResponseEntity.ok(updatedAdmin);
+           } catch (IllegalArgumentException e) {
+        	               return ResponseEntity.badRequest().body(e.getMessage());
+           }
+    }
+    @DeleteMapping("/delete-subadmin/{adminId}")
+    public ResponseEntity<?> deleteSubAdmin(@PathVariable Integer adminId) {
+        try {
+            adminServiceimpl.deleteSubAdmin(adminId);
+            return ResponseEntity.ok("Sub-admin with ID " + adminId + " deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/get-all-subadmins")
+	public ResponseEntity<?> getAllSubAdmins() {
+		try {
+			return ResponseEntity.ok(adminServiceimpl.getAllSubAdmins());
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Error retrieving sub-admins: " + e.getMessage());
+		}
+	}
+    
 }

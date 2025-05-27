@@ -1,5 +1,6 @@
 package hospital.tourism.Controller;
 
+import hospital.tourism.Dto.BasicLocationDTO;
 import hospital.tourism.Dto.LocationDTO;
 import hospital.tourism.Entity.LocationEntity;
 import hospital.tourism.Service.LocationService;
@@ -26,11 +27,17 @@ public class LocationController {
         LocationDTO location = locationService.getLocationWithHospitals(id);
         return ResponseEntity.ok(location);
     }
-    @GetMapping
+    @GetMapping("/getall")
     public List<LocationEntity> getAllLocations() {
         return locationService.getAllLocations();
     }
-
+    
+    @GetMapping()
+    public ResponseEntity<List<BasicLocationDTO>> getMinimalLocations() {
+        return ResponseEntity.ok(locationService.getAllBasicLocations());
+    }
+    
+  
 
 }
 
