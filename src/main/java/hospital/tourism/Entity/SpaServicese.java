@@ -21,7 +21,7 @@ public class SpaServicese {
 	private String serviceDescription;
 	private String serviceImage;
 	private String rating;
-	private String price;
+	private Double price;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "spa_id")

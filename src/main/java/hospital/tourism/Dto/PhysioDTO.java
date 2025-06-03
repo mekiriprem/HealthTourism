@@ -11,5 +11,6 @@ public class PhysioDTO {
     private String rating;
     private String address;
     private String price;
+    private String Status;
     private Integer locationId; // Only the ID of the Location, not the full entity
 }

@@ -1,6 +1,15 @@
 package hospital.tourism.Entity;
 
-import jakarta.persistence.*;
+import java.util.List;
+
+import hospital.tourism.booking.entity.ChiefBookingEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Entity
@@ -35,6 +44,18 @@ public class users {
 
     @Column(unique = true)
     private String verificationToken;
+    
+    
+    private String profilePictureUrl;
+    
+    private String prescriptionUrl;
+    
+    private String patientaxraysUrl;
+    
+    private String patientreportsUrl;
+    
+    private String address;
+    
 
 
 }

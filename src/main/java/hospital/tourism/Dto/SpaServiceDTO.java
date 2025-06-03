@@ -8,7 +8,7 @@ public class SpaServiceDTO {
     private String serviceDescription;
     private String serviceImage;
     private String rating;
-    private String price;
+    private Double price;
     private Integer spaCenterId;  // ID of existing SpaCenter
     // getters and setters
 }

@@ -17,10 +17,14 @@ public class LocationController {
 
     @Autowired
     private LocationService locationService;
-
+    
     @PostMapping
-    public LocationEntity createLocation(@RequestBody LocationEntity locationEntity) {
-        return locationService.saveLocation(locationEntity);
+    public LocationEntity createLocation(@RequestBody LocationDTO dto) {
+        LocationEntity location = new LocationEntity();
+        location.setCountry(dto.getCountry());
+        location.setState(dto.getState());
+        location.setCity(dto.getCity());
+        return locationService.saveLocation(location);
     }
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationDetails(@PathVariable Integer id) {

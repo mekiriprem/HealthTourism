@@ -27,14 +27,15 @@ public class Hospital {
         private String hospitalImage;
         private String rating;
         private String address;
-
+        private String Status;
+       
         @ManyToOne
         @JoinColumn(name = "location_id")
         @JsonBackReference
         private LocationEntity location;
         
         @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        @JsonManagedReference
+        @JsonManagedReference("hospital-doctors")
         private List<Doctors> doctors;
 
     }

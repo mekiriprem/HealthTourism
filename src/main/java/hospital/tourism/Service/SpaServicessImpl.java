@@ -37,6 +37,11 @@ public class SpaServicessImpl {
 		return spaservicesRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Spa Service not found with id " + id));
 	}
+	
+	public List<SpaServicese> getServicesBySpaCenterId(Integer spaId) {
+	    return spaservicesRepo.findBySpaCenterSpaId(spaId);
+	}
+
 
 
 }

@@ -22,11 +22,17 @@ public class Physio {
 	private String rating;
 	private String address;
 	private String price;
+	private String Status;
 
 	// Assuming you have a LocationEntity class
 	 @ManyToOne
 	 @JoinColumn(name = "location_id")
 	 private LocationEntity location;
+
+    public static Object stream() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'stream'");
+    }
 	
 	 
 }

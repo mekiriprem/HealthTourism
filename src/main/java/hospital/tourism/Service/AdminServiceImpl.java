@@ -209,10 +209,64 @@ public class AdminServiceImpl {
              return adminRepository.findAll();         
          }
          
-		public AdminEntity getSubAdminById(Integer adminId) {
-            return adminRepository.findById(adminId)
-                .orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
+	
+		
+		//soft delete sub-admin by ID
+		@Transactional
+		public void softDeleteSubAdmin(Integer adminId) {
+			if (adminId == null) {
+				logger.warn("Soft delete failed: Admin ID is required");
+				throw new IllegalArgumentException("Admin ID is required");
+			}
+			Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
+			if (existingAdmin.isPresent()) {
+				adminRepository.deleteById(adminId);
+				logger.info("Sub-admin with ID {} soft deleted successfully", adminId);
+			} else {
+				logger.warn("Soft delete failed: Admin with ID {} not found", adminId);
+				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+			}
 		}
 		
+		//List<AdminEntity> allAdmins = adminRepository.findAllAdmins();
+		public List<AdminEntity> getAllAdmins() {
+			return adminRepository.findAllAdmins();
+		}
+		
+		//update sub-admin status
+		@Transactional
+		public AdminEntity updateSubAdminStatus(Integer adminId) {
+			
+			Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
+			if (existingAdmin.isPresent()) {
+				AdminEntity admin = existingAdmin.get();
+				admin.setStatus("active"); // Set status to active");
+				return adminRepository.save(admin); // Save and return updated entity
+			} else {
+				logger.warn("Update status failed: Admin with ID {} not found", adminId);
+				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+			}
+		}
+		
+		public AdminEntity updateSubAdmin(Integer adminId, AdminEntity updatedAdmin) {
+	        Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
+	        if (optionalAdmin.isPresent()) {
+	            AdminEntity existingAdmin = optionalAdmin.get();
+	            existingAdmin.setAdminName(updatedAdmin.getAdminName());
+	            existingAdmin.setAdminEmail(updatedAdmin.getAdminEmail());
+	            existingAdmin.setAdminPassword(updatedAdmin.getAdminPassword());
+	            existingAdmin.setEmployeeId(updatedAdmin.getEmployeeId());
+	            existingAdmin.setPermissions(updatedAdmin.getPermissions());
+	            return adminRepository.save(existingAdmin);
+	        } else {
+	            throw new RuntimeException("Admin not found with ID: " + adminId);
+	        }
+	    }
+		
+		//get sub-admin by id
+		public AdminEntity getSubAdminById(Integer adminId) {
+			return adminRepository.findById(adminId)
+					.orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
+		}
 		
 }

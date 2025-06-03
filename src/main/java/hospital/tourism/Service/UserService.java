@@ -1,11 +1,23 @@
 package hospital.tourism.Service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Entity.users;
 import hospital.tourism.repo.usersrepo;
@@ -17,7 +29,14 @@ public class UserService {
 			private usersrepo userRepository;
 	 	@Autowired
 	    private JavaMailSender mailSender;
+	 	@Value("${supabase.url}")
+	    private String supabaseProjectUrl;
 
+	    @Value("${supabase.bucket}")
+	    private String supabaseBucketName;
+
+	    @Value("${supabase.api.key}")
+	    private String supabaseApiKey;
 	    public users registerUser(users user) {
 	        user.setVerificationToken(UUID.randomUUID().toString());
 	        user.setEmailVerified(false);
@@ -26,7 +45,7 @@ public class UserService {
 	        return savedUser;
 	    }
 	    private void sendVerificationEmail(String toEmail, String token) {
-	        String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + token;
+	        String verificationUrl = "http://localhost:8080/user/verify?token=" + token;
 	        SimpleMailMessage message = new SimpleMailMessage();
 	        message.setTo(toEmail);
 	        message.setSubject("Verify your email");
@@ -52,6 +71,88 @@ public class UserService {
 
 		return user;
 	}
+	    public List<users> getallUsers() {
+	        return userRepository.findAll();
+	    }
 
+	    public boolean emailExists(Long empId) {
+	        return userRepository.existsById(empId);
+	    }
+	    
+	    
+	    
+	    public String uploadFile(MultipartFile file, String folder, Long empId) throws IOException {
+	        String fileName = "emp" + empId + "_" + UUID.randomUUID() + "_" + Objects.requireNonNull(file.getOriginalFilename());
+	        String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + folder + "/" + fileName;
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.set("Authorization", "Bearer " + supabaseApiKey);
+	        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+	        HttpEntity<byte[]> entity = new HttpEntity<>(file.getBytes(), headers);
+	        RestTemplate restTemplate = new RestTemplate();
+	        ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.PUT, entity, String.class);
+
+	        if (!response.getStatusCode().is2xxSuccessful()) {
+	            throw new IOException("Failed to upload file: " + response.getStatusCode());
+	        }
+
+	        // Return public URL of uploaded file
+	        return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + folder + "/" + fileName;
+	    }
+
+	    // Update user with new files URLs and address
+	    public users updateUserFilesAndAddress(Long empId, MultipartFile profilePicture, MultipartFile prescription,MultipartFile patientaxraysUrl,MultipartFile patientreportsUrl, String address) throws IOException {
+	        Optional<users> optionalUser = userRepository.findById(empId);
+	        if (optionalUser.isEmpty()) {
+	            throw new IllegalArgumentException("User not found with id: " + empId);
+	        }
+
+	        users user = optionalUser.get();
+
+	        if (profilePicture != null && !profilePicture.isEmpty()) {
+	            String profileUrl = uploadFile(profilePicture, "profile-pictures", empId);
+	            user.setProfilePictureUrl(profileUrl);
+	        }
+
+			if (patientaxraysUrl != null && !patientaxraysUrl.isEmpty()) {
+				String axraysUrl = uploadFile(patientaxraysUrl, "patient-axrays", empId);
+				user.setPatientaxraysUrl(axraysUrl);
+			}
+			if (patientreportsUrl != null && !patientreportsUrl.isEmpty()) {
+				String reportsUrl = uploadFile(patientreportsUrl, "patient-reports", empId);
+				user.setPatientreportsUrl(reportsUrl);
+				
+			}
+	        if (prescription != null && !prescription.isEmpty()) {
+	            String prescriptionUrl = uploadFile(prescription, "prescriptions", empId);
+	            user.setPrescriptionUrl(prescriptionUrl);
+	        }
+
+	        if (address != null && !address.isEmpty()) {
+	            user.setAddress(address);
+	        }
+
+	        return userRepository.save(user);
+	    }
+	    
+	    public users getUserById(Long empId) {
+			return userRepository.findById(empId)
+				.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+	     }
+	    
+	    
+	    
+	    
+			public users getUploadedDocAndAddress(Long empId) {
+				return userRepository.findById(empId)
+						.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+			}
+			
+			public users getAllPatients() {
+				return userRepository.findAll()
+						.stream().filter(user -> "PATIENT".equalsIgnoreCase(user.getRole())).findFirst()
+						.orElseThrow(() -> new IllegalArgumentException("No patients found"));
+			}
 }
 		

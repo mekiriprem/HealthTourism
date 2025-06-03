@@ -26,10 +26,13 @@ public class LocationService {
 	
 	
 	
-	 @Autowired
-	    private LocationRepo locationRepository;
+	    
 		@Autowired
 		private SpaCenterRepo spaCenterRepo;
+		
+		@Autowired
+        private LocationRepo locationRepository;
+		
 	    public LocationEntity saveLocation(LocationEntity locationEntity) {
 	        return locationRepository.save(locationEntity);
 	    }

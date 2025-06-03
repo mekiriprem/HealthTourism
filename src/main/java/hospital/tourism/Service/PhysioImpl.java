@@ -1,9 +1,12 @@
 package hospital.tourism.Service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import hospital.tourism.Dto.PhysioDTO;
+import hospital.tourism.Entity.Chefs;
 import hospital.tourism.Entity.LocationEntity;
 import hospital.tourism.Entity.Physio;
 import hospital.tourism.repo.LocationRepo;
@@ -33,5 +36,12 @@ public class PhysioImpl {
 
 	    return physioRepo.save(physio);
 	}
+	
+
+    // Get all chefs 
+    public List<Physio> getallphysios() {
+        return  physioRepo.findAll();
+    }
+
 
 }

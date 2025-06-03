@@ -16,11 +16,13 @@ public class Chefs {
     private String chefDescription;
     private String chefImage;
     private String chefRating;
-    private String experience;     // corrected spacing
-    private String styles;         // corrected spacing
+    private String experience;     
+    private String styles;
+    private String Status;
+    
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("chefs-location")
     private LocationEntity location;
 }

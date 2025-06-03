@@ -20,6 +20,7 @@ public class SpaCenter {
 	private String spaImage;
 	private String rating;
 	private String address;
+	 private String Status;
 	
 	@ManyToOne
 	@JoinColumn(name = "location_id")

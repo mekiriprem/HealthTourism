@@ -71,4 +71,57 @@ public class AdminController {
 		}
 	}
     
+    //soft delete sub-admin by ID
+    @DeleteMapping("/soft-delete-subadmin/{adminId}")
+	public ResponseEntity<?> softDeleteSubAdmin(@PathVariable Integer adminId) {
+		try {
+			adminServiceimpl.softDeleteSubAdmin(adminId);
+			return ResponseEntity.ok("Sub-admin with ID " + adminId + " soft deleted successfully.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+    //get all sub-admins
+    @GetMapping("/get-all")
+	public ResponseEntity<?> getAllAdmins() {
+		try {
+			return ResponseEntity.ok(adminServiceimpl.getAllAdmins());
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("Error retrieving admins: " + e.getMessage());
+		}
+	}
+    
+    //status update sub-admin
+    	@PutMapping("/update-status/active/{adminId}")
+    	    public ResponseEntity<?> updateSubAdminStatus(@PathVariable Integer adminId) {
+    		        try {
+            AdminEntity updatedAdmin = adminServiceimpl.updateSubAdminStatus(adminId);
+			if (updatedAdmin == null) {
+				return ResponseEntity.notFound().build();
+			}
+			log.error("Sub-admin status updated successfully: {}", updatedAdmin);
+            return ResponseEntity.ok(updatedAdmin);
+            } catch (IllegalArgumentException e) {
+            	return ResponseEntity.badRequest().body(e.getMessage());
+            }
+    	}
+    	
+    	 @PutMapping("/update-subadmin/{adminId}")
+    	    public AdminEntity updateSubAdmin(
+    	            @PathVariable Integer adminId,
+    	            @RequestBody AdminEntity updatedAdmin
+    	    ) {
+    	        return adminServiceimpl.updateSubAdmin(adminId, updatedAdmin);
+    	    }
+    	 // Get sub-admin by ID
+    	 @GetMapping("/get-subadmin/{adminId}")
+    	 public ResponseEntity<?> getSubAdminById(@PathVariable Integer adminId) {
+        try {
+            AdminEntity admin = adminServiceimpl.getSubAdminById(adminId);
+            return ResponseEntity.ok(admin);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    	 }
+    
 }
