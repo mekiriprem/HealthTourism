@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class TranslatorDTO {
-    private Integer translatorID;
+    private Long translatorID;
     private String translatorName;
     private String translatorDescription;
     private String translatorImage;

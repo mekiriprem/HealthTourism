@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import hospital.tourism.Entity.Chefs;
 
 @Repository
-public interface chefsRepo extends JpaRepository<Chefs, Integer> {
+public interface chefsRepo extends JpaRepository<Chefs,Long> {
     List<Chefs> findByLocation_LocationId(Integer locationId);
 }

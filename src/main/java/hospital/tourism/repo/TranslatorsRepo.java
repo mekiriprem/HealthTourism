@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import hospital.tourism.Entity.Translators;
 
 @Repository
-public interface TranslatorsRepo extends JpaRepository<Translators, Integer> {
+public interface TranslatorsRepo extends JpaRepository<Translators, Long> {
     List<Translators> findByLocation_LocationId(Integer locationId);
 }
 

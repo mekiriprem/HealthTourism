@@ -1,5 +1,8 @@
 package hospital.tourism.Entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -24,4 +27,7 @@ public class Labtests {
     @JoinColumn(name = "diognostics_id", nullable = false)
     @JsonBackReference
     private Diognstics diognostics; // ✅ Corrected type from Hospital → Diognstics
+    
+    @OneToMany(mappedBy = "labtest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServiceSlot> slots = new ArrayList<>();
 }
