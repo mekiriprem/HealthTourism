@@ -1,14 +1,25 @@
-# Use OpenJDK 17 Alpine as base image
-FROM eclipse-temurin:17-jdk-alpine
+# STEP 1: Build the application
+FROM maven:3.9.5-eclipse-temurin-17 AS builder
 
-# Set working directory inside the container
 WORKDIR /app
 
-# Copy the Spring Boot fat jar to the container
-COPY target/hospialtourism.jar app.jar
+# Copy Maven configuration first to cache dependencies
+COPY pom.xml .
+COPY src ./src
 
-# Expose port 8080 (default for Spring Boot)
+# Package the Spring Boot app (skip tests if needed)
+RUN mvn clean package -DskipTests
+
+# STEP 2: Run the application
+FROM eclipse-temurin:17-jdk-alpine
+
+WORKDIR /app
+
+# Copy the JAR built in the previous stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Expose the default port
 EXPOSE 8080
 
-# Run the Spring Boot app
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Run the JAR
+ENTRYPOINT ["java", "-jar", "app.jar"]
