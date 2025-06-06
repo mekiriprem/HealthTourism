@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Chefs;
 import hospital.tourism.Service.chefService;
 
@@ -17,18 +20,10 @@ public class ChefController {
     private chefService chefService;
 
     // Add new chef
-    @PostMapping("/add")
-    public Chefs addChef(@RequestBody Map<String, Object> chefMap) {
-        Chefs chef = new Chefs();
-        chef.setChefName((String) chefMap.get("chefName"));
-        chef.setChefDescription((String) chefMap.get("chefDescription"));
-        chef.setChefImage((String) chefMap.get("chefImage"));
-        chef.setChefRating((String) chefMap.get("chefRating"));
-        chef.setExperience((String) chefMap.get("experience"));
-        chef.setStyles((String) chefMap.get("styles"));
-
-        Integer locationId = Integer.parseInt(chefMap.get("locationId").toString());
-        return chefService.saveChef(chef, locationId);
+    @PostMapping("/add/{locationId}")
+    public ResponseEntity<ChefDTO> addChef(@RequestBody  ChefDTO che ,@PathVariable Integer locationId) {
+    	ChefDTO cheff	=chefService.saveChef(che, locationId);      
+        return new ResponseEntity<ChefDTO>(cheff,HttpStatus.CREATED);
     }
 
     // Get all chefs

@@ -1,17 +1,14 @@
-# Use official OpenJDK image as the base
-FROM openjdk:17-jdk-slim
+# Use OpenJDK 17 Alpine as base image
+FROM eclipse-temurin:17-jdk-alpine
 
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy the Spring Boot JAR file (make sure this matches your actual JAR name)
-COPY target/HospialTourism.jar app.jar
+# Copy the Spring Boot fat jar to the container
+COPY target/hospialtourism.jar app.jar
 
-# Set environment variable for IPv6 binding (Spring Boot should read this or be configured via properties)
-ENV JAVA_OPTS="-Djava.net.preferIPv6Addresses=true"
-
-# Expose port 8080 for host-to-container mapping
+# Expose port 8080 (default for Spring Boot)
 EXPOSE 8080
 
 # Run the Spring Boot app
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
