@@ -87,7 +87,7 @@ public class SpaServicesController {
 	
 	
     @GetMapping("/bySpaCenter/{spaId}")
-    public ResponseEntity<List<SpaServiceDTO>> getServicesBySpaId(@PathVariable Integer spaId) {
+    public ResponseEntity<List<SpaServiceDTO>> getServicesBySpaId(@PathVariable Long spaId) {
         List<SpaServicese> services = spaServicessImpl.getServicesBySpaCenterId(spaId);
 
         List<SpaServiceDTO> dtos = services.stream()

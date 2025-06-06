@@ -1,5 +1,6 @@
 package hospital.tourism.Entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -21,19 +22,23 @@ import lombok.Data;
 public class Translators {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer translatorID;
+    private Long translatorID;
     private String translatorName;
     private String translatorDescription;
     private String translatorImage;
     private String translatorRating;
     private String translatorLanguages;
     private String Status;
+    private double price;
     
     
     @ManyToOne
     @JoinColumn(name = "location_id")
     @JsonBackReference
     private LocationEntity location;
+    
+    @OneToMany(mappedBy ="translator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServiceSlot> slots = new ArrayList<>();
 
 }
 

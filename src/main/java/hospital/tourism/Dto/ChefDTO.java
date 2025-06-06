@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ChefDTO {
-    private Integer chefID;
+    private Long chefID;
     private String chefName;
     private String chefDescription;
     private String chefImage;

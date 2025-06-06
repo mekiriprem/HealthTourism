@@ -33,12 +33,12 @@ public class SpaServicessImpl {
 	    return spaservicesRepo.save(spaService);
 	}
 
-	public SpaServicese getSpaServiceById(Integer id) {
+	public SpaServicese getSpaServiceById(Long id) {
 		return spaservicesRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Spa Service not found with id " + id));
 	}
 	
-	public List<SpaServicese> getServicesBySpaCenterId(Integer spaId) {
+	public List<SpaServicese> getServicesBySpaCenterId(Long spaId) {
 	    return spaservicesRepo.findBySpaCenterSpaId(spaId);
 	}
 

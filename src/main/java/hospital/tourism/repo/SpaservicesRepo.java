@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import hospital.tourism.Entity.SpaServicese;
 
-public interface SpaservicesRepo extends JpaRepository<SpaServicese, Integer> {
+public interface SpaservicesRepo extends JpaRepository<SpaServicese, Long> {
     
-    List<SpaServicese> findBySpaCenterSpaId(Integer spaId);
+    List<SpaServicese> findBySpaCenterSpaId(Long spaId);
 
 }

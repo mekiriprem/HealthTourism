@@ -1,13 +1,17 @@
-# Stage 1: Build
-FROM maven:3.9.6-amazoncorretto-17 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Use official OpenJDK image as the base
+FROM openjdk:17-jdk-slim
 
-# Stage 2: Run
-FROM amazoncorretto:17
+# Set working directory inside the container
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copy the Spring Boot JAR file (make sure this matches your actual JAR name)
+COPY target/HospialTourism.jar app.jar
+
+# Set environment variable for IPv6 binding (Spring Boot should read this or be configured via properties)
+ENV JAVA_OPTS="-Djava.net.preferIPv6Addresses=true"
+
+# Expose port 8080 for host-to-container mapping
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Run the Spring Boot app
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
