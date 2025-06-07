@@ -1,25 +1,14 @@
-# STEP 1: Build the application
-FROM maven:3.9.5-eclipse-temurin-17 AS builder
+# Use official OpenJDK runtime as a parent image
+FROM openjdk:17-jdk-alpine
 
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy Maven configuration first to cache dependencies
-COPY pom.xml .
-COPY src ./src
+# Copy the fat jar built by Maven into the container
+COPY target/HospitalTourism-0.0.1-SNAPSHOT.jar app.jar
 
-# Package the Spring Boot app (skip tests if needed)
-RUN mvn clean package -DskipTests
-
-# STEP 2: Run the application
-FROM eclipse-temurin:17-jdk-alpine
-
-WORKDIR /app
-
-# Copy the JAR built in the previous stage
-COPY --from=builder /app/target/*.jar app.jar
-
-# Expose the default port
+# Expose port 8080 (Spring Boot default)
 EXPOSE 8080
 
-# Run the JAR
+# Run the jar file
 ENTRYPOINT ["java", "-jar", "app.jar"]
