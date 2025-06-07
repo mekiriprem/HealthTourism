@@ -13,7 +13,7 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Copy the jar file from the previous build stage
-COPY --from=build /app/target/HospitalTourism-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/HospialTourism555-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose Spring Boot default port
 EXPOSE 8080
