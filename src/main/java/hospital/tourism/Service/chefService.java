@@ -175,10 +175,7 @@ public class chefService {
 	            slot.setBookingStatus(slotDto.getBookingStatus());
 	        }
 
-	        if (slotDto.getBookedByUserId() != null) {
-	            slot.setBookedByUserId(slotDto.getBookedByUserId());
-	        }
-
+	     
 	        slot.setChef(chef); // Reassign to ensure linkage
 
 	        ServiceSlot updatedSlot = serviceSlotRepo.save(slot);
