@@ -16,6 +16,12 @@ public interface ServicesSlotRepo extends JpaRepository<ServiceSlot, Long> {
     List<ServiceSlot> findByPhysio_PhysioId(Long id);
     List<ServiceSlot> findByTranslator_TranslatorID(Long id);
     List<ServiceSlot> findByLabtest_id(Long id);
+	List<ServiceSlot> findByChefIsNotNull();
+	List<ServiceSlot> findByDoctorIsNotNull();
+	List<ServiceSlot> findBySpaIsNotNull();
+	List<ServiceSlot> findByPhysioIsNotNull();
+	List<ServiceSlot> findByTranslatorIsNotNull();
+	List<ServiceSlot> findByLabtestIsNotNull();
     
 }
 

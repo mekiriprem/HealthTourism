@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,5 +56,23 @@ public class SlotController {
     	List<SlotRequestDTO>  msf=slotService.getAllSlotses();
     	return new ResponseEntity<List<SlotRequestDTO>>(msf,HttpStatus.OK);
     }
+    @GetMapping("/slots/{serviceType}")
+    public ResponseEntity<List<SlotRequestDTO>>slotsbyService(@PathVariable String  serviceType){
+    	List<SlotRequestDTO>msfList=slotService.getSlotsByServices(serviceType);
+    	return new ResponseEntity<List<SlotRequestDTO>>(msfList,HttpStatus.OK);
+    	
+    }
+    @PutMapping("/slot/update/{serviceType}/{serviceId}")
+    public ResponseEntity<List<SlotRequestDTO>> updateSlotsForService(
+            @PathVariable String serviceType,
+            @PathVariable Long serviceId,
+            @RequestBody List<SlotRequestDTO> updateRequests
+    ) {
+        List<SlotRequestDTO> updatedSlots = slotService.updateSlots(serviceType, serviceId, updateRequests);
+        return ResponseEntity.ok(updatedSlots);
+    }
+
+    
+    
 }
 

@@ -2,6 +2,7 @@ package hospital.tourism.Dto;
 
 import java.util.List;
 
+import hospital.tourism.Entity.LocationEntity;
 import lombok.Data;
 
 @Data

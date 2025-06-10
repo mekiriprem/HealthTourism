@@ -21,7 +21,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")  // allow all paths
-                        .allowedOrigins("http://localhost:8081")  // allow frontend origin
+                        .allowedOrigins("https://hospital-tourism-fe.vercel.app")  // allow frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);
@@ -41,16 +41,17 @@ public class CorsConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
-            .cors(cors -> cors.disable()) // You can enable this if needed
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {}) // ✅ Enable CORS support
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // Allow all endpoints
+                .anyRequest().permitAll()
             )
-            .formLogin(form -> form.disable()) // Disable default login page
-            .httpBasic(httpBasic -> httpBasic.disable()); // Disable basic auth (optional)
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();

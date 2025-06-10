@@ -29,7 +29,7 @@ public class Translators {
     private String translatorRating;
     private String translatorLanguages;
     private String Status;
-    private double price;
+    private Double price;
     
     
     @ManyToOne

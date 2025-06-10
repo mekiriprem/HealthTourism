@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import hospital.tourism.Dto.ChefDTO;
+import hospital.tourism.Dto.SlotRequestDTO;
 import hospital.tourism.Entity.Chefs;
 import hospital.tourism.Service.chefService;
 
@@ -28,7 +29,7 @@ public class ChefController {
 
     // Get all chefs
     @GetMapping
-    public List<Chefs> getAllChefs() {
+    public List<ChefDTO> getAllChefs() {
         return chefService.getAllChefs();
     }
 
@@ -37,5 +38,27 @@ public class ChefController {
     public List<Chefs> getChefsByLocation(@PathVariable Integer locationId) {
         return chefService.getChefsByLocationId(locationId);
     }
+    
+    // Get chef by ID
+    @GetMapping("chef-By/Id/{chefId}")
+	public ResponseEntity<ChefDTO> getChefById(@PathVariable Long chefId) {
+		ChefDTO chef = chefService.getChefById(chefId);
+		if (chef != null) {
+			return new ResponseEntity<>(chef, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+    
+    //update chef slots by ID
+    @PutMapping("/update/{chefId}")
+	public ResponseEntity<List<SlotRequestDTO>> updateChefSlots(@PathVariable Long chefId, @RequestBody List<SlotRequestDTO> slotRequests) {
+		List<SlotRequestDTO> updatedChef = chefService.updateChefSlots(chefId, slotRequests);
+		if (updatedChef != null) {
+			return new ResponseEntity<>(updatedChef, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 }
 

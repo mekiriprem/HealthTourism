@@ -1,5 +1,7 @@
 package hospital.tourism.Entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -42,4 +44,6 @@ public class ServiceSlot {
     private Labtests labtest;
 
 	private Long slotId;
+
+	private List<String> listSlotS;
 }

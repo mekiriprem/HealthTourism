@@ -17,22 +17,41 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping("/book/{userId}/{serviceId}/{serviceType}")
-    public ResponseEntity<Booking> bookService(
+    public ResponseEntity<BookingRequest> bookService(
             @PathVariable Long userId,
             @PathVariable Long serviceId,
-            @PathVariable String serviceType,     // e.g., "chef", "physio"
+            @PathVariable String serviceType,
             @RequestBody BookingRequest request
     ) {
-        Booking booking = bookingService.bookService(
+        BookingRequest bookingResponse = bookingService.bookService(
                 userId,
                 serviceId,
                 serviceType,
                 request.getSlotInfo(),
                 request.getPaymentMode(),
                 request.getBookingType(),
-                request.getRemarks()
+                request.getAdditionalRemarks() // Corrected from getRemarks() to match DTO field
         );
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(bookingResponse);
+    }
+    
+    @PostMapping("/book/witout-servId/{userId}/{serviceType}")
+    public ResponseEntity<BookingRequest> bookServicess(
+            @PathVariable Long userId,
+            
+            @PathVariable String serviceType,
+            @RequestBody BookingRequest request
+    ) {
+        BookingRequest bookingResponse = bookingService.bookServices(
+                userId,
+                
+                serviceType,
+                request.getSlotInfo(),
+                request.getPaymentMode(),
+                request.getBookingType(),
+                request.getAdditionalRemarks() // Corrected from getRemarks() to match DTO field
+        );
+        return ResponseEntity.ok(bookingResponse);
     }
     
     @PutMapping("/update/{bookingId}")
@@ -59,4 +78,21 @@ public class BookingController {
 
         return ResponseEntity.ok(updatedBooking);
     }
+    @PostMapping("/multiple/{userId}")
+    public ResponseEntity<List<BookingRequest>> bookMultipleServices(
+            @PathVariable Long userId,
+            @RequestBody BookingRequest request
+    ) {
+        List<BookingRequest> bookingResponses = bookingService.bookMultipleServices(
+                userId,
+                request.getServiceTypesMultiple(),
+                request.getSlotInfo(),
+                request.getPaymentMode(),
+                request.getBookingType(),
+                request.getAdditionalRemarks()
+        );
+
+        return ResponseEntity.ok(bookingResponses);
+    }
+	
 }
