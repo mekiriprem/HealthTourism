@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.repo.usersrepo;
 
@@ -71,9 +73,35 @@ public class UserService {
 
 		return user;
 	}
-	    public List<users> getallUsers() {
-	        return userRepository.findAll();
+	    
+
+	    
+	    
+	    public List<UsersDTO> getAllUsers() {
+	        List<users> userList = userRepository.findAll();
+
+	        return userList.stream().map(this::convertToDTO).collect(Collectors.toList());
 	    }
+
+		private UsersDTO convertToDTO(users user) {
+            UsersDTO dto = new UsersDTO();
+            dto.setId(user.getId());
+            dto.setName(user.getName());
+            dto.setEmail(user.getEmail());
+            dto.setMobilenum(user.getMobilenum());
+            dto.setCountry(user.getCountry());
+            dto.setRole(user.getRole());
+            dto.setEmailVerified(user.isEmailVerified());
+            dto.setProfilePictureUrl(user.getProfilePictureUrl());
+            dto.setPrescriptionUrl(user.getPrescriptionUrl());
+            dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
+            dto.setPatientreportsUrl(user.getPatientreportsUrl());
+            dto.setAddress(user.getAddress());
+            // If you have a bookingIds field in UsersDTO, you can set it here
+            // dto.setBookingIds(user.getBookings().stream().map(booking -> booking.getId()).collect(Collectors.toList()));
+            return dto;
+            }
+
 
 	    public boolean emailExists(Long empId) {
 	        return userRepository.existsById(empId);

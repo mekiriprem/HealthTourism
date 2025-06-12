@@ -1,24 +1,23 @@
 package hospital.tourism.Entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 
 @Data
 @Entity
-
+@Table(name = "bookings")
 public class Booking {
     
     @Id
@@ -34,16 +33,19 @@ public class Booking {
     private String bookingType; // "Cost" or "NoCost"
 
     private double bookingAmount;
-
+ 
     private String paymentMode; // "Online" or "Offline"
 
     private String paymentStatus; // "Paid", "Unpaid", "Pending"
 
     private String discountApplied;
 
-    @ElementCollection
-    @Column(name = "slot_info")
-    private List<String> slotInfo;
+//    @ElementCollection
+//    @Column(name = "slot_info")
+//    private List<String> slotInfo;
+    
+    private LocalDateTime bookingStartTime;
+    private LocalDateTime bookingEndTime;
 
     private String additionalRemarks;
 
@@ -77,6 +79,13 @@ public class Booking {
     @ManyToOne
     @JsonIgnoreProperties("bookings") // If chef has a bookings list
     private Chefs chef;
+    
+    @Column(name = "package_booking_id")
+    private String packageBookingId;
+
+
+	
+
 
     // Apply similar for other services
 

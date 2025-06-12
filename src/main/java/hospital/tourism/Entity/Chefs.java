@@ -39,6 +39,6 @@ public class Chefs {
     @JsonBackReference("chefs-location")
     private LocationEntity location;  
    
-    @OneToMany(mappedBy = "chef", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServiceSlot> slots = new ArrayList<>();
+//    @OneToMany(mappedBy = "chef", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ServiceSlot> slots = new ArrayList<>();
 }

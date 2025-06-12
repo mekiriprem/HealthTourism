@@ -1,16 +1,23 @@
 package hospital.tourism.Controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Dto.ChefDTO;
-import hospital.tourism.Dto.SlotRequestDTO;
 import hospital.tourism.Entity.Chefs;
+import hospital.tourism.Service.BookingService;
 import hospital.tourism.Service.chefService;
 
 @RestController
@@ -19,6 +26,8 @@ public class ChefController {
 
     @Autowired
     private chefService chefService;
+    @Autowired
+    private BookingService bookingService;
 
     // Add new chef
     @PostMapping("/add/{locationId}")
@@ -50,15 +59,8 @@ public class ChefController {
 		}
 	}
     
-    //update chef slots by ID
-    @PutMapping("/update/{chefId}")
-	public ResponseEntity<List<SlotRequestDTO>> updateChefSlots(@PathVariable Long chefId, @RequestBody List<SlotRequestDTO> slotRequests) {
-		List<SlotRequestDTO> updatedChef = chefService.updateChefSlots(chefId, slotRequests);
-		if (updatedChef != null) {
-			return new ResponseEntity<>(updatedChef, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
+  
+    
+    
 }
 

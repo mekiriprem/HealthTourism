@@ -37,7 +37,8 @@ public class Hospital {
         @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         @JsonManagedReference("hospital-doctors")
         private List<Doctors> doctors;
-
+        private Integer hospitallocationId;
+	    private String hospitallocationName;
     }
 
 

@@ -20,6 +20,6 @@ public class ChefDTO {
 
     private Long locationId;  // Instead of whole LocationEntity, just pass location ID
 
-    private List<SlotRequestDTO> slots;
+    private LocationEntity location; // Optional: Include full location entity if needed
 }
 

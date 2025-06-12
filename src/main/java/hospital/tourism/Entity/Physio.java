@@ -33,14 +33,10 @@ public class Physio {
 	 @ManyToOne
 	 @JoinColumn(name = "location_id")
 	 private LocationEntity location;
-	 
-	    @OneToMany(mappedBy = "physio", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<ServiceSlot> slots = new ArrayList<>();
+//	 
+//	    @OneToMany(mappedBy = "physio", cascade = CascadeType.ALL, orphanRemoval = true)
+//	    private List<ServiceSlot> slots = new ArrayList<>();
 
-    public static Object stream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stream'");
-    }
-	
+  
 	 
 }

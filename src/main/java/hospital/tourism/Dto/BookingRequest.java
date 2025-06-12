@@ -3,6 +3,7 @@ package hospital.tourism.Dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 
 @Data
@@ -10,20 +11,31 @@ public class BookingRequest {
   
 	 private Long bookingId;
 	    private LocalDateTime bookingDate;
+
 	    private Long slotIdLong;
 	    private String bookingStatus;
-	    private String bookingType;
+	    
 	    private double bookingAmount;
-	    private String paymentMode;
+
+	 
 	    private String paymentStatus;
 	    private String discountApplied;
-	    private List<String> slotInfo;
-	    // For input only (optional usage)
-	    private List<String> serviceTypesMultiple; // e.g., ["Physio", "Translator", "Spa", "Doctor", "LabTest", "Chef"];
+
+	    private LocalDateTime bookingStartTime;
+	    private LocalDateTime bookingEndTime;
 
 	    private String additionalRemarks;
+	   
+	    private List<String> serviceTypes;
+	    private List<Double> bookingAmounts;
+	    private LocalDateTime bookingStartDate;
+	    private LocalDateTime bookingEndDate;
+	    private String paymentMode;
+	    private String bookingType;
+	    private String remarks;
+	   
 
-	    // Associated entity IDs or names
+	    // Related service IDs (optional: include names if needed)
 	    private Long physioId;
 	    private String physioName;
 
@@ -39,9 +51,15 @@ public class BookingRequest {
 	    private Long labtestId;
 	    private String labtestName;
 
-	    private Long userId;
-	    private String userName;
-
 	    private Long chefId;
 	    private String chefName;
+
+	    private Long userId;
+	    private String userName;
+		private  List<String> ServiceTypesMultiple;
+		
+		@Column(name = "package_booking_id")
+		private String packageBookingId;
+
+	
 }

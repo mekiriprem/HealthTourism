@@ -163,5 +163,26 @@ public class DoctorSevice {
 			doctorRepository.deleteById(id);
 			return "Doctor with ID " + id + " has been deleted successfully.";
 		}
+		public DoctorsDTO getDoctorByid(Long docId) {
+			Doctors doctors= doctorRepository.findById(docId)
+					.orElseThrow(() -> new RuntimeException("Doctor not found with id " + docId));
+			DoctorsDTO dto = new DoctorsDTO();
+			dto.setId(doctors.getId());
+			dto.setName(doctors.getName());
+			dto.setEmail(doctors.getEmail());
+			dto.setRating(doctors.getRating());
+			dto.setDescription(doctors.getDescription());
+			dto.setDepartment(doctors.getDepartment());
+			dto.setProfilepic(doctors.getProfilepic());
+			dto.setStatus(doctors.getStatus());
+			if (doctors.getHospital() != null) {
+				dto.setHospitalId(doctors.getHospital().getHospitalId());
+				dto.setHospitalName(doctors.getHospital().getHositalName());
+			} else {
+				dto.setHospitalId(null);
+				dto.setHospitalName(null);
+			}
+			return dto;
+		}
 
 }

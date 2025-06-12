@@ -42,6 +42,34 @@ public class SpaServicessImpl {
 	    return spaservicesRepo.findBySpaCenterSpaId(spaId);
 	}
 
-
+public List<SpaServiceDTO>getAllServicesss(){
+	List<SpaServicese>spaServiceses= spaservicesRepo.findAll();
+	return spaServiceses.stream().map(spaService -> {
+		SpaServiceDTO spaServiceDTO = new SpaServiceDTO();
+		spaServiceDTO.setServiceIdLong(spaServiceDTO.getServiceIdLong());
+		spaServiceDTO.setServiceName(spaService.getServiceName());
+		spaServiceDTO.setServiceDescription(spaService.getServiceDescription());
+		spaServiceDTO.setServiceImage(spaService.getServiceImage());
+		spaServiceDTO.setRating(spaService.getRating());
+		spaServiceDTO.setPrice(spaService.getPrice());
+		spaServiceDTO.setSpaCenterId(spaService.getSpaCenter().getSpaId());
+		return spaServiceDTO;
+	}).toList();
+	
+	
+}
+public SpaServiceDTO getoneRecordById(Long spaId) {
+	SpaServicese spaServicese= spaservicesRepo.findById(spaId).orElseThrow(() -> new RuntimeException("Spa Service not found with id " + spaId));
+	SpaServiceDTO spaServiceDTO = new SpaServiceDTO();
+	spaServiceDTO.setServiceIdLong(spaServicese.getServiceId());
+	spaServiceDTO.setServiceName(spaServicese.getServiceName());
+	spaServiceDTO.setServiceDescription(spaServicese.getServiceDescription());
+	spaServiceDTO.setServiceImage(spaServicese.getServiceImage());
+		
+	spaServiceDTO.setRating(spaServicese.getRating());
+	spaServiceDTO.setPrice(spaServicese.getPrice());
+	spaServiceDTO.setSpaCenterId(spaServicese.getSpaCenter().getSpaId());
+	return spaServiceDTO;
+}
 
 }

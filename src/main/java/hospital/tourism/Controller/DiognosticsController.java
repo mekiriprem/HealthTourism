@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import hospital.tourism.Dto.DiagnosticsDTO;
 import hospital.tourism.Entity.Diognstics;
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.Service.DiagonosticsServices;
@@ -36,5 +37,11 @@ public class DiognosticsController {
         List<Labtests> tests = diagonosticsServices.getLabtestsByDiagnosticsId(diagnosticsId);
         return ResponseEntity.ok(tests);
     }
+    // 🔎 Get diagnostics by ID
+    @GetMapping("/get/{id}")
+	public ResponseEntity<DiagnosticsDTO> getDiagnosticsById(@PathVariable("id") Integer diagId) {
+    	DiagnosticsDTO diagnostics = diagonosticsServices.getdiagnosticbyId(diagId);
+		return ResponseEntity.ok(diagnostics);
+	}
 }
 

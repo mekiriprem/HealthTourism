@@ -22,7 +22,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")  // allow all paths
-						.allowedOrigins( "https://hospital-tourism-fe.vercel.app")  // allow frontend origin
+						.allowedOrigins( "http://localhost:8081/")  // allow frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);

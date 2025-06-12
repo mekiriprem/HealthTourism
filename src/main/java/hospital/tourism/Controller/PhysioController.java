@@ -8,6 +8,7 @@ import javax.print.PrintService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +37,7 @@ public class PhysioController {
 	        return physioService.getallphysios();
 	    }
 	    
-	    @GetMapping("/all")
+	    @GetMapping("/getall/pysios")
 	    public ResponseEntity<List<PhysioDTO>> getAllPhysio() {
 	        List<Physio> physios = physioService.getallphysios();
 
@@ -59,4 +60,9 @@ public class PhysioController {
 	        return ResponseEntity.ok(dtos);
 	    }
 
+	    @GetMapping("/get/{physioId}")
+		public ResponseEntity<PhysioDTO> getPhysioByIdss(@PathVariable Long physioId) {
+			PhysioDTO dto = physioService.getPhysioById(physioId);
+			return ResponseEntity.ok(dto);
+		}
 }

@@ -28,8 +28,8 @@ public class Labtests {
     @JsonBackReference
     private Diognstics diognostics; // ✅ Corrected type from Hospital → Diognstics
     
-    @OneToMany(mappedBy = "labtest", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServiceSlot> slots = new ArrayList<>();
+//    @OneToMany(mappedBy = "labtest", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ServiceSlot> slots = new ArrayList<>();
 
 	
 }

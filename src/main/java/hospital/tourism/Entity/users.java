@@ -61,6 +61,9 @@ public class users {
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties("user") // 👈 Avoid circular reference back to user
     private List<Booking> bookings;
+    
+    @Column(name = "package_booking_id")
+    private String packageBookingId;
 
 
 

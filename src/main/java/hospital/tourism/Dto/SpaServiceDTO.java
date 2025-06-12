@@ -11,4 +11,5 @@ public class SpaServiceDTO {
     private Double price;
     private Integer spaCenterId;  // ID of existing SpaCenter
     // getters and setters
+	private Long serviceIdLong;
 }

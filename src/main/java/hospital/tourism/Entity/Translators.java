@@ -30,15 +30,18 @@ public class Translators {
     private String translatorLanguages;
     private String Status;
     private Double price;
-    
+    private String translatorAddress;
+    private Integer translatorLocIdInteger;
     
     @ManyToOne
     @JoinColumn(name = "location_id")
     @JsonBackReference
     private LocationEntity location;
     
-    @OneToMany(mappedBy ="translator", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServiceSlot> slots = new ArrayList<>();
+   
+    
+//    @OneToMany(mappedBy ="translator", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ServiceSlot> slots = new ArrayList<>();
 
 }
 

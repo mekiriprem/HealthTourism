@@ -44,4 +44,30 @@ public class PhysioImpl {
     }
 
 
+    public PhysioDTO getPhysioById(Long physioId) {
+        if (physioId == null) {
+            throw new IllegalArgumentException("Physio ID must not be null");
+        }
+
+        Physio physio = physioRepo.findById(physioId)
+                .orElseThrow(() -> new RuntimeException("Physio not found with ID: " + physioId));
+
+        PhysioDTO dto = new PhysioDTO();
+        dto.setPhysioId(physio.getPhysioId());
+        dto.setPhysioName(physio.getPhysioName());
+        dto.setPhysioDescription(physio.getPhysioDescription());
+        dto.setPhysioImage(physio.getPhysioImage());
+        dto.setRating(physio.getRating());
+        dto.setAddress(physio.getAddress());
+        dto.setPrice(physio.getPrice());
+        dto.setStatus(physio.getStatus());
+
+        if (physio.getLocation() != null) {
+            dto.setLocationId(physio.getLocation().getLocationId());
+        }
+
+        return dto;
+    }
+
+	
 }

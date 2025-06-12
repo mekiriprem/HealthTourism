@@ -104,7 +104,7 @@ public class UserController {
 	
 	public ResponseEntity<?> getAllUsers() {
 		try {
-			return ResponseEntity.ok(userService.getallUsers());
+			return ResponseEntity.ok(userService.getAllUsers());
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
 		}

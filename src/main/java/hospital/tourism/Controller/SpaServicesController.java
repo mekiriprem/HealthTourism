@@ -107,4 +107,15 @@ public class SpaServicesController {
         dto.setPrice(spaService.getPrice());   	
         return dto;
     }
+    @GetMapping("/getAll/spaServices")
+	public ResponseEntity<List<SpaServiceDTO>> getAllSpaServices() {
+		List<SpaServiceDTO> services = spaServicessImpl.getAllServicesss();
+		return ResponseEntity.ok(services);
+	}
+    
+    @GetMapping("spa/{spaId}")
+	public ResponseEntity<SpaServiceDTO> getSpaServiceById(@PathVariable Long spaId) {
+		SpaServiceDTO spaService = spaServicessImpl.getoneRecordById(spaId);
+		return ResponseEntity.ok(spaService);
+	}
 }

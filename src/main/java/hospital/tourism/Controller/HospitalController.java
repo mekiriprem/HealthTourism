@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.Dto.HospitalDTO;
 import hospital.tourism.Entity.Doctors;
 import hospital.tourism.Entity.Hospital;
 import hospital.tourism.Service.HospitalService;
@@ -106,11 +107,11 @@ public class HospitalController {
     }
 
 
-  
-    @GetMapping
-    public List<Hospital> getAllHospitals() {
-        return hospitalService.getAllHospitals();
+    @GetMapping("/getall/hospitals")
+    public List<HospitalDTO> getAllHospitals() {
+        return hospitalService.getAllHospitalsAsDto();
     }
+
     
     @GetMapping("/{hospitalId}")
     public List<Doctors> getDoctorsByHospital(@PathVariable Integer hospitalId) {

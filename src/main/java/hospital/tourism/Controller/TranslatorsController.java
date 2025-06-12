@@ -1,5 +1,6 @@
 package hospital.tourism.Controller;
 
+import hospital.tourism.Dto.TranslatorDTO;
 import hospital.tourism.Entity.Translators;
 import hospital.tourism.Service.TranslatorsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,13 +117,27 @@ public class TranslatorsController {
     }
 
     // Get All Translators
-    @GetMapping
-    public ResponseEntity<List<Translators>> getAllTranslators() {
+    @GetMapping("/getAll/traslators")
+    public ResponseEntity<List<TranslatorDTO>> getAllTranslators() {
         try {
-            List<Translators> translators = translatorsService.getAllTranslators();
+            List<TranslatorDTO> translators = translatorsService.getAllTranslators();
             return ResponseEntity.ok(translators);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    // Get Translator by ID
+    @GetMapping("/getone/{trId}")
+	public ResponseEntity<TranslatorDTO> getonetranslator(@PathVariable Long trId) {
+		try {
+			TranslatorDTO translator = translatorsService.getbytraslatorId(trId);
+			if (translator == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+			}
+			return ResponseEntity.ok(translator);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
 }

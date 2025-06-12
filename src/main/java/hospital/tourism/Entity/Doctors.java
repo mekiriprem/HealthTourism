@@ -43,8 +43,8 @@ public class Doctors {
     @JsonBackReference("hospital-doctors")// prevent circular reference
     private Hospital hospital;
     
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServiceSlot> slots = new ArrayList<>();
+//    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ServiceSlot> slots = new ArrayList<>();
 
 	
     

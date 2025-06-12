@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import hospital.tourism.Dto.HospitalDTO;
 import hospital.tourism.Entity.Doctors;
 import hospital.tourism.Entity.Hospital;
 import hospital.tourism.Entity.LocationEntity;
@@ -43,9 +44,24 @@ public class HospitalService {
 
         return hospitalRepository.save(hospital);
     }
-    public List<Hospital> getAllHospitals() {
-        return hospitalRepository.findAll();
+    public List<HospitalDTO> getAllHospitalsAsDto() {
+        List<Hospital> hospitals = hospitalRepository.findAll();
+
+        return hospitals.stream().map(hospital -> {
+            HospitalDTO dto = new HospitalDTO();
+            dto.setHospitalId(hospital.getHospitalId());
+            dto.setHositalName(hospital.getHositalName());
+            dto.setHospitalDescription(hospital.getHospitalDescription());
+            dto.setHospitalImage(hospital.getHospitalImage());
+            dto.setRating(hospital.getRating());
+            dto.setAddress(hospital.getAddress());
+            dto.setStatus(hospital.getStatus());
+
+
+            return dto;
+        }).toList();
     }
+
 
     public List<Doctors> getDoctorsByHospitalId(Integer hospitalId) {
         return doctorRepository.findByHospital_HospitalId(hospitalId);

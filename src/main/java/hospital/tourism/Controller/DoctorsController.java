@@ -211,4 +211,9 @@ public class DoctorsController {
         return ResponseEntity.ok("Doctor with ID " + id + " has been deleted.");
     }
 
+    @GetMapping("/doctors/By/{doctorId}")
+	public ResponseEntity<DoctorsDTO> getDoctorByIds(@PathVariable Long doctorId) {
+		DoctorsDTO doctor = doctorService.getDoctorById(doctorId);
+		return ResponseEntity.ok(doctor);
+	}
 }
