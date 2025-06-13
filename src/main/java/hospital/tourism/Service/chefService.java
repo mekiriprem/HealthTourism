@@ -1,8 +1,6 @@
 package hospital.tourism.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +8,7 @@ import org.springframework.stereotype.Service;
 import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Chefs;
 import hospital.tourism.Entity.LocationEntity;
-import hospital.tourism.booking.repo.BookingRepository;
+import hospital.tourism.repo.BookingRepo;
 import hospital.tourism.repo.LocationRepo;
 import hospital.tourism.repo.ServicesSlotRepo;
 import hospital.tourism.repo.chefsRepo;
@@ -27,7 +25,7 @@ public class chefService {
     private ServicesSlotRepo serviceSlotRepo;
     
     @Autowired
-    private BookingRepository bookingRepository;
+    private BookingRepo bookingRepository;
 
 //    // Save a chef with location mapping
 //    public ChefDTO saveChef(ChefDTO chefDto, Integer locationId) {

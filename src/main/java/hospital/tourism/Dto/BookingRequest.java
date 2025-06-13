@@ -26,14 +26,15 @@ public class BookingRequest {
 
 	    private String additionalRemarks;
 	   
-	    private List<String> serviceTypes;
+	    private String serviceTypes;
+	    private String serviceName;
 	    private List<Double> bookingAmounts;
 	    private LocalDateTime bookingStartDate;
 	    private LocalDateTime bookingEndDate;
 	    private String paymentMode;
 	    private String bookingType;
 	    private String remarks;
-	   
+	    private double bookingtotalAmount;
 
 	    // Related service IDs (optional: include names if needed)
 	    private Long physioId;
@@ -56,6 +57,8 @@ public class BookingRequest {
 
 	    private Long userId;
 	    private String userName;
+	    
+	    
 		private  List<String> ServiceTypesMultiple;
 		
 		@Column(name = "package_booking_id")

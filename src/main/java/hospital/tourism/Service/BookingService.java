@@ -3,6 +3,7 @@ package hospital.tourism.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -743,148 +744,148 @@ public class BookingService {
 //        return bookingResponses;
 //    }
 
-    public List<BookingRequest> bookServicePackage(
-    		Long userId,
-            List<String> serviceTypes,
-            List<Double> bookingAmounts,
-            LocalDateTime bookingStartDate,
-            LocalDateTime bookingEndDate,
-            String paymentMode,
-            String bookingType,
-            String remarks
-    ) {
-        users user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-
-        String packageBookingId = UUID.randomUUID().toString(); // Unique ID for the whole package
-        List<BookingRequest> responses = new ArrayList<>();
-
-        for (int i = 0; i < serviceTypes.size(); i++) {
-            String serviceType = serviceTypes.get(i).toLowerCase();
-            double finalPrice = bookingAmounts.get(i);
-
-            Booking booking = new Booking();
-            booking.setUser(user);
-            booking.setBookingStartTime(bookingStartDate);
-            booking.setBookingEndTime(bookingEndDate);
-            booking.setBookingDate(LocalDateTime.now());
-            booking.setBookingType(bookingType);
-            booking.setBookingStatus("Pending");
-            booking.setAdditionalRemarks(remarks);
-            booking.setPaymentMode(paymentMode);
-            booking.setPackageBookingId(packageBookingId); // 🔗 Group under same package
-            booking.setBookingAmount(finalPrice);
-            booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
-            booking.setDiscountApplied("Calculated in frontend");
-
-            switch (serviceType) {
-                case "chef" -> {
-                    Chefs chef = chefRepository.findAll().stream()
-                            .filter(c -> bookingRepository
-                                    .findChefBookingsInTimeRange(c.getChefID(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available chef"));
-                    booking.setChef(chef);
-                }
-                case "physio" -> {
-                    Physio physio = physioRepository.findAll().stream()
-                            .filter(p -> bookingRepository
-                                    .findPhysioBookingsInTimeRange(p.getPhysioId(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available physio"));
-                    booking.setPhysio(physio);
-                }
-                case "spa" -> {
-                    SpaServicese spa = spaServiceRepository.findAll().stream()
-                            .filter(s -> bookingRepository
-                                    .findSpaBookingsInTimeRange(s.getServiceId(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available spa"));
-                    booking.setSpa(spa);
-                }
-                case "doctor" -> {
-                    Doctors doctor = doctorRepository.findAll().stream()
-                            .filter(d -> bookingRepository
-                                    .findDoctorBookingsInTimeRange(d.getId(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available doctor"));
-                    booking.setDoctors(doctor);
-                }
-                case "translator" -> {
-                    Translators translator = translatorRepository.findAll().stream()
-                            .filter(t -> bookingRepository
-                                    .findTranslatorBookingsInTimeRange(t.getTranslatorID(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available translator"));
-                    booking.setTranslator(translator);
-                }
-                case "labtests" -> {
-                    Labtests lab = labtestsRepository.findAll().stream()
-                            .filter(l -> bookingRepository
-                                    .findLabTestBookingsInTimeRange(l.getId(), bookingStartDate, bookingEndDate)
-                                    .isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available lab test"));
-                    booking.setLabtests(lab);
-                }
-                default -> throw new IllegalArgumentException("Invalid service type: " + serviceType);
-            }
-
-            Booking saved = bookingRepository.save(booking);
-
-            // Prepare response
-            BookingRequest resp = new BookingRequest();
-            resp.setBookingId(saved.getBookingId());
-            resp.setBookingDate(saved.getBookingDate());
-            resp.setSlotIdLong(saved.getSlotIdLong());
-            resp.setBookingStatus(saved.getBookingStatus());
-            resp.setBookingType(saved.getBookingType());
-            resp.setBookingAmount(saved.getBookingAmount());
-            resp.setPaymentMode(saved.getPaymentMode());
-            resp.setPaymentStatus(saved.getPaymentStatus());
-            resp.setDiscountApplied(saved.getDiscountApplied());
-            resp.setBookingStartTime(saved.getBookingStartTime());
-            resp.setBookingEndTime(saved.getBookingEndTime());
-            resp.setAdditionalRemarks(saved.getAdditionalRemarks());
-            resp.setUserId(user.getId());
-            resp.setUserName(user.getName());
-            resp.setPackageBookingId(saved.getPackageBookingId());
-
-            if (saved.getChef() != null) {
-                resp.setChefId(saved.getChef().getChefID());
-                resp.setChefName(saved.getChef().getChefName());
-            }
-            if (saved.getPhysio() != null) {
-                resp.setPhysioId(saved.getPhysio().getPhysioId());
-                resp.setPhysioName(saved.getPhysio().getPhysioName());
-            }
-            if (saved.getSpa() != null) {
-                resp.setSpaId(saved.getSpa().getServiceId());
-                resp.setSpaName(saved.getSpa().getServiceName());
-            }
-            if (saved.getDoctors() != null) {
-                resp.setDoctorId(saved.getDoctors().getId());
-                resp.setDoctorName(saved.getDoctors().getName());
-            }
-            if (saved.getTranslator() != null) {
-                resp.setTranslatorId(saved.getTranslator().getTranslatorID());
-                resp.setTranslatorName(saved.getTranslator().getTranslatorName());
-            }
-            if (saved.getLabtests() != null) {
-                resp.setLabtestId(saved.getLabtests().getId());
-                resp.setLabtestName(saved.getLabtests().getTestTitle());
-            }
-
-            responses.add(resp);
-        }
-
-        return responses;
-    }
+//    public List<BookingRequest> bookServicePackage(
+//    		Long userId,
+//            List<String> serviceTypes,
+//            List<Double> bookingAmounts,
+//            LocalDateTime bookingStartDate,
+//            LocalDateTime bookingEndDate,
+//            String paymentMode,
+//            String bookingType,
+//            String remarks
+//    ) {
+//        users user = userRepository.findById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+//
+//        String packageBookingId = UUID.randomUUID().toString(); // Unique ID for the whole package
+//        List<BookingRequest> responses = new ArrayList<>();
+//
+//        for (int i = 0; i < serviceTypes.size(); i++) {
+//            String serviceType = serviceTypes.get(i).toLowerCase();
+//            double finalPrice = bookingAmounts.get(i);
+//
+//            Booking booking = new Booking();
+//            booking.setUser(user);
+//            booking.setBookingStartTime(bookingStartDate);
+//            booking.setBookingEndTime(bookingEndDate);
+//            booking.setBookingDate(LocalDateTime.now());
+//            booking.setBookingType(bookingType);
+//            booking.setBookingStatus("Pending");
+//            booking.setAdditionalRemarks(remarks);
+//            booking.setPaymentMode(paymentMode);
+//            booking.setPackageBookingId(packageBookingId); // 🔗 Group under same package
+//            booking.setBookingAmount(finalPrice);
+//            booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
+//            booking.setDiscountApplied("Calculated in frontend");
+//
+//            switch (serviceType) {
+//                case "chef" -> {
+//                    Chefs chef = chefRepository.findAll().stream()
+//                            .filter(c -> bookingRepository
+//                                    .findChefBookingsInTimeRange(c.getChefID(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available chef"));
+//                    booking.setChef(chef);
+//                }
+//                case "physio" -> {
+//                    Physio physio = physioRepository.findAll().stream()
+//                            .filter(p -> bookingRepository
+//                                    .findPhysioBookingsInTimeRange(p.getPhysioId(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available physio"));
+//                    booking.setPhysio(physio);
+//                }
+//                case "spa" -> {
+//                    SpaServicese spa = spaServiceRepository.findAll().stream()
+//                            .filter(s -> bookingRepository
+//                                    .findSpaBookingsInTimeRange(s.getServiceId(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available spa"));
+//                    booking.setSpa(spa);
+//                }
+//                case "doctor" -> {
+//                    Doctors doctor = doctorRepository.findAll().stream()
+//                            .filter(d -> bookingRepository
+//                                    .findDoctorBookingsInTimeRange(d.getId(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available doctor"));
+//                    booking.setDoctors(doctor);
+//                }
+//                case "translator" -> {
+//                    Translators translator = translatorRepository.findAll().stream()
+//                            .filter(t -> bookingRepository
+//                                    .findTranslatorBookingsInTimeRange(t.getTranslatorID(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available translator"));
+//                    booking.setTranslator(translator);
+//                }
+//                case "labtests" -> {
+//                    Labtests lab = labtestsRepository.findAll().stream()
+//                            .filter(l -> bookingRepository
+//                                    .findLabTestBookingsInTimeRange(l.getId(), bookingStartDate, bookingEndDate)
+//                                    .isEmpty())
+//                            .findFirst()
+//                            .orElseThrow(() -> new EntityNotFoundException("No available lab test"));
+//                    booking.setLabtests(lab);
+//                }
+//                default -> throw new IllegalArgumentException("Invalid service type: " + serviceType);
+//            }
+//
+//            Booking saved = bookingRepository.save(booking);
+//
+//            // Prepare response
+//            BookingRequest resp = new BookingRequest();
+//            resp.setBookingId(saved.getBookingId());
+//            resp.setBookingDate(saved.getBookingDate());
+//            resp.setSlotIdLong(saved.getSlotIdLong());
+//            resp.setBookingStatus(saved.getBookingStatus());
+//            resp.setBookingType(saved.getBookingType());
+//            resp.setBookingAmount(saved.getBookingAmount());
+//            resp.setPaymentMode(saved.getPaymentMode());
+//            resp.setPaymentStatus(saved.getPaymentStatus());
+//            resp.setDiscountApplied(saved.getDiscountApplied());
+//            resp.setBookingStartTime(saved.getBookingStartTime());
+//            resp.setBookingEndTime(saved.getBookingEndTime());
+//            resp.setAdditionalRemarks(saved.getAdditionalRemarks());
+//            resp.setUserId(user.getId());
+//            resp.setUserName(user.getName());
+//            resp.setPackageBookingId(saved.getPackageBookingId());
+//
+//            if (saved.getChef() != null) {
+//                resp.setChefId(saved.getChef().getChefID());
+//                resp.setChefName(saved.getChef().getChefName());
+//            }
+//            if (saved.getPhysio() != null) {
+//                resp.setPhysioId(saved.getPhysio().getPhysioId());
+//                resp.setPhysioName(saved.getPhysio().getPhysioName());
+//            }
+//            if (saved.getSpa() != null) {
+//                resp.setSpaId(saved.getSpa().getServiceId());
+//                resp.setSpaName(saved.getSpa().getServiceName());
+//            }
+//            if (saved.getDoctors() != null) {
+//                resp.setDoctorId(saved.getDoctors().getId());
+//                resp.setDoctorName(saved.getDoctors().getName());
+//            }
+//            if (saved.getTranslator() != null) {
+//                resp.setTranslatorId(saved.getTranslator().getTranslatorID());
+//                resp.setTranslatorName(saved.getTranslator().getTranslatorName());
+//            }
+//            if (saved.getLabtests() != null) {
+//                resp.setLabtestId(saved.getLabtests().getId());
+//                resp.setLabtestName(saved.getLabtests().getTestTitle());
+//            }
+//
+//            responses.add(resp);
+//        }
+//
+//        return responses;
+//    }
 
     public Booking updateBooking(
             Long bookingId,
@@ -967,176 +968,16 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
     
-    
-//    public BookingRequest bookServices(
-//            Long userId,
-//            String serviceType,
-//            LocalDateTime bookingStartDate,
-//            LocalDateTime bookingEndDate,
-//            String paymentMode,
-//            String bookingType,
-//            String remarks
-//    ) {
-//        users user = userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-//
-//        Booking booking = new Booking();
-//        booking.setUser(user);
-//        booking.setBookingStartTime(bookingStartDate);
-//        booking.setBookingEndTime(bookingEndDate);
-//        booking.setBookingDate(LocalDateTime.now());
-//        booking.setBookingType(bookingType);
-//        booking.setBookingStatus("Pending");
-//        booking.setAdditionalRemarks(remarks);
-//        booking.setPaymentMode(paymentMode);
-//
-//        double price;
-//
-//        switch (serviceType.toLowerCase()) {
-//        case "chef" -> {
-//            List<Chefs> chefs = chefRepository.findAll();
-//
-//            Chefs availableChef = chefs.stream()
-//                .filter(chef -> {
-//                    List<Booking> conflicts = bookingRepository
-//                        .findChefBookingsInTimeRange(chef.getChefID(), bookingStartDate, bookingEndDate);
-//
-//                    System.out.println("Chef " + chef.getChefID() + " conflicts: " + conflicts.size());
-//
-//                    return conflicts.isEmpty();
-//                })
-//                .findFirst()
-//                .orElseThrow(() -> new EntityNotFoundException("No available chefs for the selected time slot"));
-//
-//            booking.setChef(availableChef);
-//            price = availableChef.getPrice();
-//        }
-//
-//            case "physio" -> {
-//                List<Physio> physios = physioRepository.findAll();
-//                Physio availablePhysio = physios.stream()
-//                        .filter(p -> bookingRepository
-//                                .findPhysioBookingsInTimeRange(p.getPhysioId(), bookingStartDate, bookingEndDate)
-//                                .isEmpty())
-//                        .findFirst()
-//                        .orElseThrow(() -> new EntityNotFoundException("No available physios"));
-//
-//                booking.setPhysio(availablePhysio);
-//                price = availablePhysio.getPrice();
-//            }
-//            case "translator" -> {
-//                List<Translators> translators = translatorRepository.findAll();
-//                Translators availableTranslator = translators.stream()
-//                        .filter(t -> bookingRepository
-//                                .findTranslatorBookingsInTimeRange(t.getTranslatorID(), bookingStartDate, bookingEndDate)
-//                                .isEmpty())
-//                        .findFirst()
-//                        .orElseThrow(() -> new EntityNotFoundException("No available translators"));
-//
-//                booking.setTranslator(availableTranslator);
-//                price = availableTranslator.getPrice() != null ? availableTranslator.getPrice() : 0.0;
-//            }
-//            case "spa" -> {
-//                List<SpaServicese> spas = spaServiceRepository.findAll();
-//                SpaServicese availableSpa = spas.stream()
-//                        .filter(s -> bookingRepository
-//                                .findSpaBookingsInTimeRange(s.getServiceId(), bookingStartDate, bookingEndDate)
-//                                .isEmpty())
-//                        .findFirst()
-//                        .orElseThrow(() -> new EntityNotFoundException("No available spa services"));
-//
-//                booking.setSpa(availableSpa);
-//                price = availableSpa.getPrice();
-//            }
-//            case "doctor" -> {
-//                List<Doctors> doctors = doctorRepository.findAll();
-//                Doctors availableDoctor = doctors.stream()
-//                        .filter(d -> bookingRepository
-//                                .findDoctorBookingsInTimeRange(d.getId(), bookingStartDate, bookingEndDate)
-//                                .isEmpty())
-//                        .findFirst()
-//                        .orElseThrow(() -> new EntityNotFoundException("No available doctors"));
-//
-//                booking.setDoctors(availableDoctor);
-//                price = availableDoctor.getPrice();
-//            }
-//            case "labtests" -> {
-//                List<Labtests> labtests = labtestsRepository.findAll();
-//                Labtests availableLab = labtests.stream()
-//                        .filter(l -> bookingRepository
-//                                .findLabTestBookingsInTimeRange(l.getId(), bookingStartDate, bookingEndDate)
-//                                .isEmpty())
-//                        .findFirst()
-//                        .orElseThrow(() -> new EntityNotFoundException("No available lab tests"));
-//
-//                booking.setLabtests(availableLab);
-//                price = availableLab.getTestPrice();
-//            }
-//            default -> throw new IllegalArgumentException("Invalid service type: " + serviceType);
-//        }
-//
-//        booking.setBookingAmount(price);
-//        booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
-//        booking.setDiscountApplied("None");
-//
-//        Booking savedBooking = bookingRepository.save(booking);
-//
-//        BookingRequest response = new BookingRequest();
-//        response.setBookingId(savedBooking.getBookingId());
-//        response.setBookingDate(savedBooking.getBookingDate());
-//        response.setSlotIdLong(savedBooking.getSlotIdLong());
-//        response.setBookingStatus(savedBooking.getBookingStatus());
-//        response.setBookingType(savedBooking.getBookingType());
-//        response.setBookingAmount(savedBooking.getBookingAmount());
-//        response.setPaymentMode(savedBooking.getPaymentMode());
-//        response.setPaymentStatus(savedBooking.getPaymentStatus());
-//        response.setDiscountApplied(savedBooking.getDiscountApplied());
-//        response.setBookingStartTime(savedBooking.getBookingStartTime());
-//        response.setBookingEndTime(savedBooking.getBookingEndTime());
-//        response.setAdditionalRemarks(savedBooking.getAdditionalRemarks());
-//
-//        if (savedBooking.getPhysio() != null) {
-//            response.setPhysioId(savedBooking.getPhysio().getPhysioId());
-//            response.setPhysioName(savedBooking.getPhysio().getPhysioName());
-//        }
-//        if (savedBooking.getTranslator() != null) {
-//            response.setTranslatorId(savedBooking.getTranslator().getTranslatorID());
-//            response.setTranslatorName(savedBooking.getTranslator().getTranslatorName());
-//        }
-//        if (savedBooking.getSpa() != null) {
-//            response.setSpaId(savedBooking.getSpa().getServiceId());
-//            response.setSpaName(savedBooking.getSpa().getServiceName());
-//        }
-//        if (savedBooking.getDoctors() != null) {
-//            response.setDoctorId(savedBooking.getDoctors().getId());
-//            response.setDoctorName(savedBooking.getDoctors().getName());
-//        }
-//        if (savedBooking.getLabtests() != null) {
-//            response.setLabtestId(savedBooking.getLabtests().getId());
-//            response.setLabtestName(savedBooking.getLabtests().getTestTitle());
-//        }
-//        if (savedBooking.getUser() != null) {
-//            response.setUserId(savedBooking.getUser().getId());
-//            response.setUserName(savedBooking.getUser().getName());
-//        }
-//        if (savedBooking.getChef() != null) {
-//            response.setChefId(savedBooking.getChef().getChefID());
-//            response.setChefName(savedBooking.getChef().getChefName());
-//        }
-//
-//        return response;
-//    }
-
-    
+     
     
     public BookingRequest bookServices(
             Long userId,
             String serviceType,
             LocalDateTime bookingStartDate,
             LocalDateTime bookingEndDate,
-            Double bookingAmount,
-            String paymentMode,
             String bookingType,
+            String paymentMode,
+            Double bookingAmount,
             String remarks,
             Long chefId,
             Long physioId,
@@ -1315,7 +1156,106 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+ 
+//    public List<BookingRequest> getBookingsByUserId(Long userId) {
+//        List<Booking> bookings = bookingRepository.findByUserId(userId);
+//
+//        return bookings.stream().map(booking -> {
+//            BookingRequest dto = new BookingRequest();
+//
+//            // Booking details
+//            dto.setBookingId(booking.getBookingId());
+//            dto.setBookingStatus(booking.getBookingStatus());
+//            dto.setBookingType(booking.getBookingType());
+//            dto.setBookingAmount(booking.getBookingAmount());
+//            dto.setPaymentMode(booking.getPaymentMode());
+//            dto.setPaymentStatus(booking.getPaymentStatus());
+//            dto.setDiscountApplied(booking.getDiscountApplied());
+//            dto.setBookingStartTime(booking.getBookingStartTime());
+//            dto.setBookingEndTime(booking.getBookingEndTime());
+//            dto.setBookingDate(booking.getBookingDate());
+//            dto.setRemarks(booking.getAdditionalRemarks());
+//            dto.setServiceType(booking.getServiceType());
+//
+//            // User info
+//            if (booking.getUser() != null) {
+//                dto.setUserId(booking.getUser().getId());
+//                dto.setUserName(booking.getUser().getName());
+//                dto.setUserEmail(booking.getUser().getEmail());
+//            }
+//
+//            // Dynamically map booked service ID & name only
+//            switch (booking.getServiceType().toLowerCase()) {
+//                case "chef" -> {
+//                    if (booking.getChef() != null) {
+//                        dto.setServiceId(booking.getChef().getChefID());
+//                        dto.setServiceName(booking.getChef().getChefName());
+//                    }
+//                }
+//                case "physio" -> {
+//                    if (booking.getPhysio() != null) {
+//                        dto.setServiceId(booking.getPhysio().getPhysioId());
+//                        dto.setServiceName(booking.getPhysio().getPhysioName());
+//                    }
+//                }
+//                case "doctor" -> {
+//                    if (booking.getDoctors() != null) {
+//                        dto.setServiceId(booking.getDoctors().getId());
+//                        dto.setServiceName(booking.getDoctors().getName());
+//                    }
+//                }
+//                case "labtests" -> {
+//                    if (booking.getLabtests() != null) {
+//                        dto.setServiceId(booking.getLabtests().getId());
+//                        dto.setServiceName(booking.getLabtests().getTestTitle());
+//                    }
+//                }
+//                case "spa" -> {
+//                    if (booking.getSpa() != null) {
+//                        dto.setServiceId(booking.getSpa().getServiceId());
+//                        dto.setServiceName(booking.getSpa().getServiceName());
+//                    }
+//                }
+//                case "translator" -> {
+//                    if (booking.getTranslator() != null) {
+//                        dto.setServiceId(booking.getTranslator().getTranslatorID());
+//                        dto.setServiceName(booking.getTranslator().getTranslatorName());
+//                    }
+//                }
+//            }
+//
+//            return dto;
+//        }).collect(Collectors.toList());
+//    }
 
+    public List<BookingRequest> getBookingsByUserId(Long userId) {
+        List<Booking> bookings = bookingRepository.findByUserId(userId);
 
+        return bookings.stream().map(booking -> {
+        	BookingRequest dto = new BookingRequest();
+            dto.setBookingId(booking.getBookingId());
+            dto.setBookingStatus(booking.getBookingStatus());
+            dto.setBookingType(booking.getBookingType());
+            dto.setBookingAmount(booking.getBookingAmount());
+            dto.setBookingStartTime(booking.getBookingStartTime());
+            dto.setBookingEndTime(booking.getBookingEndTime());
+
+            String serviceType = booking.getServiceType();
+            dto.setServiceTypes(serviceType);
+
+            // Set the name based on the service
+            switch (serviceType) {
+                case "physio" -> dto.setServiceName(booking.getPhysio().getPhysioName());
+                case "translator" -> dto.setServiceName(booking.getTranslator().getTranslatorName());
+                case "spa" -> dto.setServiceName(booking.getSpa().getServiceName());
+                case "doctor" -> dto.setServiceName(booking.getDoctors().getName());
+                case "labtests" -> dto.setServiceName(booking.getLabtests().getTestTitle());
+                case "chef" -> dto.setServiceName(booking.getChef().getChefName());
+                default -> dto.setServiceName("Unknown");
+            }
+
+            return dto;
+        }).toList();
+    }
 
 }

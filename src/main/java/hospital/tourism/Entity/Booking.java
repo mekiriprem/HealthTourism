@@ -83,6 +83,18 @@ public class Booking {
     @Column(name = "package_booking_id")
     private String packageBookingId;
 
+    public String getServiceType() {
+        if (physio != null) return "physio";
+        if (translator != null) return "translator";
+        if (spa != null) return "spa";
+        if (doctors != null) return "doctor";
+        if (labtests != null) return "labtests";
+        if (chef != null) return "chef";
+        return "unknown";
+    }
+
+
+
 
 	
 

@@ -33,5 +33,6 @@ public class UsersDTO {
 
     @Column(name = "package_booking_id")
     private String packageBookingId;
+    
     private List<Long> bookingIds;
 }

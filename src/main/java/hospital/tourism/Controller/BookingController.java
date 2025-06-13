@@ -49,17 +49,18 @@ public class BookingController {
     @PostMapping("/book-service/{userId}/{serviceType}")
     public ResponseEntity<BookingRequest> bookSingleService(
             @PathVariable Long userId,
-            @PathVariable String serviceType,
-            @RequestBody BookingRequest request
+            @RequestBody BookingRequest request,
+            @PathVariable String serviceType
+            
     ) {
         BookingRequest booking = bookingService.bookServices(
                 userId,
                 serviceType,
                 request.getBookingStartTime(),
                 request.getBookingEndTime(),
-                request.getBookingAmount(),         // fixed: correct order
                 request.getPaymentMode(),
                 request.getBookingType(),
+                request.getBookingAmount(),
                 request.getRemarks(),
                 request.getChefId(),
                 request.getPhysioId(),
@@ -71,7 +72,6 @@ public class BookingController {
 
         return ResponseEntity.ok(booking);
     }
-
     
     @PutMapping("/update/{bookingId}")
     public ResponseEntity<Booking> updateBooking(
@@ -116,24 +116,28 @@ public class BookingController {
 //
 //        return ResponseEntity.ok(bookingResponses);
 //    }
-//    
-    @PostMapping("/book-package/{userId}")
-    public ResponseEntity<List<BookingRequest>> bookServicePackage(
-            @PathVariable Long userId,
-            @RequestBody BookingRequest request
-    ) {
-        List<BookingRequest> bookings = bookingService.bookServicePackage(
-                userId,
-                request.getServiceTypes(),
-                request.getBookingAmounts(),
-                request.getBookingStartDate(),
-                request.getBookingEndDate(),
-                request.getPaymentMode(),
-                request.getBookingType(),
-                request.getRemarks()
-        );
-        return ResponseEntity.ok(bookings);
-    }
+// 
+    
+    
+    
+    
+//    @PostMapping("/book-package/{userId}")
+//    public ResponseEntity<List<BookingRequest>> bookServicePackage(
+//            @PathVariable Long userId,
+//            @RequestBody BookingRequest request
+//    ) {
+//        List<BookingRequest> bookings = bookingService.bookServicePackage(
+//                userId,
+//                request.getServiceTypes(),
+//                request.getBookingAmount(),
+//                request.getBookingDate(),
+//                request.getBookingEndTime(),
+//                request.getPaymentMode(),
+//                request.getBookingType(),
+//                request.getRemarks()
+//        );
+//        return ResponseEntity.ok(bookings);
+//    }
     @GetMapping("/available-chefs/{start}/{end}")
     public ResponseEntity<List<ChefDTO>> getAvailableChefs(
             @PathVariable("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
@@ -143,5 +147,10 @@ public class BookingController {
         return ResponseEntity.ok(availableChefs);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BookingRequest>> getUserBookings(@PathVariable Long userId) {
+        List<BookingRequest> bookings = bookingService.getBookingsByUserId(userId);
+        return ResponseEntity.ok(bookings);
+    }
 
 }
