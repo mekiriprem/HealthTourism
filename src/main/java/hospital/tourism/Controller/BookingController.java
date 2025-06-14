@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,7 @@ import hospital.tourism.Service.BookingService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api/AddToCart")
 @RequiredArgsConstructor
 public class BookingController {
 
@@ -46,22 +47,21 @@ public class BookingController {
 //        );
 //        return ResponseEntity.ok(bookingResponse);
 //    }
-    @PostMapping("/book-service/{userId}/{serviceType}")
-    public ResponseEntity<BookingRequest> bookSingleService(
+    @PostMapping("/addToCart/{userId}/{serviceType}")
+    public ResponseEntity<BookingRequest> bookService(
             @PathVariable Long userId,
-            @RequestBody BookingRequest request,
-            @PathVariable String serviceType
-            
+            @PathVariable String serviceType,
+            @RequestBody BookingRequest request
     ) {
-        BookingRequest booking = bookingService.bookServices(
+        BookingRequest response = bookingService.addToCart(
                 userId,
                 serviceType,
                 request.getBookingStartTime(),
                 request.getBookingEndTime(),
-                request.getPaymentMode(),
                 request.getBookingType(),
+                request.getPaymentMode(),
                 request.getBookingAmount(),
-                request.getRemarks(),
+                request.getAdditionalRemarks(),
                 request.getChefId(),
                 request.getPhysioId(),
                 request.getTranslatorId(),
@@ -69,10 +69,8 @@ public class BookingController {
                 request.getDoctorId(),
                 request.getLabtestId()
         );
-
-        return ResponseEntity.ok(booking);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    
     @PutMapping("/update/{bookingId}")
     public ResponseEntity<Booking> updateBooking(
             @PathVariable Long bookingId,

@@ -969,8 +969,7 @@ public class BookingService {
     }
     
      
-    
-    public BookingRequest bookServices(
+    public BookingRequest addToCart(
             Long userId,
             String serviceType,
             LocalDateTime bookingStartDate,
@@ -998,96 +997,110 @@ public class BookingService {
         booking.setBookingStatus("Pending");
         booking.setAdditionalRemarks(remarks);
         booking.setPaymentMode(paymentMode);
+        booking.setBookingType(serviceType);
+        
 
         switch (serviceType.toLowerCase()) {
             case "chef" -> {
-                Chefs chef = (chefId != null)
-                        ? chefRepository.findById(chefId)
-                            .orElseThrow(() -> new EntityNotFoundException("Chef not found with ID: " + chefId))
-                        : chefRepository.findAll().stream()
-                            .filter(c -> bookingRepository.findChefBookingsInTimeRange(c.getChefID(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available chefs"));
+                if (chefId == null) throw new IllegalArgumentException("Chef ID is required");
+
+                Chefs chef = chefRepository.findById(chefId)
+                        .orElseThrow(() -> new EntityNotFoundException("Chef not found with ID: " + chefId));
+
+                boolean alreadyBooked = !bookingRepository.findChefBookingsInTimeRange(chefId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Chef is already booked for this time slot.");
+
                 if (bookingAmount < chef.getPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for chef");
                 }
+
                 booking.setChef(chef);
             }
 
             case "physio" -> {
-                Physio physio = (physioId != null)
-                        ? physioRepository.findById(physioId)
-                            .orElseThrow(() -> new EntityNotFoundException("Physio not found with ID: " + physioId))
-                        : physioRepository.findAll().stream()
-                            .filter(p -> bookingRepository.findPhysioBookingsInTimeRange(p.getPhysioId(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available physios"));
+                if (physioId == null) throw new IllegalArgumentException("Physio ID is required");
+
+                Physio physio = physioRepository.findById(physioId)
+                        .orElseThrow(() -> new EntityNotFoundException("Physio not found with ID: " + physioId));
+
+                boolean alreadyBooked = !bookingRepository.findPhysioBookingsInTimeRange(physioId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Physio is already booked for this time slot.");
+
                 if (bookingAmount < physio.getPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for physio");
                 }
+
                 booking.setPhysio(physio);
             }
 
             case "translator" -> {
-                Translators translator = (translatorId != null)
-                        ? translatorRepository.findById(translatorId)
-                            .orElseThrow(() -> new EntityNotFoundException("Translator not found with ID: " + translatorId))
-                        : translatorRepository.findAll().stream()
-                            .filter(t -> bookingRepository.findTranslatorBookingsInTimeRange(t.getTranslatorID(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available translators"));
+                if (translatorId == null) throw new IllegalArgumentException("Translator ID is required");
+
+                Translators translator = translatorRepository.findById(translatorId)
+                        .orElseThrow(() -> new EntityNotFoundException("Translator not found with ID: " + translatorId));
+
+                boolean alreadyBooked = !bookingRepository.findTranslatorBookingsInTimeRange(translatorId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Translator is already booked for this time slot.");
+
                 if (translator.getPrice() != null && bookingAmount < translator.getPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for translator");
                 }
+
                 booking.setTranslator(translator);
             }
 
             case "spa" -> {
-                SpaServicese spa = (spaId != null)
-                        ? spaServiceRepository.findById(spaId)
-                            .orElseThrow(() -> new EntityNotFoundException("Spa service not found with ID: " + spaId))
-                        : spaServiceRepository.findAll().stream()
-                            .filter(s -> bookingRepository.findSpaBookingsInTimeRange(s.getServiceId(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available spa services"));
+                if (spaId == null) throw new IllegalArgumentException("Spa ID is required");
+
+                SpaServicese spa = spaServiceRepository.findById(spaId)
+                        .orElseThrow(() -> new EntityNotFoundException("Spa not found with ID: " + spaId));
+
+                boolean alreadyBooked = !bookingRepository.findSpaBookingsInTimeRange(spaId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Spa is already booked for this time slot.");
+
                 if (bookingAmount < spa.getPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for spa");
                 }
+
                 booking.setSpa(spa);
             }
 
             case "doctor" -> {
-                Doctors doctor = (doctorId != null)
-                        ? doctorRepository.findById(doctorId)
-                            .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + doctorId))
-                        : doctorRepository.findAll().stream()
-                            .filter(d -> bookingRepository.findDoctorBookingsInTimeRange(d.getId(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available doctors"));
+                if (doctorId == null) throw new IllegalArgumentException("Doctor ID is required");
+
+                Doctors doctor = doctorRepository.findById(doctorId)
+                        .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + doctorId));
+
+                boolean alreadyBooked = !bookingRepository.findDoctorBookingsInTimeRange(doctorId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Doctor is already booked for this time slot.");
+
                 if (bookingAmount < doctor.getPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for doctor");
                 }
+
                 booking.setDoctors(doctor);
             }
 
             case "labtests" -> {
-                Labtests labtest = (labtestId != null)
-                        ? labtestsRepository.findById(labtestId)
-                            .orElseThrow(() -> new EntityNotFoundException("Lab test not found with ID: " + labtestId))
-                        : labtestsRepository.findAll().stream()
-                            .filter(l -> bookingRepository.findLabTestBookingsInTimeRange(l.getId(), bookingStartDate, bookingEndDate).isEmpty())
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException("No available lab tests"));
+                if (labtestId == null) throw new IllegalArgumentException("Lab Test ID is required");
+
+                Labtests labtest = labtestsRepository.findById(labtestId)
+                        .orElseThrow(() -> new EntityNotFoundException("Lab test not found with ID: " + labtestId));
+
+                boolean alreadyBooked = !bookingRepository.findLabTestBookingsInTimeRange(labtestId, bookingStartDate, bookingEndDate).isEmpty();
+                if (alreadyBooked) throw new IllegalStateException("Lab test is already booked for this time slot.");
+
                 if (bookingAmount < labtest.getTestPrice()) {
                     throw new IllegalArgumentException("Booking amount is less than base price for lab test");
                 }
+
                 booking.setLabtests(labtest);
             }
 
             default -> throw new IllegalArgumentException("Invalid service type: " + serviceType);
         }
 
-        booking.setBookingAmount(bookingAmount); // ✅ trusted after validation
+        booking.setBookingAmount(bookingAmount);
         booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
         booking.setDiscountApplied("None");
 
@@ -1107,6 +1120,14 @@ public class BookingService {
         response.setBookingEndTime(savedBooking.getBookingEndTime());
         response.setAdditionalRemarks(savedBooking.getAdditionalRemarks());
 
+        if (savedBooking.getUser() != null) {
+            response.setUserId(savedBooking.getUser().getId());
+            response.setUserName(savedBooking.getUser().getName());
+        }
+        if (savedBooking.getChef() != null) {
+            response.setChefId(savedBooking.getChef().getChefID());
+            response.setChefName(savedBooking.getChef().getChefName());
+        }
         if (savedBooking.getPhysio() != null) {
             response.setPhysioId(savedBooking.getPhysio().getPhysioId());
             response.setPhysioName(savedBooking.getPhysio().getPhysioName());
@@ -1127,18 +1148,9 @@ public class BookingService {
             response.setLabtestId(savedBooking.getLabtests().getId());
             response.setLabtestName(savedBooking.getLabtests().getTestTitle());
         }
-        if (savedBooking.getUser() != null) {
-            response.setUserId(savedBooking.getUser().getId());
-            response.setUserName(savedBooking.getUser().getName());
-        }
-        if (savedBooking.getChef() != null) {
-            response.setChefId(savedBooking.getChef().getChefID());
-            response.setChefName(savedBooking.getChef().getChefName());
-        }
 
         return response;
     }
-
 
 
     public List<ChefDTO> getAvailableChefs(LocalDateTime start, LocalDateTime end) {
