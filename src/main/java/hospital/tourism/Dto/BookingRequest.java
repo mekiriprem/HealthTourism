@@ -64,5 +64,6 @@ public class BookingRequest {
 		@Column(name = "package_booking_id")
 		private String packageBookingId;
 
+		 
 	
 }

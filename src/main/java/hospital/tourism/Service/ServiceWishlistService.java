@@ -132,7 +132,7 @@ public class ServiceWishlistService {
         dto.setUserId(wishlist.getUser().getId());
         dto.setUserName(wishlist.getUser().getName());
         dto.setUserEmail(wishlist.getUser().getEmail());
-        dto.setNotes(wishlist.getNotes());
+      
 
         if (wishlist.getDoctor() != null) {
             dto.setServiceType("doctor");
@@ -145,7 +145,7 @@ public class ServiceWishlistService {
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
-            dto.setNotes(wishlist.getNotes());
+         
             dto.setServiceType("doctor");
         } else if (wishlist.getSpa() != null) {
             dto.setServiceType("spa");
@@ -153,11 +153,12 @@ public class ServiceWishlistService {
             dto.setServiceName(wishlist.getSpa().getServiceName());
             dto.setServiceDescription(wishlist.getSpa().getServiceDescription());
             dto.setServiceImageUrl(wishlist.getSpa().getServiceImage());
-            dto.setNotes(wishlist.getNotes());
+            
             dto.setWishlistId(wishlist.getId());
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
+            dto.setBasePrice(wishlist.getSpa().getPrice());
             
         } else if (wishlist.getPhysio() != null) {
             dto.setServiceType("physio");
@@ -165,11 +166,12 @@ public class ServiceWishlistService {
             dto.setServiceName(wishlist.getPhysio().getPhysioName());
             dto.setServiceDescription(wishlist.getPhysio().getPhysioDescription());
             dto.setServiceImageUrl(wishlist.getPhysio().getPhysioImage());
-            dto.setNotes(wishlist.getNotes());
+            
             dto.setWishlistId(wishlist.getId());
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
+            dto.setBasePrice(wishlist.getPhysio().getPrice());
            
         } else if (wishlist.getTranslator() != null) {
             dto.setServiceType("translator");
@@ -177,11 +179,12 @@ public class ServiceWishlistService {
             dto.setServiceName(wishlist.getTranslator().getTranslatorName());
             dto.setServiceDescription(wishlist.getTranslator().getTranslatorLanguages());
             dto.setServiceImageUrl(wishlist.getTranslator().getTranslatorImage());
-            dto.setNotes(wishlist.getNotes());
+          
             dto.setWishlistId(wishlist.getId());
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
+            dto.setBasePrice(wishlist.getTranslator().getPrice());
             
         } else if (wishlist.getLabtests() != null) {
             dto.setServiceType("labtests");
@@ -189,11 +192,12 @@ public class ServiceWishlistService {
             dto.setServiceName(wishlist.getLabtests().getTestDepartment());
             dto.setServiceDescription(wishlist.getLabtests().getTestDescription());
             dto.setServiceImageUrl(wishlist.getLabtests().getTestImage());
-            dto.setNotes(wishlist.getNotes());
+         
             dto.setWishlistId(wishlist.getId());
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
+            dto.setBasePrice(wishlist.getLabtests().getTestPrice());
             
         } else if (wishlist.getChef() != null) {
             dto.setServiceType("chef");
@@ -201,11 +205,12 @@ public class ServiceWishlistService {
             dto.setServiceName(wishlist.getChef().getChefName());
             dto.setServiceDescription(wishlist.getChef().getChefDescription());
             dto.setServiceImageUrl(wishlist.getChef().getChefImage());
-            dto.setNotes(wishlist.getNotes());
+           
             dto.setWishlistId(wishlist.getId());
             dto.setUserId(wishlist.getUser().getId());
             dto.setUserName(wishlist.getUser().getName());
             dto.setUserEmail(wishlist.getUser().getEmail());
+            dto.setBasePrice(wishlist.getChef().getPrice());
             
         }
 

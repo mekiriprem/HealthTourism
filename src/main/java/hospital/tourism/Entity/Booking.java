@@ -46,6 +46,8 @@ public class Booking {
     
     private LocalDateTime bookingStartTime;
     private LocalDateTime bookingEndTime;
+    
+    private String cartList_whichList;
 
     private String additionalRemarks;
 

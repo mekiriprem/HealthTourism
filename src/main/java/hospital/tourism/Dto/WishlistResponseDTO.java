@@ -16,7 +16,7 @@ public class WishlistResponseDTO {
 	    private Long serviceId;
 	    private String serviceName;
 	    private String serviceDescription;
-	    private String serviceImageUrl;
-
-	    private String notes;  
+	    private String serviceImageUrl;  
+	     
+	    private Double basePrice; // Base price of the service
 }
