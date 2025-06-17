@@ -8,7 +8,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import hospital.tourism.Dto.BookingRequest;
 import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Booking;
@@ -28,6 +30,7 @@ import hospital.tourism.repo.chefsRepo;
 import hospital.tourism.repo.labtestsRepo;
 import hospital.tourism.repo.usersrepo;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,6 +45,8 @@ public class BookingService {
     private final SpaservicesRepo spaServiceRepository;
     private final DoctorsRepo doctorRepository;
     private final labtestsRepo labtestsRepository;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
 	/*
 	public Booking bookService(
@@ -253,7 +258,8 @@ public class BookingService {
             String paymentMode,
             String bookingType,
             String remarks,
-            double bookingAmount // ✅ Add booking amount from frontend
+            double bookingAmount 
+            
     ) {
         users user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -983,7 +989,8 @@ public class BookingService {
             Long translatorId,
             Long spaId,
             Long doctorId,
-            Long labtestId
+            Long labtestId,
+            String bookingStatus
     ) {
         users user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -993,7 +1000,6 @@ public class BookingService {
         booking.setBookingStartTime(bookingStartDate);
         booking.setBookingEndTime(bookingEndDate);
         booking.setBookingDate(LocalDateTime.now());
-        booking.setBookingType(bookingType);
         booking.setBookingStatus("Pending");
         booking.setAdditionalRemarks(remarks);
         booking.setPaymentMode(paymentMode);
@@ -1101,7 +1107,7 @@ public class BookingService {
         }
 
         booking.setBookingAmount(bookingAmount);
-        booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
+        booking.setPaymentStatus("Unpaid");
         booking.setDiscountApplied("None");
 
         Booking savedBooking = bookingRepository.save(booking);
@@ -1251,6 +1257,7 @@ public class BookingService {
             dto.setBookingAmount(booking.getBookingAmount());
             dto.setBookingStartTime(booking.getBookingStartTime());
             dto.setBookingEndTime(booking.getBookingEndTime());
+            dto.setBookingStatus(booking.getBookingStatus());
 
             String serviceType = booking.getServiceType();
             dto.setServiceTypes(serviceType);
@@ -1269,5 +1276,192 @@ public class BookingService {
             return dto;
         }).toList();
     }
+
+    
+    
+    
+    //update the booking Status
+  
+
+    @Transactional
+    public List<BookingRequest> updateBookingStatusesToSuccess(List<Long> bookingIds) {
+
+        List<BookingRequest> updatedBookings = new ArrayList<>();
+
+        for (Long bookingId : bookingIds) {
+            Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+
+            if (optionalBooking.isEmpty()) {
+                continue; // skip if booking not found
+            }
+
+            Booking booking = optionalBooking.get();
+
+            if (!"Pending".equalsIgnoreCase(booking.getBookingStatus())) {
+                continue; // skip if status is not pending
+            }
+
+            booking.setBookingStatus("Success");
+            booking.setPaymentStatus("Paid");
+            bookingRepository.save(booking);
+
+            // ✉️ Send email directly from here
+            users user = booking.getUser();
+            if (user != null && user.getEmail() != null) {
+                try {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setTo(user.getEmail());
+                    message.setSubject("Booking Confirmation - #" + booking.getBookingId());
+                    message.setText("Dear " + user.getName() + ",\n\nYour " + booking.getBookingType() +
+                            " booking (ID: " + booking.getBookingId() + ") has been confirmed.\nThank you for choosing us!\n\nRegards,\nHospital Tourism Team");
+                    message.setFrom("anil.n@zynlogic.com"); // match with spring.mail.username
+
+                    javaMailSender.send(message);
+                } catch (Exception e) {
+                    System.err.println("Failed to send email for bookingId: " + bookingId + " due to: " + e.getMessage());
+                }
+            }
+
+            // Add to response list
+            BookingRequest response = new BookingRequest();
+            response.setBookingId(booking.getBookingId());
+            response.setBookingStatus(booking.getBookingStatus());
+            response.setBookingType(booking.getBookingType());
+            response.setBookingAmount(booking.getBookingAmount());
+            response.setPaymentMode(booking.getPaymentMode());
+            response.setPaymentStatus(booking.getPaymentStatus());
+            response.setBookingDate(booking.getBookingDate());
+
+            updatedBookings.add(response);
+        }
+
+        return updatedBookings;
+    }
+
+    
+    
+    public List<BookingRequest> getAllSuccessfulBookings() {
+        List<Booking> successfulBookings = bookingRepository.findByPaymentStatus("Paid");
+
+        return successfulBookings.stream().map(booking -> {
+            BookingRequest dto = new BookingRequest();
+            
+            dto.setBookingId(booking.getBookingId());
+            dto.setBookingDate(booking.getBookingDate());
+            dto.setBookingStartTime(booking.getBookingStartTime());
+            dto.setBookingEndTime(booking.getBookingEndTime());
+            dto.setBookingType(booking.getBookingType());
+            dto.setBookingStatus(booking.getBookingStatus());
+            dto.setBookingAmount(booking.getBookingAmount());
+            dto.setPaymentStatus(booking.getPaymentStatus());  // This will be "Success"
+            dto.setPaymentMode(booking.getPaymentMode());
+            dto.setAdditionalRemarks(booking.getAdditionalRemarks());
+
+            if (booking.getUser() != null) {
+                dto.setUserId(booking.getUser().getId());
+                dto.setUserName(booking.getUser().getName());
+            }
+
+            if (booking.getChef() != null) {
+                dto.setChefId(booking.getChef().getChefID());
+                dto.setChefName(booking.getChef().getChefName());
+            }
+
+            if (booking.getPhysio() != null) {
+                dto.setPhysioId(booking.getPhysio().getPhysioId());
+                dto.setPhysioName(booking.getPhysio().getPhysioName());
+            }
+
+            if (booking.getTranslator() != null) {
+                dto.setTranslatorId(booking.getTranslator().getTranslatorID());
+                dto.setTranslatorName(booking.getTranslator().getTranslatorName());
+            }
+
+            if (booking.getSpa() != null) {
+                dto.setSpaId(booking.getSpa().getServiceId());
+                dto.setSpaName(booking.getSpa().getServiceName());
+            }
+
+            if (booking.getDoctors() != null) {
+                dto.setDoctorId(booking.getDoctors().getId());
+                dto.setDoctorName(booking.getDoctors().getName());
+            }
+
+            if (booking.getLabtests() != null) {
+                dto.setLabtestId(booking.getLabtests().getId());
+                dto.setLabtestName(booking.getLabtests().getTestTitle());
+            }
+
+            return dto;
+        }).toList();
+    }
+    
+    public List<BookingRequest> getSuccessfulBookingsByUserId(Long userId) {
+        List<Booking> successfulBookings = bookingRepository.findByUserIdAndPaymentStatus(userId, "Paid");
+
+        return successfulBookings.stream().map(booking -> {
+            BookingRequest dto = new BookingRequest();
+
+            dto.setBookingId(booking.getBookingId());
+            dto.setBookingDate(booking.getBookingDate());
+            dto.setBookingStartTime(booking.getBookingStartTime());
+            dto.setBookingEndTime(booking.getBookingEndTime());
+            dto.setBookingType(booking.getBookingType());
+            dto.setBookingStatus(booking.getBookingStatus());
+            dto.setBookingAmount(booking.getBookingAmount());
+            dto.setPaymentStatus(booking.getPaymentStatus());
+            dto.setPaymentMode(booking.getPaymentMode());
+            dto.setAdditionalRemarks(booking.getAdditionalRemarks());
+
+            if (booking.getUser() != null) {
+                dto.setUserId(booking.getUser().getId());
+                dto.setUserName(booking.getUser().getName());
+            }
+
+            if (booking.getChef() != null) {
+                dto.setChefId(booking.getChef().getChefID());
+                dto.setChefName(booking.getChef().getChefName());
+            }
+
+            if (booking.getPhysio() != null) {
+                dto.setPhysioId(booking.getPhysio().getPhysioId());
+                dto.setPhysioName(booking.getPhysio().getPhysioName());
+            }
+
+            if (booking.getTranslator() != null) {
+                dto.setTranslatorId(booking.getTranslator().getTranslatorID());
+                dto.setTranslatorName(booking.getTranslator().getTranslatorName());
+            }
+
+            if (booking.getSpa() != null) {
+                dto.setSpaId(booking.getSpa().getServiceId());
+                dto.setSpaName(booking.getSpa().getServiceName());
+            }
+
+            if (booking.getDoctors() != null) {
+                dto.setDoctorId(booking.getDoctors().getId());
+                dto.setDoctorName(booking.getDoctors().getName());
+            }
+
+            if (booking.getLabtests() != null) {
+                dto.setLabtestId(booking.getLabtests().getId());
+                dto.setLabtestName(booking.getLabtests().getTestTitle());
+            }
+
+            return dto;
+        }).toList();
+    }
+    
+    public void deleteByBookingId(Long bookingId) {
+    	  bookingRepository.deleteById(bookingId);
+		
+    }
+    
+    public void deleteByMultipleBookingIds(List<Long> bookingIds) {
+        for (Long bookingId : bookingIds) {
+            bookingRepository.deleteById(bookingId);
+        }
+    }
+
 
 }

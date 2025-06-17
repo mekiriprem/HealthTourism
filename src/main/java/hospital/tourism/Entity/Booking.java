@@ -47,7 +47,7 @@ public class Booking {
     private LocalDateTime bookingStartTime;
     private LocalDateTime bookingEndTime;
     
-    private String cartList_whichList;
+   
 
     private String additionalRemarks;
 
@@ -81,6 +81,8 @@ public class Booking {
     @ManyToOne
     @JsonIgnoreProperties("bookings") // If chef has a bookings list
     private Chefs chef;
+    
+    
     
     @Column(name = "package_booking_id")
     private String packageBookingId;

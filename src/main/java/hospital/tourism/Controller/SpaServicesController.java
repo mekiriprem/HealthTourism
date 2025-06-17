@@ -20,6 +20,7 @@ import hospital.tourism.Service.SpaServicessImpl;
 @RequestMapping("/spaServices")
 public class SpaServicesController {
 
+	
     @Autowired
     private SpaServicessImpl spaServicessImpl;
 
