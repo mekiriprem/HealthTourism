@@ -74,5 +74,26 @@ public class TranslatorsService {
     	dto.setTranslatorAddress(translators.get().getTranslatorAddress());
     	return dto;
     }
+    
+    
+    public void softDeleteTranslator(Long id) {
+        Translators translator = translatorsRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Translator not found"));
+
+        translator.setStatus("Inactive");
+        translatorsRepo.save(translator);
+    }
+    
+    public void activateTranslatorIfInactive(Long id) {
+        Translators translator = translatorsRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Translator not found"));
+
+        if ("Inactive".equalsIgnoreCase(translator.getStatus())) {
+            translator.setStatus("Active");
+            translatorsRepo.save(translator);
+        }
+    }
+
+
 }
 

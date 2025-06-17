@@ -140,4 +140,15 @@ public class TranslatorsController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+    @PutMapping("/translators/soft-delete/{id}")
+    public ResponseEntity<String> softDelete(@PathVariable Long id) {
+        translatorsService.softDeleteTranslator(id);
+        return ResponseEntity.ok("✅ Translator marked as Inactive successfully");
+    }
+    @PutMapping("/activate/{id}")
+    public void activateTranslator(@PathVariable Long id) {
+        translatorsService.activateTranslatorIfInactive(id);
+    }
+
+
 }

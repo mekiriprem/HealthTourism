@@ -67,5 +67,23 @@ public class HospitalService {
         return doctorRepository.findByHospital_HospitalId(hospitalId);
     }
     
+    public void softDeleteHospital(Integer id) {
+        Hospital hospital = hospitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + id));
+
+        hospital.setStatus("Inactive");
+        hospitalRepository.save(hospital);
+    }
+
+    // Reactivate method
+    public void activateHospitalIfInactive(Integer id) {
+        Hospital hospital = hospitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + id));
+
+        if ("Inactive".equalsIgnoreCase(hospital.getStatus())) {
+            hospital.setStatus("Active");
+            hospitalRepository.save(hospital);
+        }
+    }
 
 }

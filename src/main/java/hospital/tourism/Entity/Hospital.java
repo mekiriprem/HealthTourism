@@ -2,6 +2,8 @@ package hospital.tourism.Entity;
 
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -18,6 +20,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@SQLDelete(sql = "UPDATE hospital SET status = 'Inactive' WHERE hospital_id = ?")
 public class Hospital { 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -127,127 +127,7 @@ public class BookingService {
 	    return bookingRepository.save(booking);
 	}
 	*/
-    
-//    
-//    public BookingRequest bookService(
-//            Long userId,
-//            Long serviceId,
-//            String serviceType,
-//            LocalDateTime bookingStartDate,
-//            LocalDateTime bookingEndDate,
-//            String paymentMode,
-//            String bookingType,
-//            String remarks
-//    ) {
-//        users user = userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-//
-//        Booking booking = new Booking();
-//        booking.setUser(user);
-//        booking.setBookingStartTime(bookingStartDate);
-//        booking.setBookingEndTime(bookingEndDate);
-//        booking.setBookingDate(LocalDateTime.now());
-//        booking.setBookingType(bookingType);
-//        booking.setBookingStatus("Pending");
-//        booking.setAdditionalRemarks(remarks);
-//        booking.setPaymentMode(paymentMode);
-//
-//        double price;
-//
-//        switch (serviceType.toLowerCase()) {
-//            case "chef" -> {
-//                Chefs chef = chefRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Chef not found"));
-//                booking.setChef(chef);
-//                price = chef.getPrice();
-//            }
-//            case "physio" -> {
-//                Physio physio = physioRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Physio not found"));
-//                booking.setPhysio(physio);
-//                price = physio.getPrice();
-//            }
-//            case "translator" -> {
-//                Translators translator = translatorRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Translator not found"));
-//                booking.setTranslator(translator);
-//                price = translator.getPrice();
-//            }
-//            case "spa" -> {
-//                SpaServicese spa = spaServiceRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Spa service not found"));
-//                booking.setSpa(spa);
-//                price = spa.getPrice();
-//            }
-//            case "doctor" -> {
-//                Doctors doctor = doctorRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
-//                booking.setDoctors(doctor);
-//                price = doctor.getPrice();
-//            }
-//            case "labtests" -> {
-//                Labtests labtest = labtestsRepository.findById(serviceId)
-//                        .orElseThrow(() -> new EntityNotFoundException("Lab test not found"));
-//                booking.setLabtests(labtest);
-//                price = labtest.getTestPrice();
-//            }
-//            default -> throw new IllegalArgumentException("Invalid service type: " + serviceType);
-//        }
-//
-//        booking.setBookingAmount(price);
-//        booking.setPaymentStatus("offline".equalsIgnoreCase(paymentMode) ? "Unpaid" : "Paid");
-//        booking.setDiscountApplied("None");
-//
-//        Booking savedBooking = bookingRepository.save(booking);
-//
-//        // Build response DTO directly here
-//        BookingRequest response = new BookingRequest();
-//        response.setBookingId(savedBooking.getBookingId());
-//        response.setBookingDate(savedBooking.getBookingDate());
-//        response.setSlotIdLong(savedBooking.getSlotIdLong());
-//        response.setBookingStatus(savedBooking.getBookingStatus());
-//        response.setBookingType(savedBooking.getBookingType());
-//        response.setBookingAmount(savedBooking.getBookingAmount());
-//        response.setPaymentMode(savedBooking.getPaymentMode());
-//        response.setPaymentStatus(savedBooking.getPaymentStatus());
-//        response.setDiscountApplied(savedBooking.getDiscountApplied());
-//        response.setBookingStartTime(savedBooking.getBookingStartTime());
-//        response.setBookingEndTime(savedBooking.getBookingEndTime());
-//        response.setAdditionalRemarks(savedBooking.getAdditionalRemarks());
-//
-//        if (savedBooking.getPhysio() != null) {
-//            response.setPhysioId(savedBooking.getPhysio().getPhysioId());
-//            response.setPhysioName(savedBooking.getPhysio().getPhysioName());
-//        }
-//        if (savedBooking.getTranslator() != null) {
-//            response.setTranslatorId(savedBooking.getTranslator().getTranslatorID());
-//            response.setTranslatorName(savedBooking.getTranslator().getTranslatorName());
-//        }
-//        if (savedBooking.getSpa() != null) {
-//            response.setSpaId(savedBooking.getSpa().getServiceId());
-//            response.setSpaName(savedBooking.getSpa().getServiceName());
-//        }
-//        if (savedBooking.getDoctors() != null) {
-//            response.setDoctorId(savedBooking.getDoctors().getId());
-//            response.setDoctorName(savedBooking.getDoctors().getName());
-//        }
-//        if (savedBooking.getLabtests() != null) {
-//            response.setLabtestId(savedBooking.getLabtests().getId());
-//            response.setLabtestName(savedBooking.getLabtests().getTestTitle());
-//        }
-//        if (savedBooking.getUser() != null) {
-//            response.setUserId(savedBooking.getUser().getId());
-//            response.setUserName(savedBooking.getUser().getName());
-//        }
-//        if (savedBooking.getChef() != null) {
-//            response.setChefId(savedBooking.getChef().getChefID());
-//            response.setChefName(savedBooking.getChef().getChefName());
-//        }
-//
-//        return response;
-//    }
-    
-    
+
     
     public BookingRequest bookService(
             Long userId,
@@ -1246,35 +1126,68 @@ public class BookingService {
 //        }).collect(Collectors.toList());
 //    }
 
+//    public List<BookingRequest> getBookingsByUserId(Long userId) {
+//        List<Booking> bookings = bookingRepository.findByUserId(userId);
+//
+//        return bookings.stream().map(booking -> {
+//        	BookingRequest dto = new BookingRequest();
+//            dto.setBookingId(booking.getBookingId());
+//            dto.setBookingStatus(booking.getBookingStatus());
+//            dto.setBookingType(booking.getBookingType());
+//            dto.setBookingAmount(booking.getBookingAmount());
+//            dto.setBookingStartTime(booking.getBookingStartTime());
+//            dto.setBookingEndTime(booking.getBookingEndTime());
+//            dto.setBookingStatus(booking.getBookingStatus());
+//
+//            String serviceType = booking.getServiceType();
+//            dto.setServiceTypes(serviceType);
+//
+//            // Set the name based on the service
+//            switch (serviceType) {
+//                case "physio" -> dto.setServiceName(booking.getPhysio().getPhysioName());
+//                case "translator" -> dto.setServiceName(booking.getTranslator().getTranslatorName());
+//                case "spa" -> dto.setServiceName(booking.getSpa().getServiceName());
+//                case "doctor" -> dto.setServiceName(booking.getDoctors().getName());
+//                case "labtests" -> dto.setServiceName(booking.getLabtests().getTestTitle());
+//                case "chef" -> dto.setServiceName(booking.getChef().getChefName());
+//                default -> dto.setServiceName("Unknown");
+//            }
+//
+//            return dto;
+//        }).toList();
+//    }
+
     public List<BookingRequest> getBookingsByUserId(Long userId) {
         List<Booking> bookings = bookingRepository.findByUserId(userId);
 
-        return bookings.stream().map(booking -> {
-        	BookingRequest dto = new BookingRequest();
-            dto.setBookingId(booking.getBookingId());
-            dto.setBookingStatus(booking.getBookingStatus());
-            dto.setBookingType(booking.getBookingType());
-            dto.setBookingAmount(booking.getBookingAmount());
-            dto.setBookingStartTime(booking.getBookingStartTime());
-            dto.setBookingEndTime(booking.getBookingEndTime());
-            dto.setBookingStatus(booking.getBookingStatus());
+        return bookings.stream()
+            .filter(booking -> !"Paid".equalsIgnoreCase(booking.getPaymentStatus())) // ✅ Filter based on paymentStatus
+            .map(booking -> {
+                BookingRequest dto = new BookingRequest();
+                dto.setBookingId(booking.getBookingId());
+                dto.setBookingStatus(booking.getBookingStatus());
+                dto.setBookingType(booking.getBookingType());
+                dto.setBookingAmount(booking.getBookingAmount());
+                dto.setBookingStartTime(booking.getBookingStartTime());
+                dto.setBookingEndTime(booking.getBookingEndTime());
+                dto.setBookingStatus(booking.getBookingStatus());
 
-            String serviceType = booking.getServiceType();
-            dto.setServiceTypes(serviceType);
+                String serviceType = booking.getServiceType();
+                dto.setServiceTypes(serviceType);
 
-            // Set the name based on the service
-            switch (serviceType) {
-                case "physio" -> dto.setServiceName(booking.getPhysio().getPhysioName());
-                case "translator" -> dto.setServiceName(booking.getTranslator().getTranslatorName());
-                case "spa" -> dto.setServiceName(booking.getSpa().getServiceName());
-                case "doctor" -> dto.setServiceName(booking.getDoctors().getName());
-                case "labtests" -> dto.setServiceName(booking.getLabtests().getTestTitle());
-                case "chef" -> dto.setServiceName(booking.getChef().getChefName());
-                default -> dto.setServiceName("Unknown");
-            }
+                // Set the name based on the service
+                switch (serviceType) {
+                    case "physio" -> dto.setServiceName(booking.getPhysio().getPhysioName());
+                    case "translator" -> dto.setServiceName(booking.getTranslator().getTranslatorName());
+                    case "spa" -> dto.setServiceName(booking.getSpa().getServiceName());
+                    case "doctor" -> dto.setServiceName(booking.getDoctors().getName());
+                    case "labtests" -> dto.setServiceName(booking.getLabtests().getTestTitle());
+                    case "chef" -> dto.setServiceName(booking.getChef().getChefName());
+                    default -> dto.setServiceName("Unknown");
+                }
 
-            return dto;
-        }).toList();
+                return dto;
+            }).toList();
     }
 
     

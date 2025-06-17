@@ -3,6 +3,8 @@ package hospital.tourism.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -19,6 +21,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@SQLDelete(sql = "UPDATE Translators SET status = 'inactive' WHERE id = ?")
 public class Translators {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +31,7 @@ public class Translators {
     private String translatorImage;
     private String translatorRating;
     private String translatorLanguages;
-    private String Status;
+    private String status;
     private Double price;
     private String translatorAddress;
     private Integer translatorLocIdInteger;

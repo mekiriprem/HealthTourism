@@ -50,5 +50,24 @@ public class DiagonosticsServices {
 
 		return dto;
     }
+    
+    
+    // Soft delete
+    public void softDeleteDiognstics(Integer id) {
+        Diognstics entity = diagnosticsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Diognstics not found with ID: " + id));
+        entity.setStatus("Inactive");
+        diagnosticsRepo.save(entity);
+    }
+
+    // Reactivate
+    public void activateDiognstics(Integer id) {
+        Diognstics entity = diagnosticsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Diognstics not found with ID: " + id));
+        if ("Inactive".equalsIgnoreCase(entity.getStatus())) {
+            entity.setStatus("Active");
+            diagnosticsRepo.save(entity);
+        }
+    }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import hospital.tourism.Dto.SpaServiceDTO;
 import hospital.tourism.Entity.SpaCenter;
 import hospital.tourism.Entity.SpaServicese;
+import hospital.tourism.Entity.Translators;
 import hospital.tourism.repo.SpaCenterRepo;
 import hospital.tourism.repo.SpaservicesRepo;
 
@@ -53,6 +54,7 @@ public List<SpaServiceDTO>getAllServicesss(){
 		spaServiceDTO.setRating(spaService.getRating());
 		spaServiceDTO.setPrice(spaService.getPrice());
 		spaServiceDTO.setSpaCenterId(spaService.getSpaCenter().getSpaId());
+		spaServiceDTO.setStatus(spaService.getStatus());
 		return spaServiceDTO;
 	}).toList();
 	
@@ -70,6 +72,28 @@ public SpaServiceDTO getoneRecordById(Long spaId) {
 	spaServiceDTO.setPrice(spaServicese.getPrice());
 	spaServiceDTO.setSpaCenterId(spaServicese.getSpaCenter().getSpaId());
 	return spaServiceDTO;
+}
+
+public void softDeleteSpaService(Long id) {
+    SpaServicese translator = spaservicesRepo.findById(id)
+        .orElseThrow(() -> new RuntimeException("Translator not found"));
+
+    translator.setStatus("Inactive");
+    spaservicesRepo.save(translator);
+}
+
+
+public void activateIfInactive(Long id) {
+    SpaServicese spaService = spaservicesRepo.findById(id)
+        .orElseThrow(() -> new RuntimeException("Spa Service not found"));
+
+    if ("Inactive".equalsIgnoreCase(spaService.getStatus())) {
+        spaService.setStatus("Active");
+        spaservicesRepo.save(spaService);
+        System.out.println("✅ Spa Service status changed to Active.");
+    } else {
+        System.out.println("ℹ️ Spa Service is already Active.");
+    }
 }
 
 }

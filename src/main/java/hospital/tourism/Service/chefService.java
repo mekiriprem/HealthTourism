@@ -173,6 +173,21 @@ public class chefService {
         return chefDto;
     }
 
+    public void softDeleteChef(Long id) {
+        Chefs chef = chefsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Chef not found with ID: " + id));
+        chef.setStatus("Inactive");
+        chefsRepo.save(chef);
+    }
+
+    public void activateChef(Long id) {
+        Chefs chef = chefsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Chef not found with ID: " + id));
+        if ("Inactive".equalsIgnoreCase(chef.getStatus())) {
+            chef.setStatus("Active");
+            chefsRepo.save(chef);
+        }
+    }
     
 	
 

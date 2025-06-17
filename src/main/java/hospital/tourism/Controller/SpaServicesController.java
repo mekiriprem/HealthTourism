@@ -119,4 +119,15 @@ public class SpaServicesController {
 		SpaServiceDTO spaService = spaServicessImpl.getoneRecordById(spaId);
 		return ResponseEntity.ok(spaService);
 	}
+    @PutMapping("/updateSpaService/{spaId}")
+	public String deleteSoftly(@PathVariable Long spaId) {
+		 spaServicessImpl.softDeleteSpaService(spaId);
+		return "deleted successfully";
+	}
+    
+    @PutMapping("/activate/{id}")
+    public String activateSpaService(@PathVariable Long id) {
+        spaServicessImpl.activateIfInactive(id);
+       return "Spa Service with ID " + id + " has been activated successfully.";
+    }
 }

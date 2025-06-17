@@ -12,4 +12,8 @@ public class SpaServiceDTO {
     private Integer spaCenterId;  // ID of existing SpaCenter
     // getters and setters
 	private Long serviceIdLong;
+	private String status;
+		// TODO Auto-generated method stub
+		
+	
 }

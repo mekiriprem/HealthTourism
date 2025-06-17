@@ -3,22 +3,18 @@ package hospital.tourism.Controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.print.PrintService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Dto.PhysioDTO;
-import hospital.tourism.Dto.SpaCenterDTO;
-import hospital.tourism.Entity.Chefs;
 import hospital.tourism.Entity.Physio;
-import hospital.tourism.Entity.SpaCenter;
 import hospital.tourism.Service.PhysioImpl;
 
 @RestController
@@ -65,4 +61,14 @@ public class PhysioController {
 			PhysioDTO dto = physioService.getPhysioById(physioId);
 			return ResponseEntity.ok(dto);
 		}
+	    @PutMapping("/soft-delete/{id}")
+	    public void softDeletePhysio(@PathVariable Long id) {
+	        physioService.softDeletePhysio(id);
+	    }
+
+	    // Activate physio (if status is Inactive)
+	    @PutMapping("/activate/{id}")
+	    public void activatePhysio(@PathVariable Long id) {
+	        physioService.activatePhysioIfInactive(id);
+	    }
 }

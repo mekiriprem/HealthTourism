@@ -1,18 +1,16 @@
 package hospital.tourism.Controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Dto.ChefDTO;
@@ -59,7 +57,15 @@ public class ChefController {
 		}
 	}
     
-  
+    @PutMapping("/soft-delete/{id}")
+    public void softDelete(@PathVariable Long id) {
+    	chefService.softDeleteChef(id);
+    }
+
+    @PutMapping("/activate/{id}")
+    public void activate(@PathVariable Long id) {
+    	chefService.activateChef(id);
+    }
     
     
 }

@@ -117,5 +117,16 @@ public class HospitalController {
     public List<Doctors> getDoctorsByHospital(@PathVariable Integer hospitalId) {
         return hospitalService.getDoctorsByHospitalId(hospitalId);
     }
+    
+    
+    @PutMapping("/soft-delete/{id}")
+    public void softDeleteHospital(@PathVariable Integer id) {
+        hospitalService.softDeleteHospital(id);
+    }
+
+    @PutMapping("/activate/{id}")
+    public void activateHospital(@PathVariable Integer id) {
+        hospitalService.activateHospitalIfInactive(id);
+    }
 
 }

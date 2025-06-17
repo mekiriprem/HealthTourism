@@ -37,4 +37,23 @@ public class LabtestsServices {
         return labtestsRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
     }
+    
+    public void softDeleteLabtest(Long id) {
+        Labtests labtest = labtestsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
+
+        labtest.setStatus("Inactive");
+        labtestsRepo.save(labtest);
+    }
+
+    // Activate lab test if inactive
+    public void activateLabtestIfInactive(Long id) {
+        Labtests labtest = labtestsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
+
+        if ("Inactive".equalsIgnoreCase(labtest.getStatus())) {
+            labtest.setStatus("Active");
+            labtestsRepo.save(labtest);
+        }
+    }
 }

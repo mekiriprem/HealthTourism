@@ -55,4 +55,14 @@ public class LabtestsController {
             .toList();
         return ResponseEntity.ok(tests);
     }
+    @PutMapping("/soft-delete/{id}")
+    public void softDeleteLabtest(@PathVariable Long id) {
+    	labtestsServices.softDeleteLabtest(id);
+    }
+
+    // Reactivate endpoint
+    @PutMapping("/activate/{id}")
+    public void activateLabtest(@PathVariable Long id) {
+    	labtestsServices.activateLabtestIfInactive(id);
+    }
 }

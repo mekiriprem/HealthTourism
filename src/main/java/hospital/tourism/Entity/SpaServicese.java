@@ -1,6 +1,8 @@
 
 package hospital.tourism.Entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +15,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "spa_services")
+@SQLDelete(sql = "UPDATE spa_services SET status = 'inactive' WHERE id = ?")
 public class SpaServicese {
 	@Id
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
@@ -26,6 +29,8 @@ public class SpaServicese {
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "spa_id")
 	private SpaCenter spaCenter;
+
+	private String status;
 	
 //    @OneToMany(mappedBy = "spa", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<ServiceSlot> slots = new ArrayList<>();

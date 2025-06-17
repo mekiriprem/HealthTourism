@@ -1,15 +1,20 @@
 package hospital.tourism.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.annotations.SQLDelete;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Entity
 @Data
+@SQLDelete(sql = "UPDATE labtests SET status = 'Inactive' WHERE id = ?") 
 public class Labtests {
 
     @Id

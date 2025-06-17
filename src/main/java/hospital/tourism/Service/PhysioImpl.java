@@ -69,5 +69,24 @@ public class PhysioImpl {
         return dto;
     }
 
+    // Soft delete by setting status to "Inactive"
+    public void softDeletePhysio(Long id) {
+        Physio physio = physioRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Physio not found with ID: " + id));
+
+        physio.setStatus("Inactive");
+        physioRepo.save(physio);
+    }
+
+    // Activate if currently inactive
+    public void activatePhysioIfInactive(Long id) {
+        Physio physio = physioRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Physio not found with ID: " + id));
+
+        if ("Inactive".equalsIgnoreCase(physio.getStatus())) {
+            physio.setStatus("Active");
+            physioRepo.save(physio);
+        }
+    }
 	
 }

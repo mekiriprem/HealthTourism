@@ -43,5 +43,16 @@ public class DiognosticsController {
     	DiagnosticsDTO diagnostics = diagonosticsServices.getdiagnosticbyId(diagId);
 		return ResponseEntity.ok(diagnostics);
 	}
+    
+    
+    @PutMapping("/soft-delete/{id}")
+    public void softDelete(@PathVariable Integer id) {
+    	diagonosticsServices.softDeleteDiognstics(id);
+    }
+
+    @PutMapping("/activate/{id}")
+    public void activate(@PathVariable Integer id) {
+    	diagonosticsServices.activateDiognstics(id);
+    }
 }
 
