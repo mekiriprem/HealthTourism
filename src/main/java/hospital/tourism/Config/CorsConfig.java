@@ -18,13 +18,14 @@ public class CorsConfig {
 	/*"https://hospital-tourism-fe.vercel.app"*/
 	/*http://localhost:8081/
 	*/    
+	
 	@Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")  // allow all paths
-						.allowedOrigins( "http://localhost:8081")  // allow frontend origin
+						.allowedOrigins( "https://hospital-tourism-fe.vercel.app")  // allow frontend origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);
