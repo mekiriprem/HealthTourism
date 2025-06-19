@@ -50,6 +50,10 @@ public class Booking {
    
 
     private String additionalRemarks;
+    
+    @ManyToOne
+    @JoinColumn(name = "sales_id")
+    private SalesTeam salesTeam;
 
    
     @ManyToOne
