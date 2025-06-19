@@ -90,22 +90,22 @@ public class UserService {
 	    	// Append uploaded file URLs to existing values
 	    	if (profilePicture != null && !profilePicture.isEmpty()) {
 	    		String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
-	    		user.getProfilePictureUrl().add(url);
+	    		user.getProfilePictureUrl();
 	    	}
 
 	    	if (prescription != null && !prescription.isEmpty()) {
 	    		String url = uploadFileToSupabase(prescription, "prescriptions", empId);
-	    		user.getPrescriptionUrl().add(url);
+	    		user.getPrescriptionUrl();
 	    	}
 
 	    	if (patientaxrays != null && !patientaxrays.isEmpty()) {
 	    		String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
-	    		user.getPatientaxraysUrl().add(url);
+	    		user.getPatientaxraysUrl();
 	    	}
 
 	    	if (patientreports != null && !patientreports.isEmpty()) {
 	    		String url = uploadFileToSupabase(patientreports, "reports", empId);
-	    		user.getPatientreportsUrl().add(url);
+	    		user.getPatientreportsUrl();
 	    	}
 
 	    	userRepository.save(user);

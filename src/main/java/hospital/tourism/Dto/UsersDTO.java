@@ -21,13 +21,15 @@ public class UsersDTO {
 
     private boolean emailVerified;
 
-    private List< String> profilePictureUrl;
+    private String profilePictureUrl;
     
-    private List<String> prescriptionUrl;
+    private String prescriptionUrl;
     
-    private List<String> patientaxraysUrl;
+    private String patientaxraysUrl;
     
-    private List<String> patientreportsUrl;
+    private String patientreportsUrl;
+    private String verificationToken;
+    private String password;
     private String address;
 
     @Column(name = "package_booking_id")
