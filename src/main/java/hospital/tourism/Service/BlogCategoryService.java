@@ -128,4 +128,5 @@ public class BlogCategoryService {
 				.orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
 		blogCategoryRepo.delete(category);
 	}
+	
 }

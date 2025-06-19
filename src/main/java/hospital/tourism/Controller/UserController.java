@@ -101,6 +101,16 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
 		}
 	}
+	
+	@PutMapping("/update-user/{empId}")
+	public ResponseEntity<UsersDTO> updateUser(@PathVariable Long empId, @RequestBody UsersDTO userDto) {
+		try {
+			UsersDTO updatedUser = userService.updateUserDetails(empId, userDto);
+			return ResponseEntity.ok(updatedUser);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
 
 
 }

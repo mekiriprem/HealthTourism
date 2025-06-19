@@ -29,6 +29,7 @@ import hospital.tourism.Entity.BlogCategory;
 import hospital.tourism.Entity.Blogs;
 import hospital.tourism.repo.BlogCategoryRepo;
 import hospital.tourism.repo.BlogsRepo;
+import jakarta.transaction.Transactional;
 
 @Service
 public class BlogServiceImpl {
@@ -140,5 +141,88 @@ public class BlogServiceImpl {
 				return dto;
 			}).collect(Collectors.toList());
 		}
+		
+		@Transactional
+		public BlogsDTO updateBlog(Long blogId, BlogsDTO dto, MultipartFile image) throws IOException {
+		    Blogs blog = blogsRepository.findById(blogId)
+		            .orElseThrow(() -> new RuntimeException("Blog not found with ID: " + blogId));
+
+		    // Update basic fields
+		    blog.setAuthorEmail(dto.getAuthorEmail());
+		    blog.setAuthorName(dto.getAuthorName());
+		    blog.setMetaTitle(dto.getMetaTitle());
+		    blog.setMetaDescription(dto.getMetaDescription());
+		    blog.setTitle(dto.getTitle());
+		    blog.setShortDescription(dto.getShortDescription());
+		    blog.setContent(dto.getContent());
+
+		    // Handle category if provided
+		    if (dto.getCategoryId() != null) {
+		        BlogCategory category = categoryRepository.findById(dto.getCategoryId())
+		                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + dto.getCategoryId()));
+		        blog.setCategory(category);
+		    }
+
+		    // Upload new image if provided
+		    if (image != null && !image.isEmpty()) {
+		        String imageUrl = uploadFileToSupabase(image, "blog_images", blog.getBlogId());
+		        blog.setCoverImage(imageUrl);
+		    }
+
+		    // Save updated blog
+		    Blogs savedBlog = blogsRepository.save(blog);
+
+		    // Prepare and return DTO
+		    BlogsDTO updatedBlog = new BlogsDTO();
+		    updatedBlog.setBlogId(savedBlog.getBlogId());
+		    updatedBlog.setAuthorEmail(savedBlog.getAuthorEmail());
+		    updatedBlog.setAuthorName(savedBlog.getAuthorName());
+		    updatedBlog.setMetaTitle(savedBlog.getMetaTitle());
+		    updatedBlog.setMetaDescription(savedBlog.getMetaDescription());
+		    updatedBlog.setTitle(savedBlog.getTitle());
+		    updatedBlog.setShortDescription(savedBlog.getShortDescription());
+		    updatedBlog.setContent(savedBlog.getContent());
+		    updatedBlog.setCoverImage(savedBlog.getCoverImage());
+
+		    if (savedBlog.getCategory() != null) {
+		        updatedBlog.setCategoryId(savedBlog.getCategory().getBlogCategoryId());
+		        updatedBlog.setCategoryName(savedBlog.getCategory().getBlogCategoryName());
+		    }
+
+		    return updatedBlog;
+		}
+
+
+		//delete blog
+		public void deleteBlog(Long blogId) {
+			Blogs blog = blogsRepository.findById(blogId)
+					.orElseThrow(() -> new RuntimeException("Blog not found with ID: " + blogId));
+			blogsRepository.delete(blog);
+		}
+		
+		// Get Blog by ID
+		public BlogsDTO getBlogById(Long blogId) {
+			Blogs blog = blogsRepository.findById(blogId)
+					.orElseThrow(() -> new RuntimeException("Blog not found with ID: " + blogId));
+
+			BlogsDTO dto = new BlogsDTO();
+			dto.setBlogId(blog.getBlogId());
+			dto.setAuthorEmail(blog.getAuthorEmail());
+			dto.setAuthorName(blog.getAuthorName());
+			dto.setMetaTitle(blog.getMetaTitle());
+			dto.setMetaDescription(blog.getMetaDescription());
+			dto.setTitle(blog.getTitle());
+			dto.setShortDescription(blog.getShortDescription());
+			dto.setContent(blog.getContent());
+			dto.setCoverImage(blog.getCoverImage());
+
+			if (blog.getCategory() != null) {
+				dto.setCategoryId(blog.getCategory().getBlogCategoryId());
+				dto.setCategoryName(blog.getCategory().getBlogCategoryName());
+			}
+
+			return dto;
+		}
+		
 }
 

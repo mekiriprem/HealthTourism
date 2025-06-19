@@ -206,20 +206,24 @@ return mapToDTO(user);
 
 
 	    public UsersDTO getUserById(Long empId) {
-		    users user = userRepository.findById(empId)
-		    		.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
-		    UsersDTO dto = new UsersDTO();
-		    dto.setId(user.getId());
-		    dto.setName(user.getName());
-		    dto.setEmail(user.getEmail());
-		    dto.setMobilenum(user.getMobilenum());
-		    dto.setCountry(user.getCountry());
-		    dto.setRole(user.getRole());
-		    dto.setEmailVerified(user.isEmailVerified());
-		    dto.setProfilePictureUrls(user.getProfilePictureUrls());
-		    dto.setAddress(user.getAddress());
-		    return dto;  
-	     }
+	        users user = userRepository.findById(empId)
+	                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+
+	        UsersDTO dto = new UsersDTO();
+	           dto.setId(user.getId());
+	           	dto.setName(user.getName());
+	           	 dto.setEmail(user.getEmail());
+	           	 dto.setMobilenum(user.getMobilenum());
+	           	 dto.setCountry(user.getCountry());
+	           	 dto.setRole(user.getRole());
+	           	 dto.setEmailVerified(user.isEmailVerified());
+	           	 dto.setAddress(user.getAddress());
+	           	 	dto.setProfilePictureUrls(user.getProfilePictureUrls() );
+	           	 	dto.setPrescriptionUrls(user.getPrescriptionUrls() );
+	           	 	dto.setPatientAxraysUrls(user.getPatientAxraysUrls() );
+	           	 	dto.setPatientReportsUrls(user.getPatientReportsUrls() );
+	           	 	return dto;
+	           	 	}
 	    
 	    
 	    
@@ -245,11 +249,26 @@ return mapToDTO(user);
 	        return dto;
 	    }
 
-			
 			public users getAllPatients() {
 				return userRepository.findAll()
 						.stream().filter(user -> "PATIENT".equalsIgnoreCase(user.getRole())).findFirst()
 						.orElseThrow(() -> new IllegalArgumentException("No patients found"));
+			}
+			
+			
+			
+			public UsersDTO updateUserDetails(Long empId, UsersDTO userDto) {
+				users user = userRepository.findById(empId)
+						.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+
+				user.setName(userDto.getName());
+				user.setEmail(userDto.getEmail());
+				user.setMobilenum(userDto.getMobilenum());
+				user.setCountry(userDto.getCountry());
+				user.setAddress(userDto.getAddress());
+
+				users updatedUser = userRepository.save(user);
+				return mapToDTO(updatedUser);
 			}
 }
 		
