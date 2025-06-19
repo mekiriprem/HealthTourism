@@ -4,11 +4,14 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 
@@ -16,55 +19,61 @@ import lombok.Data;
 @Data
 // or "patients"
 public class users {
+	 @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	    private String name;
 
-    private String name;
-    
-    @Column(nullable = false, unique = true)
-    private String email;
-    
-    @Column(nullable = false)
-    private long mobilenum;
-    
-    @Column(nullable = false)
-    private String country;
-    
-    @Column(nullable = false)
-    private String password;
+	    @Column(nullable = false, unique = true)
+	    private String email;
 
-    // Optional: role field for admin/patient
-    @Column(nullable = false)
-    private String role = "PATIENT";
-    
-    @Column(nullable = false)
-    private boolean emailVerified = false;
+	    @Column(nullable = false)
+	    private long mobilenum;
 
-    @Column(unique = true)
-    private String verificationToken;
-    
-    
-    private String profilePictureUrl;
-    
-    private String prescriptionUrl;
-    
-    private String patientaxraysUrl;
-    
-    private String patientreportsUrl;
-    
-    private String address;
-    
- 
+	    @Column(nullable = false)
+	    private String country;
 
-    @OneToMany(mappedBy = "user")
-    @JsonIgnoreProperties("user") // 👈 Avoid circular reference back to user
-    private List<Booking> bookings;
-    
-    @Column(name = "package_booking_id")
-    private String packageBookingId;
+	    @Column(nullable = false)
+	    private String password;
 
+	    @Column(nullable = false)
+	    private String role = "PATIENT";
+
+	    @Column(nullable = false)
+	    private boolean emailVerified = false;
+
+	    @Column(unique = true)
+	    private String verificationToken;
+
+	    @ElementCollection
+	    @CollectionTable(name = "user_profile_pictures", joinColumns = @JoinColumn(name = "user_id"))
+	    @Column(name = "url")
+	    private List<String> profilePictureUrls;
+
+	    @ElementCollection
+	    @CollectionTable(name = "user_prescriptions", joinColumns = @JoinColumn(name = "user_id"))
+	    @Column(name = "url")
+	    private List<String> prescriptionUrls;
+
+	    @ElementCollection
+	    @CollectionTable(name = "user_xrays", joinColumns = @JoinColumn(name = "user_id"))
+	    @Column(name = "url")
+	    private List<String> patientAxraysUrls;
+
+	    @ElementCollection
+	    @CollectionTable(name = "user_reports", joinColumns = @JoinColumn(name = "user_id"))
+	    @Column(name = "url")
+	    private List<String> patientReportsUrls;
+
+	    private String address;
+
+	    @OneToMany(mappedBy = "user")
+	    @JsonIgnoreProperties("user")
+	    private List<Booking> bookings;
+
+	    @Column(name = "package_booking_id")
+	    private String packageBookingId;
 
 
 }

@@ -1,6 +1,7 @@
 package hospital.tourism.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -84,33 +85,44 @@ public class UserService {
                 MultipartFile patientaxrays,
                 MultipartFile patientreports) {
 
-	    	users user = userRepository.findById(empId)
-	    			.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
+users user = userRepository.findById(empId)
+.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
 
-	    	// Append uploaded file URLs to existing values
-	    	if (profilePicture != null && !profilePicture.isEmpty()) {
-	    		String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
-	    		user.getProfilePictureUrl();
-	    	}
+if (profilePicture != null && !profilePicture.isEmpty()) {
+String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
+if (user.getProfilePictureUrls() == null) {
+user.setProfilePictureUrls(new ArrayList<>());
+}
+user.getProfilePictureUrls().add(url);
+}
 
-	    	if (prescription != null && !prescription.isEmpty()) {
-	    		String url = uploadFileToSupabase(prescription, "prescriptions", empId);
-	    		user.getPrescriptionUrl();
-	    	}
+if (prescription != null && !prescription.isEmpty()) {
+String url = uploadFileToSupabase(prescription, "prescriptions", empId);
+if (user.getPrescriptionUrls() == null) {
+user.setPrescriptionUrls(new ArrayList<>());
+}
+user.getPrescriptionUrls().add(url);
+}
 
-	    	if (patientaxrays != null && !patientaxrays.isEmpty()) {
-	    		String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
-	    		user.getPatientaxraysUrl();
-	    	}
+if (patientaxrays != null && !patientaxrays.isEmpty()) {
+String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
+if (user.getPatientAxraysUrls() == null) {
+user.setPatientAxraysUrls(new ArrayList<>());
+}
+user.getPatientAxraysUrls().add(url);
+}
 
-	    	if (patientreports != null && !patientreports.isEmpty()) {
-	    		String url = uploadFileToSupabase(patientreports, "reports", empId);
-	    		user.getPatientreportsUrl();
-	    	}
+if (patientreports != null && !patientreports.isEmpty()) {
+String url = uploadFileToSupabase(patientreports, "reports", empId);
+if (user.getPatientReportsUrls() == null) {
+user.setPatientReportsUrls(new ArrayList<>());
+}
+user.getPatientReportsUrls().add(url);
+}
 
-	    	userRepository.save(user);
-	    	return mapToDTO(user);
-	    }
+userRepository.save(user);
+return mapToDTO(user);
+}
 
 	    private String uploadFileToSupabase(MultipartFile file, String folder, Long empId) {
 	        try {
@@ -139,23 +151,27 @@ public class UserService {
 	        }
 	    }
 
+	    private UsersDTO mapToDTO(users user) {
+	        UsersDTO dto = new UsersDTO();
+	        dto.setId(user.getId());
+	        dto.setName(user.getName());
+	        dto.setEmail(user.getEmail());
+	        dto.setMobilenum(user.getMobilenum());
+	        dto.setCountry(user.getCountry());
+	        dto.setRole(user.getRole());
+	        dto.setEmailVerified(user.isEmailVerified());
+	        dto.setVerificationToken(user.getVerificationToken());
+	        dto.setAddress(user.getAddress());
+	        dto.setPackageBookingId(user.getPackageBookingId());
 
-private UsersDTO mapToDTO(users user) {
-UsersDTO dto = new UsersDTO();
-dto.setId(user.getId());
-dto.setName(user.getName());
-dto.setEmail(user.getEmail());
-dto.setMobilenum(user.getMobilenum());
-dto.setCountry(user.getCountry());
-dto.setRole(user.getRole());
-dto.setEmailVerified(user.isEmailVerified());
-dto.setProfilePictureUrl(user.getProfilePictureUrl());
-dto.setPrescriptionUrl(user.getPrescriptionUrl());
-dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
-dto.setPatientreportsUrl(user.getPatientreportsUrl());
-return dto;
-}
-	    
+	        dto.setProfilePictureUrls(user.getProfilePictureUrls());
+	        dto.setPrescriptionUrls(user.getPrescriptionUrls());
+	        dto.setPatientAxraysUrls(user.getPatientAxraysUrls());
+	        dto.setPatientReportsUrls(user.getPatientReportsUrls());
+
+	        return dto;
+	    }
+    
 	    
 	    public List<UsersDTO> getAllUsers() {
 	        List<users> userList = userRepository.findAll();
@@ -172,10 +188,10 @@ return dto;
             dto.setCountry(user.getCountry());
             dto.setRole(user.getRole());
             dto.setEmailVerified(user.isEmailVerified());
-            dto.setProfilePictureUrl(user.getProfilePictureUrl());
-            dto.setPrescriptionUrl(user.getPrescriptionUrl());
-            dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
-            dto.setPatientreportsUrl(user.getPatientreportsUrl());
+            dto.setProfilePictureUrls(user.getProfilePictureUrls());
+            dto.setPrescriptionUrls(user.getPrescriptionUrls());
+            dto.setPatientAxraysUrls(user.getPatientAxraysUrls());
+            dto.setPatientReportsUrls(user.getPatientReportsUrls());
             dto.setAddress(user.getAddress());
             // If you have a bookingIds field in UsersDTO, you can set it here
             // dto.setBookingIds(user.getBookings().stream().map(booking -> booking.getId()).collect(Collectors.toList()));
@@ -200,33 +216,35 @@ return dto;
 		    dto.setCountry(user.getCountry());
 		    dto.setRole(user.getRole());
 		    dto.setEmailVerified(user.isEmailVerified());
-		    dto.setProfilePictureUrl(user.getProfilePictureUrl());
+		    dto.setProfilePictureUrls(user.getProfilePictureUrls());
 		    dto.setAddress(user.getAddress());
 		    return dto;  
 	     }
 	    
 	    
 	    
-	    
-			public UsersDTO getAllDocuments(Long empId) {
-				users user = userRepository.findById(empId)
-						.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
-				UsersDTO dto = new UsersDTO();
-				dto.setId(user.getId());
-				dto.setName(user.getName());
-				dto.setEmail(user.getEmail());
-				dto.setMobilenum(user.getMobilenum());
-				dto.setCountry(user.getCountry());
-				dto.setRole(user.getRole());
-				dto.setEmailVerified(user.isEmailVerified());
-				
-				dto.setProfilePictureUrl(user.getProfilePictureUrl());
-				dto.setPrescriptionUrl(user.getPrescriptionUrl());
-				dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
-				dto.setPatientreportsUrl(user.getPatientreportsUrl());
-				dto.setAddress(user.getAddress());
-				return dto;
-			}
+	    public UsersDTO getAllDocuments(Long empId) {
+	        users user = userRepository.findById(empId)
+	                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+
+	        UsersDTO dto = new UsersDTO();
+	        dto.setId(user.getId());
+	        dto.setName(user.getName());
+	        dto.setEmail(user.getEmail());
+	        dto.setMobilenum(user.getMobilenum());
+	        dto.setCountry(user.getCountry());
+	        dto.setRole(user.getRole());
+	        dto.setEmailVerified(user.isEmailVerified());
+	        dto.setAddress(user.getAddress());
+
+	        dto.setProfilePictureUrls(user.getProfilePictureUrls() != null ? user.getProfilePictureUrls() : new ArrayList<>());
+	        dto.setPrescriptionUrls(user.getPrescriptionUrls() != null ? user.getPrescriptionUrls() : new ArrayList<>());
+	        dto.setPatientAxraysUrls(user.getPatientAxraysUrls() != null ? user.getPatientAxraysUrls() : new ArrayList<>());
+	        dto.setPatientReportsUrls(user.getPatientReportsUrls() != null ? user.getPatientReportsUrls() : new ArrayList<>());
+
+	        return dto;
+	    }
+
 			
 			public users getAllPatients() {
 				return userRepository.findAll()

@@ -7,33 +7,21 @@ import lombok.Data;
 @Data
 public class UsersDTO {
 
-	private Long id;
+	 private Long id;
+	    private String name;
+	    private String email;
+	    private long mobilenum;
+	    private String country;
+	    private String password;
+	    private String role;
+	    private boolean emailVerified;
+	    private String verificationToken;
 
-    private String name;
+	    private List<String> profilePictureUrls;
+	    private List<String> prescriptionUrls;
+	    private List<String> patientAxraysUrls;
+	    private List<String> patientReportsUrls;
 
-    private String email;
-
-    private long mobilenum;
-
-    private String country;
-
-    private String role;
-
-    private boolean emailVerified;
-
-    private String profilePictureUrl;
-    
-    private String prescriptionUrl;
-    
-    private String patientaxraysUrl;
-    
-    private String patientreportsUrl;
-    private String verificationToken;
-    private String password;
-    private String address;
-
-    @Column(name = "package_booking_id")
-    private String packageBookingId;
-    
-    private List<Long> bookingIds;
+	    private String address;
+	    private String packageBookingId;
 }
