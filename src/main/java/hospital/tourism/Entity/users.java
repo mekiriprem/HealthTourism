@@ -46,13 +46,13 @@ public class users {
     private String verificationToken;
     
     
-    private String profilePictureUrl;
+    private List< String> profilePictureUrl;
     
-    private String prescriptionUrl;
+    private List<String> prescriptionUrl;
     
-    private String patientaxraysUrl;
+    private List<String> patientaxraysUrl;
     
-    private String patientreportsUrl;
+    private List<String> patientreportsUrl;
     
     private String address;
     

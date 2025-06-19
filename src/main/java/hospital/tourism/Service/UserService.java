@@ -78,60 +78,67 @@ public class UserService {
 		return user;
 	}
 	    
-	    public UsersDTO uploadFilesAndUpdateUser(Long empId, MultipartFile profilePicture,
+	    public UsersDTO uploadFilesAndUpdateUser(Long empId,
+                MultipartFile profilePicture,
                 MultipartFile prescription,
                 MultipartFile patientaxrays,
                 MultipartFile patientreports) {
 
-users user = userRepository.findById(empId)
-.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
+	    	users user = userRepository.findById(empId)
+	    			.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
 
-if (profilePicture != null && !profilePicture.isEmpty()) {
-user.setProfilePictureUrl(uploadFileToSupabase(profilePicture, "profile_pictures", empId));
-}
+	    	// Append uploaded file URLs to existing values
+	    	if (profilePicture != null && !profilePicture.isEmpty()) {
+	    		String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
+	    		user.getProfilePictureUrl().add(url);
+	    	}
 
-if (prescription != null && !prescription.isEmpty()) {
-user.setPrescriptionUrl(uploadFileToSupabase(prescription, "prescriptions", empId));
-}
+	    	if (prescription != null && !prescription.isEmpty()) {
+	    		String url = uploadFileToSupabase(prescription, "prescriptions", empId);
+	    		user.getPrescriptionUrl().add(url);
+	    	}
 
-if (patientaxrays != null && !patientaxrays.isEmpty()) {
-user.setPatientaxraysUrl(uploadFileToSupabase(patientaxrays, "xray_files", empId));
-}
+	    	if (patientaxrays != null && !patientaxrays.isEmpty()) {
+	    		String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
+	    		user.getPatientaxraysUrl().add(url);
+	    	}
 
-if (patientreports != null && !patientreports.isEmpty()) {
-user.setPatientreportsUrl(uploadFileToSupabase(patientreports, "reports", empId));
-}
+	    	if (patientreports != null && !patientreports.isEmpty()) {
+	    		String url = uploadFileToSupabase(patientreports, "reports", empId);
+	    		user.getPatientreportsUrl().add(url);
+	    	}
 
-userRepository.save(user);
-return mapToDTO(user);
-}
+	    	userRepository.save(user);
+	    	return mapToDTO(user);
+	    }
 
-private String uploadFileToSupabase(MultipartFile file, String folder, Long empId) {
-try {
-String fileName = "emp" + empId + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + folder + "/" + fileName;
+	    private String uploadFileToSupabase(MultipartFile file, String folder, Long empId) {
+	        try {
+	            String fileName = "emp" + empId + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ", "_");
+	            String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + folder + "/" + fileName;
 
-OkHttpClient client = new OkHttpClient();
-RequestBody body = RequestBody.create(file.getBytes(), MediaType.parse(file.getContentType()));
+	            OkHttpClient client = new OkHttpClient();
+	            RequestBody body = RequestBody.create(file.getBytes(), MediaType.parse(file.getContentType()));
 
-Request request = new Request.Builder()
-.url(uploadUrl)
-.header("apikey", supabaseApiKey)
-.header("Authorization", "Bearer " + supabaseApiKey)
-.put(body)
-.build();
+	            Request request = new Request.Builder()
+	                    .url(uploadUrl)
+	                    .header("apikey", supabaseApiKey)
+	                    .header("Authorization", "Bearer " + supabaseApiKey)
+	                    .put(body)
+	                    .build();
 
-Response response = client.newCall(request).execute();
+	            Response response = client.newCall(request).execute();
 
-if (!response.isSuccessful()) {
-throw new IOException("Failed to upload to Supabase: " + response);
-}
+	            if (!response.isSuccessful()) {
+	                throw new IOException("Failed to upload to Supabase: " + response);
+	            }
 
-return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + folder + "/" + fileName;
-} catch (Exception e) {
-throw new RuntimeException("File upload failed", e);
-}
-}
+	            return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + folder + "/" + fileName;
+	        } catch (Exception e) {
+	            throw new RuntimeException("File upload failed", e);
+	        }
+	    }
+
 
 private UsersDTO mapToDTO(users user) {
 UsersDTO dto = new UsersDTO();
