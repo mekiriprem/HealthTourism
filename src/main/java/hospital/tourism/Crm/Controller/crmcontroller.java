@@ -33,14 +33,15 @@ public class crmcontroller {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<Booking> assignToSales(
-        @RequestParam Long bookingId,
+    public ResponseEntity<List<Booking>> assignMultipleBookingsToSales(
         @RequestParam Long salesId,
+        @RequestBody List<Long> bookingIds,
         @RequestParam(required = false) String remark
     ) {
-        Booking updated = bookingService.assignToSales(bookingId, salesId, remark);
-        return ResponseEntity.ok(updated);
+        List<Booking> updatedBookings = bookingService.assignMultipleToSales(bookingIds, salesId, remark);
+        return ResponseEntity.ok(updatedBookings);
     }
+
 
     @PostMapping("/followup")
     public ResponseEntity<SalesFollowUp> addFollowUp(
@@ -88,6 +89,11 @@ public class crmcontroller {
         return bookingService.getById(id)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<SalesTeam>> getAllSalesTeam() {
+        return ResponseEntity.ok(bookingService.getAllSales());
     }
 
 

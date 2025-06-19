@@ -10,6 +10,7 @@ public interface SalesFollowUpRepository  extends JpaRepository<SalesFollowUp, L
     List<SalesFollowUp> findBySalesTeam_Id(Long salesId);
     List<SalesFollowUp> findByBooking_Id(Long bookingId);
     
-    List<SalesFollowUp> findByBooking_IdOrderByFollowUpDateDesc(Long bookingId);
+    List<SalesFollowUp> findByBooking_BookingIdOrderByFollowUpDateDesc(Long bookingId);
+
 
 }
