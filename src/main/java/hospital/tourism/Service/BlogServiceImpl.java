@@ -117,5 +117,28 @@ public class BlogServiceImpl {
 	        } else {
 	            throw new RuntimeException("File upload failed: " + response.getStatusCode());
 	        }
+
 	    }
+	    
+		public List<BlogsDTO> getAllBlogs() {
+			List<Blogs> blogs = blogsRepository.findAll();
+			return blogs.stream().map(blog -> {
+				BlogsDTO dto = new BlogsDTO();
+				dto.setBlogId(blog.getBlogId());
+				dto.setAuthorEmail(blog.getAuthorEmail());
+				dto.setAuthorName(blog.getAuthorName());
+				dto.setMetaTitle(blog.getMetaTitle());
+				dto.setMetaDescription(blog.getMetaDescription());
+				dto.setTitle(blog.getTitle());
+				dto.setShortDescription(blog.getShortDescription());
+				dto.setContent(blog.getContent());
+				dto.setCoverImage(blog.getCoverImage());
+				if (blog.getCategory() != null) {
+					dto.setCategoryId(blog.getCategory().getBlogCategoryId());
+					dto.setCategoryName(blog.getCategory().getBlogCategoryName());
+				}
+				return dto;
+			}).collect(Collectors.toList());
+		}
 }
+
