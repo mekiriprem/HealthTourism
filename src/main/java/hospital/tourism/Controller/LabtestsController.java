@@ -65,4 +65,10 @@ public class LabtestsController {
     public void activateLabtest(@PathVariable Long id) {
     	labtestsServices.activateLabtestIfInactive(id);
     }
+    // Update lab test
+    @PutMapping("/update/{id}")
+	public ResponseEntity<Labtests> updateLabtest(@PathVariable Long id, @RequestBody Labtests updatedLabtest) {
+		Labtests labtest = labtestsServices.updateLabtest(id, updatedLabtest);
+		return ResponseEntity.ok(labtest);
+	}
 }

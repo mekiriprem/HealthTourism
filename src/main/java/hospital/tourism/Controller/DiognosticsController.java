@@ -54,5 +54,10 @@ public class DiognosticsController {
     public void activate(@PathVariable Integer id) {
     	diagonosticsServices.activateDiognstics(id);
     }
+    @PutMapping("/update/{id}")
+	public ResponseEntity<DiagnosticsDTO> updateDiagnostics(@PathVariable Integer id, @RequestBody DiagnosticsDTO dto) {
+		DiagnosticsDTO updatedDto = diagonosticsServices.updateDiagnostics(id, dto);
+		return ResponseEntity.ok(updatedDto);
+	}
 }
 

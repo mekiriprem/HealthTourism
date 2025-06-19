@@ -96,4 +96,32 @@ public void activateIfInactive(Long id) {
     }
 }
 
+public SpaServiceDTO updateSpaService(Long spaId, SpaServiceDTO spaServiceDTO) {
+    SpaServicese spaService = spaservicesRepo.findById(spaId)
+        .orElseThrow(() -> new RuntimeException("Spa Service not found with id " + spaId));
+
+    spaService.setServiceName(spaServiceDTO.getServiceName());
+    spaService.setServiceDescription(spaServiceDTO.getServiceDescription());
+    spaService.setServiceImage(spaServiceDTO.getServiceImage());
+    spaService.setRating(spaServiceDTO.getRating());
+    spaService.setPrice(spaServiceDTO.getPrice());
+
+    SpaCenter spaCenter = spaCenterRepo.findById(spaServiceDTO.getSpaCenterId())
+        .orElseThrow(() -> new RuntimeException("Spa Center not found with id " + spaServiceDTO.getSpaCenterId()));
+    spaService.setSpaCenter(spaCenter);
+
+    SpaServicese updatedSpaService = spaservicesRepo.save(spaService);
+    
+    SpaServiceDTO updatedDto = new SpaServiceDTO();
+    updatedDto.setServiceIdLong(updatedSpaService.getServiceId());
+    updatedDto.setServiceName(updatedSpaService.getServiceName());
+    updatedDto.setServiceDescription(updatedSpaService.getServiceDescription());
+    updatedDto.setServiceImage(updatedSpaService.getServiceImage());
+    updatedDto.setRating(updatedSpaService.getRating());
+    updatedDto.setPrice(updatedSpaService.getPrice());
+    updatedDto.setSpaCenterId(updatedSpaService.getSpaCenter().getSpaId());
+
+    return updatedDto;
+}
+
 }

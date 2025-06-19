@@ -2,6 +2,8 @@ package hospital.tourism.Entity;
 
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +24,7 @@ public class BlogCategory {
 	private String blogCategoryDescription;
 	private String blogCategoryImageUrl;
 	private String blogCategoryCreatedBy;
+	@CreationTimestamp
 	private String blogCategoryCreatedDate;
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
 	private List<Blogs> blogs;

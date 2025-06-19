@@ -150,5 +150,15 @@ public class TranslatorsController {
         translatorsService.activateTranslatorIfInactive(id);
     }
 
+    @PutMapping("/update-translator/{id}")
+	public ResponseEntity<TranslatorDTO> updateTranslator(@PathVariable Long id,
+			@RequestBody TranslatorDTO translatorDto) {
+		try {
+			TranslatorDTO updatedTranslator = translatorsService.updateTraslator(id, translatorDto);
+			return ResponseEntity.ok(updatedTranslator);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
 
 }

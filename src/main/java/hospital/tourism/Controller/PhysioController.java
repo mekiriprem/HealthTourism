@@ -71,4 +71,9 @@ public class PhysioController {
 	    public void activatePhysio(@PathVariable Long id) {
 	        physioService.activatePhysioIfInactive(id);
 	    }
+	    @PutMapping("/update-physio/{id}")
+		public ResponseEntity<PhysioDTO> updatePhysio(@PathVariable Long id, @RequestBody PhysioDTO dto) {
+			PhysioDTO updatedDto = physioService.updatePhysio(id, dto);
+			return ResponseEntity.ok(updatedDto);
+		}
 }

@@ -137,6 +137,25 @@ public class LocationService {
 		        ))
 		        .collect(Collectors.toList());
 		}
+		
+		public LocationDTO updateLocation(Integer id, LocationDTO dto) {
+			LocationEntity location = locationRepository.findById(id)
+					.orElseThrow(() -> new RuntimeException("Location not found with id " + id));
+
+			location.setCity(dto.getCity());
+			location.setState(dto.getState());
+			location.setCountry(dto.getCountry());
+
+			LocationEntity updatedLocation = locationRepository.save(location);
+
+			LocationDTO updatedDto = new LocationDTO();
+			updatedDto.setLocationId(updatedLocation.getLocationId());
+			updatedDto.setCity(updatedLocation.getCity());
+			updatedDto.setState(updatedLocation.getState());
+			updatedDto.setCountry(updatedLocation.getCountry());
+
+			return updatedDto;
+		}
 
 
 }

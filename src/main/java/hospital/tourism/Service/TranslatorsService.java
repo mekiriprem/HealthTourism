@@ -93,6 +93,27 @@ public class TranslatorsService {
             translatorsRepo.save(translator);
         }
     }
+    
+    public TranslatorDTO updateTraslator(Long traslatorId,TranslatorDTO transeDto) {
+		Optional<Translators> translators = translatorsRepo.findById(traslatorId);
+		if (translators.isPresent()) {
+			Translators translator = translators.get();
+			translator.setTranslatorName(transeDto.getTranslatorName());
+			translator.setTranslatorDescription(transeDto.getTranslatorDescription());
+			translator.setTranslatorImage(transeDto.getTranslatorImage());
+			translator.setTranslatorRating(transeDto.getTranslatorRating());
+			translator.setTranslatorLanguages(transeDto.getTranslatorLanguages());
+			translator.setStatus(transeDto.getStatus());
+			translator.setPrice(transeDto.getPrice());
+			translator.setTranslatorLocIdInteger(transeDto.getTranslatorLocIdInteger());
+			translator.setTranslatorAddress(transeDto.getTranslatorAddress());
+
+			translatorsRepo.save(translator);
+
+			return transeDto;
+		}
+		return null;
+    }
 
 
 }

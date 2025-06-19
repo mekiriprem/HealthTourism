@@ -129,4 +129,13 @@ public class HospitalController {
         hospitalService.activateHospitalIfInactive(id);
     }
 
+    @PutMapping("/update-hospital/{id}")
+	public ResponseEntity<HospitalDTO> updateHospital(@PathVariable Integer id, @RequestBody HospitalDTO hospitalDto) {
+		HospitalDTO updatedHospital = hospitalService.updateHospital(id, hospitalDto);
+		if (updatedHospital != null) {
+			return new ResponseEntity<>(updatedHospital, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 }

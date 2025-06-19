@@ -56,4 +56,16 @@ public class LabtestsServices {
             labtestsRepo.save(labtest);
         }
     }
+    
+	public Labtests updateLabtest(Long id, Labtests updatedLabtest) {
+		Labtests existingLabtest = labtestsRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
+
+		existingLabtest.setTestTitle(updatedLabtest.getTestTitle());
+		existingLabtest.setTestDescription(updatedLabtest.getTestDescription());
+		existingLabtest.setTestPrice(updatedLabtest.getTestPrice());
+		existingLabtest.setStatus(updatedLabtest.getStatus());
+
+		return labtestsRepo.save(existingLabtest);
+	}
 }

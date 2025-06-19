@@ -42,4 +42,30 @@ public class SpaCenterImpl {
         return spaCenterRepo.findAll();
     }
     
+	public SpaCenterDTO updateSpaCenter(Integer id, SpaCenterDTO dto) {
+		SpaCenter spaCenter = spaCenterRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Spa Center not found with id " + id));
+
+		spaCenter.setSpaName(dto.getSpaName());
+		spaCenter.setSpaDescription(dto.getSpaDescription());
+		spaCenter.setSpaImage(dto.getSpaImage());
+		spaCenter.setRating(dto.getRating());
+		spaCenter.setAddress(dto.getAddress());
+        spaCenter.setStatus(dto.getStatus());
+                spaCenter.setLocation(locationRepo.findById(dto.getLocationId())
+                		.orElseThrow(() -> new RuntimeException("Location not found with id " + dto.getLocationId())));
+                        SpaCenter updatedSpaCenter = spaCenterRepo.save(spaCenter);
+                                SpaCenterDTO updatedDto = new SpaCenterDTO();
+                                updatedDto.setSpaId(updatedSpaCenter.getSpaId());
+                                updatedDto.setSpaName(updatedSpaCenter.getSpaName());
+                                updatedDto.setSpaDescription(updatedSpaCenter.getSpaDescription());
+                                updatedDto.setSpaImage(updatedSpaCenter.getSpaImage());
+                                updatedDto.setRating(updatedSpaCenter.getRating());
+                                updatedDto.setAddress(updatedSpaCenter.getAddress());
+                                updatedDto.setLocationId(updatedSpaCenter.getLocation().getLocationId());
+                                updatedDto.setStatus(updatedSpaCenter.getStatus());
+                                        return updatedDto;
+	
+    }
+    
 }

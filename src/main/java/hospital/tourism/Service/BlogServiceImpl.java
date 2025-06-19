@@ -54,11 +54,11 @@ public class BlogServiceImpl {
 	        blog.setAuthor(dto.getAuthor());
 	        blog.setAuthorEmail(dto.getAuthorEmail());
 	        blog.setAuthorName(dto.getAuthorName());
-	        blog.setBlogUrl(dto.getBlogUrl());
+	       blog.setBlogUrl(dto.getBlogUrl()); // Assuming blogUrl is set in DTO
 	        blog.setMetaTitle(dto.getMetaTitle());
 	        blog.setMetaDescription(dto.getMetaDescription());
 	        blog.setTitle(dto.getTitle());
-	        blog.setSlug(dto.getSlug());
+	     
 	        blog.setShortDescription(dto.getShortDescription());
 	        blog.setContent(dto.getContent());
 
@@ -106,11 +106,11 @@ public class BlogServiceImpl {
 	        dto.setAuthor(blog.getAuthor());
 	        dto.setAuthorEmail(blog.getAuthorEmail());
 	        dto.setAuthorName(blog.getAuthorName());
-	        dto.setBlogUrl(blog.getBlogUrl());
+	      
 	        dto.setMetaTitle(blog.getMetaTitle());
 	        dto.setMetaDescription(blog.getMetaDescription());
 	        dto.setTitle(blog.getTitle());
-	        dto.setSlug(blog.getSlug());
+	       
 	        dto.setShortDescription(blog.getShortDescription());
 	        dto.setContent(blog.getContent());
 	        dto.setCoverImage(blog.getCoverImage());
@@ -154,4 +154,39 @@ public class BlogServiceImpl {
 	            throw new RuntimeException("Supabase image upload failed", e);
 	        }
 	    }
+	    
+	    //update blog
+		public BlogsDTO updateBlog(Long id, BlogsDTO dto, MultipartFile image) {
+			Blogs blog = blogRepository.findById(id).orElseThrow(() -> new RuntimeException("Blog not found"));
+
+			// If a new image is provided, upload it
+			if (image != null && !image.isEmpty()) {
+				String imageUrl = uploadImageToSupabase(image);
+				blog.setCoverImage(imageUrl);
+			}
+
+			blog.setAuthor(dto.getAuthor());
+			blog.setAuthorEmail(dto.getAuthorEmail());
+			blog.setAuthorName(dto.getAuthorName());
+			
+			blog.setMetaTitle(dto.getMetaTitle());
+			blog.setMetaDescription(dto.getMetaDescription());
+			blog.setTitle(dto.getTitle());
+			
+			blog.setShortDescription(dto.getShortDescription());
+			blog.setContent(dto.getContent());
+
+			BlogCategory category = blogCategoryRepository.findById(dto.getCategory().getBlogCategoryId())
+					.orElseThrow(() -> new RuntimeException("Category not found"));
+			blog.setCategory(category);
+
+			Blogs updated = blogRepository.save(blog);
+			return mapToDTO(updated);
+		}
+		
+		// Delete blog
+		public void deleteBlog(Long id) {
+			Blogs blog = blogRepository.findById(id).orElseThrow(() -> new RuntimeException("Blog not found"));
+			blogRepository.delete(blog);
+		}
 }

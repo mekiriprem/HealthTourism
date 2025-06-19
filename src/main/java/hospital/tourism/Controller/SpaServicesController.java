@@ -130,4 +130,10 @@ public class SpaServicesController {
         spaServicessImpl.activateIfInactive(id);
        return "Spa Service with ID " + id + " has been activated successfully.";
     }
+    @PutMapping("/update-spaService/{id}")
+	public ResponseEntity<SpaServiceDTO> updateSpaService(@PathVariable Long id,
+			@RequestBody SpaServiceDTO spaServiceDto) {
+		SpaServiceDTO updatedSpaService = spaServicessImpl.updateSpaService(id, spaServiceDto);
+		return ResponseEntity.ok(updatedSpaService);
+	}
 }

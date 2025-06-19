@@ -2,18 +2,13 @@ package hospital.tourism.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -23,6 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.repo.usersrepo;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 @Service
 public class UserService {
@@ -31,6 +31,8 @@ public class UserService {
 			private usersrepo userRepository;
 	 	@Autowired
 	    private JavaMailSender mailSender;
+	 	
+	 	
 	 	@Value("${supabase.url}")
 	    private String supabaseProjectUrl;
 
@@ -39,6 +41,8 @@ public class UserService {
 
 	    @Value("${supabase.api.key}")
 	    private String supabaseApiKey;
+	    
+	    
 	    public users registerUser(users user) {
 	        user.setVerificationToken(UUID.randomUUID().toString());
 	        user.setEmailVerified(false);
@@ -74,7 +78,76 @@ public class UserService {
 		return user;
 	}
 	    
+	    public UsersDTO uploadFilesAndUpdateUser(Long empId, MultipartFile profilePicture,
+                MultipartFile prescription,
+                MultipartFile patientaxrays,
+                MultipartFile patientreports) {
 
+users user = userRepository.findById(empId)
+.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
+
+if (profilePicture != null && !profilePicture.isEmpty()) {
+user.setProfilePictureUrl(uploadFileToSupabase(profilePicture, "profile_pictures", empId));
+}
+
+if (prescription != null && !prescription.isEmpty()) {
+user.setPrescriptionUrl(uploadFileToSupabase(prescription, "prescriptions", empId));
+}
+
+if (patientaxrays != null && !patientaxrays.isEmpty()) {
+user.setPatientaxraysUrl(uploadFileToSupabase(patientaxrays, "xray_files", empId));
+}
+
+if (patientreports != null && !patientreports.isEmpty()) {
+user.setPatientreportsUrl(uploadFileToSupabase(patientreports, "reports", empId));
+}
+
+userRepository.save(user);
+return mapToDTO(user);
+}
+
+private String uploadFileToSupabase(MultipartFile file, String folder, Long empId) {
+try {
+String fileName = "emp" + empId + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + folder + "/" + fileName;
+
+OkHttpClient client = new OkHttpClient();
+RequestBody body = RequestBody.create(file.getBytes(), MediaType.parse(file.getContentType()));
+
+Request request = new Request.Builder()
+.url(uploadUrl)
+.header("apikey", supabaseApiKey)
+.header("Authorization", "Bearer " + supabaseApiKey)
+.put(body)
+.build();
+
+Response response = client.newCall(request).execute();
+
+if (!response.isSuccessful()) {
+throw new IOException("Failed to upload to Supabase: " + response);
+}
+
+return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + folder + "/" + fileName;
+} catch (Exception e) {
+throw new RuntimeException("File upload failed", e);
+}
+}
+
+private UsersDTO mapToDTO(users user) {
+UsersDTO dto = new UsersDTO();
+dto.setId(user.getId());
+dto.setName(user.getName());
+dto.setEmail(user.getEmail());
+dto.setMobilenum(user.getMobilenum());
+dto.setCountry(user.getCountry());
+dto.setRole(user.getRole());
+dto.setEmailVerified(user.isEmailVerified());
+dto.setProfilePictureUrl(user.getProfilePictureUrl());
+dto.setPrescriptionUrl(user.getPrescriptionUrl());
+dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
+dto.setPatientreportsUrl(user.getPatientreportsUrl());
+return dto;
+}
 	    
 	    
 	    public List<UsersDTO> getAllUsers() {
@@ -107,74 +180,45 @@ public class UserService {
 	        return userRepository.existsById(empId);
 	    }
 	    
-	    
-	    
-	    public String uploadFile(MultipartFile file, String folder, Long empId) throws IOException {
-	        String fileName = "emp" + empId + "_" + UUID.randomUUID() + "_" + Objects.requireNonNull(file.getOriginalFilename());
-	        String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + folder + "/" + fileName;
 
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.set("Authorization", "Bearer " + supabaseApiKey);
-	        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
-	        HttpEntity<byte[]> entity = new HttpEntity<>(file.getBytes(), headers);
-	        RestTemplate restTemplate = new RestTemplate();
-	        ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.PUT, entity, String.class);
-
-	        if (!response.getStatusCode().is2xxSuccessful()) {
-	            throw new IOException("Failed to upload file: " + response.getStatusCode());
-	        }
-
-	        // Return public URL of uploaded file
-	        return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + folder + "/" + fileName;
-	    }
-
-	    // Update user with new files URLs and address
-	    public users updateUserFilesAndAddress(Long empId, MultipartFile profilePicture, MultipartFile prescription,MultipartFile patientaxraysUrl,MultipartFile patientreportsUrl, String address) throws IOException {
-	        Optional<users> optionalUser = userRepository.findById(empId);
-	        if (optionalUser.isEmpty()) {
-	            throw new IllegalArgumentException("User not found with id: " + empId);
-	        }
-
-	        users user = optionalUser.get();
-
-	        if (profilePicture != null && !profilePicture.isEmpty()) {
-	            String profileUrl = uploadFile(profilePicture, "profile-pictures", empId);
-	            user.setProfilePictureUrl(profileUrl);
-	        }
-
-			if (patientaxraysUrl != null && !patientaxraysUrl.isEmpty()) {
-				String axraysUrl = uploadFile(patientaxraysUrl, "patient-axrays", empId);
-				user.setPatientaxraysUrl(axraysUrl);
-			}
-			if (patientreportsUrl != null && !patientreportsUrl.isEmpty()) {
-				String reportsUrl = uploadFile(patientreportsUrl, "patient-reports", empId);
-				user.setPatientreportsUrl(reportsUrl);
-				
-			}
-	        if (prescription != null && !prescription.isEmpty()) {
-	            String prescriptionUrl = uploadFile(prescription, "prescriptions", empId);
-	            user.setPrescriptionUrl(prescriptionUrl);
-	        }
-
-	        if (address != null && !address.isEmpty()) {
-	            user.setAddress(address);
-	        }
-
-	        return userRepository.save(user);
-	    }
-	    
-	    public users getUserById(Long empId) {
-			return userRepository.findById(empId)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+	    public UsersDTO getUserById(Long empId) {
+		    users user = userRepository.findById(empId)
+		    		.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+		    UsersDTO dto = new UsersDTO();
+		    dto.setId(user.getId());
+		    dto.setName(user.getName());
+		    dto.setEmail(user.getEmail());
+		    dto.setMobilenum(user.getMobilenum());
+		    dto.setCountry(user.getCountry());
+		    dto.setRole(user.getRole());
+		    dto.setEmailVerified(user.isEmailVerified());
+		    dto.setProfilePictureUrl(user.getProfilePictureUrl());
+		    dto.setAddress(user.getAddress());
+		    return dto;  
 	     }
 	    
 	    
 	    
 	    
-			public users getUploadedDocAndAddress(Long empId) {
-				return userRepository.findById(empId)
+			public UsersDTO getAllDocuments(Long empId) {
+				users user = userRepository.findById(empId)
 						.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + empId));
+				UsersDTO dto = new UsersDTO();
+				dto.setId(user.getId());
+				dto.setName(user.getName());
+				dto.setEmail(user.getEmail());
+				dto.setMobilenum(user.getMobilenum());
+				dto.setCountry(user.getCountry());
+				dto.setRole(user.getRole());
+				dto.setEmailVerified(user.isEmailVerified());
+				
+				dto.setProfilePictureUrl(user.getProfilePictureUrl());
+				dto.setPrescriptionUrl(user.getPrescriptionUrl());
+				dto.setPatientaxraysUrl(user.getPatientaxraysUrl());
+				dto.setPatientreportsUrl(user.getPatientreportsUrl());
+				dto.setAddress(user.getAddress());
+				return dto;
 			}
 			
 			public users getAllPatients() {

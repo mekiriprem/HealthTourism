@@ -25,16 +25,16 @@ public class Blogs {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long blogId;
 
-	@Column(nullable = false)
+	
 	private String authorEmail; // email of the author
 
-	@Column(nullable = false)
+	
 	private String authorName; // name of the author
 
-	@Column(nullable = false, unique = true)
-	private String blogUrl; // e.g., "https://example.com/blogs/primary-care-overview"
 
-	@Column(nullable = false)
+	  private String blogUrl;// e.g., "https://example.com/blogs/primary-care-overview"
+
+	
 	private String metaTitle; // for SEO purposes
 
 	@Column(nullable = false, columnDefinition = "TEXT")
@@ -43,8 +43,8 @@ public class Blogs {
 	 @Column(nullable = false)
 	    private String title;
 
-	    @Column(unique = true, nullable = false)
-	    private String slug;  // e.g., "primary-care-overview"
+	   
+	  // e.g., "primary-care-overview"
 
 	    @Column(nullable = false, columnDefinition = "TEXT")
 	    private String shortDescription; // for blog listing preview

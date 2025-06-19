@@ -122,5 +122,16 @@ public class SpaCenterController {
         return ResponseEntity.ok(dtos);
     }
     
+    //update spa center
+    @PutMapping("/update-spaCenter/{id}")
+	public ResponseEntity<SpaCenterDTO> updateSpaCenter(@PathVariable Integer id,
+			@RequestBody SpaCenterDTO spaCenterDTO) {
+		try {
+			SpaCenterDTO updatedSpaCenter = spaCenterService.updateSpaCenter(id, spaCenterDTO);
+			return ResponseEntity.ok(updatedSpaCenter);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
    
 }

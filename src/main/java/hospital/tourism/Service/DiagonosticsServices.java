@@ -2,6 +2,8 @@ package hospital.tourism.Service;
 
 import java.util.List;
 
+import javax.tools.Diagnostic;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +71,34 @@ public class DiagonosticsServices {
             diagnosticsRepo.save(entity);
         }
     }
+    // Update diagnostics
+    
+    public DiagnosticsDTO updateDiagnostics(Integer id, DiagnosticsDTO dto) {
+        // Step 1: Get existing entity from DB
+        Diognstics existing = diagnosticsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Diagnostics not found with ID: " + id));
+
+        // Step 2: Update entity fields
+        existing.setDiognosticsName(dto.getDiognosticsName());
+        existing.setDiognosticsDescription(dto.getDiognosticsDescription());
+        existing.setDiognosticsImage(dto.getDiognosticsImage());
+        existing.setDiognosticsrating(dto.getDiognosticsrating());
+        existing.setDiognosticsaddress(dto.getDiognosticsaddress());
+
+        // Step 3: Save updated entity
+        Diognstics updated = diagnosticsRepo.save(existing);
+
+        // Step 4: Convert updated entity back to DTO
+        DiagnosticsDTO updatedDto = new DiagnosticsDTO();
+        updatedDto.setDiognosticsId(updated.getDiognosticsId());
+        updatedDto.setDiognosticsName(updated.getDiognosticsName());
+        updatedDto.setDiognosticsDescription(updated.getDiognosticsDescription());
+        updatedDto.setDiognosticsImage(updated.getDiognosticsImage());
+        updatedDto.setDiognosticsrating(updated.getDiognosticsrating());
+        updatedDto.setDiognosticsaddress(updated.getDiognosticsaddress());
+
+        return updatedDto;
+    }
+
 }
 

@@ -1,5 +1,7 @@
 package hospital.tourism.Controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -7,13 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.Service.UserService;
 import hospital.tourism.repo.usersrepo;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:8082")
+@CrossOrigin(origins = "http://localhost:8081")
 public class UserController {
 
     @Autowired
@@ -55,48 +58,37 @@ public class UserController {
         users user = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok( user);
     }
+
     
     @PostMapping(value = "/upload-files/{empId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadFilesAndAddress(
+    public ResponseEntity<UsersDTO> uploadUserDocuments(
             @PathVariable Long empId,
             @RequestPart(required = false) MultipartFile profilePicture,
             @RequestPart(required = false) MultipartFile prescription,
             @RequestPart(required = false) MultipartFile patientaxraysUrl,
-            @RequestPart(required = false) MultipartFile patientreportsUrl,
-            @RequestParam(required = false) String address
-    ) {
-        try {
-            users updatedUser = userService.updateUserFilesAndAddress(empId, profilePicture, prescription,patientaxraysUrl,patientreportsUrl, address);
-            return ResponseEntity.ok(updatedUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
-        }
+            @RequestPart(required = false) MultipartFile patientreportsUrl
+    ) throws IOException {
+        UsersDTO updatedUser = userService.uploadFilesAndUpdateUser(empId, profilePicture, prescription, patientaxraysUrl, patientreportsUrl);
+        return ResponseEntity.ok(updatedUser);
     }
+
     @GetMapping("/get-patients/{empId}")
-	public ResponseEntity<?> getById(@PathVariable Long empId) {
-		try {
-			users user = userRepository.findById(empId)
-					.orElseThrow(() -> new IllegalArgumentException("User not found"));
-			return ResponseEntity.ok(user);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
-		}
+	public ResponseEntity<UsersDTO> getById(@PathVariable Long empId) {
+    	UsersDTO res= userService.getUserById(empId);
+    	        if (res != null) {
+    	        	 return ResponseEntity.ok(res);
+    	        } else {
+    	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    	        }
 	}
     
     @GetMapping("/get-doc-and-adrs/{empId}")
-	public ResponseEntity<?> getDocAndAdrs(@PathVariable Long empId) {
-		try {
-			users user = userRepository.findById(empId)
-					.orElseThrow(() -> new IllegalArgumentException("User not found"));
-			return ResponseEntity.ok(user);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+	public ResponseEntity<UsersDTO> getDocAndAdrs(@PathVariable Long empId) {
+		UsersDTO userDocuments = userService.getAllDocuments(empId);
+		if (userDocuments != null) {
+			return ResponseEntity.ok(userDocuments);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
 

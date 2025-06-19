@@ -44,7 +44,7 @@ public class BlogCategoryController {
         return ResponseEntity.ok(savedCategory);
     }
     // Get all blog categories
-    @GetMapping
+    @GetMapping("/getAll/categories")
     public ResponseEntity<List<BlogCategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(blogCategoryService.getAllCategories());
     }
@@ -61,4 +61,24 @@ public class BlogCategoryController {
         blogCategoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
+    // update a blog category by ID
+    @PostMapping("/{id}")
+	public ResponseEntity<BlogCategoryDTO> updateCategory(@PathVariable Long id,
+			@RequestParam("blogCategoryName") String blogCategoryName,
+			@RequestParam("blogCategoryDescription") String blogCategoryDescription,
+			@RequestParam("blogCategoryCreatedBy") String blogCategoryCreatedBy,
+			@RequestParam("blogCategoryCreatedDate") String blogCategoryCreatedDate,
+			@RequestParam(value = "image", required = false) MultipartFile image) {
+
+		BlogCategoryDTO dto = new BlogCategoryDTO();
+		dto.setBlogCategoryId(id);
+		dto.setBlogCategoryName(blogCategoryName);
+		dto.setBlogCategoryDescription(blogCategoryDescription);
+		dto.setBlogCategoryCreatedBy(blogCategoryCreatedBy);
+		dto.setBlogCategoryCreatedDate(blogCategoryCreatedDate);
+
+		BlogCategoryDTO updatedCategory = blogCategoryService.createCategoryWithImage(dto, image);
+		return ResponseEntity.ok(updatedCategory);
+	}
+    
 }

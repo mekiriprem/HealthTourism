@@ -189,6 +189,34 @@ public class chefService {
         }
     }
     
+	public ChefDTO updateChef(Long chefId, ChefDTO chefDto) {
+		Chefs chef = chefsRepo.findById(chefId)
+				.orElseThrow(() -> new RuntimeException("Chef not found with ID: " + chefId));
+
+		chef.setChefName(chefDto.getChefName());
+		chef.setChefDescription(chefDto.getChefDescription());
+		chef.setChefImage(chefDto.getChefImage());
+		chef.setChefRating(chefDto.getChefRating());
+		chef.setExperience(chefDto.getExperience());
+		chef.setStyles(chefDto.getStyles());
+		chef.setStatus(chefDto.getStatus());
+		chef.setPrice(chefDto.getPrice());
+
+		Chefs updatedChef = chefsRepo.save(chef);
+
+		ChefDTO updatedChefDto = new ChefDTO();
+		updatedChefDto.setChefID(updatedChef.getChefID());
+		updatedChefDto.setChefName(updatedChef.getChefName());
+		updatedChefDto.setChefDescription(updatedChef.getChefDescription());
+		updatedChefDto.setChefImage(updatedChef.getChefImage());
+		updatedChefDto.setChefRating(updatedChef.getChefRating());
+		updatedChefDto.setExperience(updatedChef.getExperience());
+		updatedChefDto.setStyles(updatedChef.getStyles());
+		updatedChefDto.setStatus(updatedChef.getStatus());
+		updatedChefDto.setPrice(updatedChef.getPrice());
+
+		return updatedChefDto;
+	}
 	
 
 }

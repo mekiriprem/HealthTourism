@@ -104,4 +104,28 @@ public class BlogCategoryService {
         dto.setBlogCategoryImageUrl(category.getBlogCategoryImageUrl());
         return dto;
     }
+    //update category
+	public BlogCategoryDTO updateCategory(Long id, BlogCategoryDTO dto, MultipartFile image) {
+		BlogCategory category = blogCategoryRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Category not found"));
+
+		if (image != null && !image.isEmpty()) {
+			String imageUrl = uploadImageToSupabase(image);
+			category.setBlogCategoryImageUrl(imageUrl);
+		}
+
+		category.setBlogCategoryName(dto.getBlogCategoryName());
+		category.setBlogCategoryDescription(dto.getBlogCategoryDescription());
+		category.setBlogCategoryCreatedBy(dto.getBlogCategoryCreatedBy());
+		category.setBlogCategoryCreatedDate(dto.getBlogCategoryCreatedDate());
+
+		BlogCategory updated = blogCategoryRepo.save(category);
+		return mapToDTO(updated);
+	}
+	//delete category by id
+	public void deleteCategoryById(Long id) {
+		BlogCategory category = blogCategoryRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
+		blogCategoryRepo.delete(category);
+	}
 }

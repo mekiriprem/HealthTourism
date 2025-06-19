@@ -88,5 +88,36 @@ public class PhysioImpl {
             physioRepo.save(physio);
         }
     }
+    
+	public PhysioDTO updatePhysio(Long physioId, PhysioDTO dto) {
+		Physio physio = physioRepo.findById(physioId)
+				.orElseThrow(() -> new RuntimeException("Physio not found with ID: " + physioId));
+
+		physio.setPhysioName(dto.getPhysioName());
+		physio.setPhysioDescription(dto.getPhysioDescription());
+		physio.setPhysioImage(dto.getPhysioImage());
+		physio.setRating(dto.getRating());
+		physio.setAddress(dto.getAddress());
+		physio.setPrice(dto.getPrice());
+
+		LocationEntity location = locationRepo.findById(dto.getLocationId())
+				.orElseThrow(() -> new RuntimeException("Location not found with ID: " + dto.getLocationId()));
+		physio.setLocation(location);
+
+		Physio updatedPhysio = physioRepo.save(physio);
+
+		PhysioDTO updatedDto = new PhysioDTO();
+		updatedDto.setPhysioId(updatedPhysio.getPhysioId());
+		updatedDto.setPhysioName(updatedPhysio.getPhysioName());
+		updatedDto.setPhysioDescription(updatedPhysio.getPhysioDescription());
+		updatedDto.setPhysioImage(updatedPhysio.getPhysioImage());
+		updatedDto.setRating(updatedPhysio.getRating());
+		updatedDto.setAddress(updatedPhysio.getAddress());
+		updatedDto.setPrice(updatedPhysio.getPrice());
+		updatedDto.setStatus(updatedPhysio.getStatus());
+		updatedDto.setLocationId(updatedPhysio.getLocation().getLocationId());
+
+		return updatedDto;
+	}
 	
 }

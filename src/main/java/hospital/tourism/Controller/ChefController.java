@@ -66,7 +66,11 @@ public class ChefController {
     public void activate(@PathVariable Long id) {
     	chefService.activateChef(id);
     }
-    
+    @PutMapping("/update-chef/{id}")
+	public ResponseEntity<ChefDTO> updateChef(@PathVariable Long id, @RequestBody ChefDTO chefDto) {
+		ChefDTO updatedChef = chefService.updateChef(id, chefDto);
+		return new ResponseEntity<>(updatedChef, HttpStatus.OK);
+	}
     
 }
 

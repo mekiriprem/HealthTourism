@@ -85,5 +85,34 @@ public class HospitalService {
             hospitalRepository.save(hospital);
         }
     }
+    
+	public HospitalDTO updateHospital(Integer hospitalId, HospitalDTO dto) {
+		Hospital hospital = hospitalRepository.findById(hospitalId)
+				.orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + hospitalId));
+
+		hospital.setHositalName(dto.getHositalName());
+		hospital.setHospitalDescription(dto.getHospitalDescription());
+		hospital.setHospitalImage(dto.getHospitalImage());
+		hospital.setRating(dto.getRating());
+		hospital.setAddress(dto.getAddress());
+		hospital.setStatus(dto.getStatus());
+
+		LocationEntity location = locationrepo.findById(dto.getHospitallocationId())
+				.orElseThrow(() -> new RuntimeException("Location not found with ID: " + dto.getHospitallocationId()));
+		hospital.setLocation(location);
+
+		Hospital updatedHospital = hospitalRepository.save(hospital);
+
+		HospitalDTO updatedDto = new HospitalDTO();
+		updatedDto.setHospitalId(updatedHospital.getHospitalId());
+		updatedDto.setHositalName(updatedHospital.getHositalName());
+		updatedDto.setHospitalDescription(updatedHospital.getHospitalDescription());
+		updatedDto.setHospitalImage(updatedHospital.getHospitalImage());
+		updatedDto.setRating(updatedHospital.getRating());
+		updatedDto.setAddress(updatedHospital.getAddress());
+		updatedDto.setStatus(updatedHospital.getStatus());
+
+		return updatedDto;
+	}
 
 }
