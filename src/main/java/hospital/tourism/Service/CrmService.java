@@ -28,7 +28,7 @@ public class CrmService {
 
     public List<Booking> getUnpaidOfflineFreeBookings() {
         return bookingRepository.findByBookingAmountAndBookingStatusAndPaymentModeAndPaymentStatus(
-            0.0, "Booked", "Offline", "Unpaid"
+            0, "Booked", "offline", "Unpaid"
         );
     }
 
