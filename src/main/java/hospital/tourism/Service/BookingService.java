@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import hospital.tourism.Dto.BookingRequest;
 import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Booking;
@@ -383,7 +383,6 @@ public class BookingService {
 //
 //            Booking savedBooking = bookingRepository.save(booking);
 //
-//            // Prepare response
 //            BookingRequest response = new BookingRequest();
 //            response.setBookingId(savedBooking.getBookingId());
 //            response.setBookingDate(savedBooking.getBookingDate());
@@ -839,7 +838,6 @@ public class BookingService {
 //
 //        return response;
 //    }
-//
 
     
     public BookingRequest addToCart(
@@ -1255,7 +1253,84 @@ public class BookingService {
         return updatedBookings;
     }
 
-    
+    @Transactional
+    public List<BookingRequest> updatePaymentStatusToPaid(List<Long> bookingIds) {
+        List<BookingRequest> updatedBookings = new ArrayList<>();
+
+        for (Long bookingId : bookingIds) {
+            Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+
+            if (optionalBooking.isEmpty()) {
+                continue; // Skip if booking not found
+            }
+
+            Booking booking = optionalBooking.get();
+
+            // Handle different scenarios:
+            // 1. Pending + Offline -> Booked + Unpaid (first time confirmation)
+            // 2. Booked + Unpaid + Offline -> Success + Paid (payment confirmation)
+            // 3. Pending + Online -> Success + Paid (direct online payment)
+
+            String currentStatus = booking.getBookingStatus();
+            String paymentMode = booking.getPaymentMode();
+            String paymentStatus = booking.getPaymentStatus();
+
+            if ("Pending".equalsIgnoreCase(currentStatus)) {
+                // First time confirmation
+                if ("offline".equalsIgnoreCase(paymentMode)) {
+                    booking.setBookingStatus("Booked");
+                    booking.setPaymentStatus("Unpaid");
+                } else if ("online".equalsIgnoreCase(paymentMode)) {
+                    booking.setBookingStatus("Success");
+                    booking.setPaymentStatus("Paid");
+                }
+            } else if ("Booked".equalsIgnoreCase(currentStatus) && "Unpaid".equalsIgnoreCase(paymentStatus)) {
+                // Payment confirmation for offline bookings
+                booking.setBookingStatus("Success");
+                booking.setPaymentStatus("Paid");
+            } else {
+                // Skip if booking is already processed or in invalid state
+                continue;
+            }
+
+            bookingRepository.save(booking);
+
+            // Send email for successful payments
+            if ("Paid".equalsIgnoreCase(booking.getPaymentStatus())) {
+                users user = booking.getUser();
+                if (user != null && user.getEmail() != null) {
+                    try {
+                        SimpleMailMessage message = new SimpleMailMessage();
+                        message.setTo(user.getEmail());
+                        message.setSubject("Booking Confirmation - #" + booking.getBookingId());
+                        message.setText("Dear " + user.getName() + ",\n\nYour " + booking.getBookingType() +
+                                " booking (ID: " + booking.getBookingId() + ") has been confirmed and payment has been processed.\nThank you for choosing us!\n\nRegards,\nHospital Tourism Team");
+                        message.setFrom("anil.n@zynlogic.com");
+
+                        javaMailSender.send(message);
+                    } catch (Exception e) {
+                        System.err.println("Failed to send email for bookingId: " + bookingId + " due to: " + e.getMessage());
+                    }
+                }
+            }
+
+            // Add to response list
+            BookingRequest response = new BookingRequest();
+            response.setBookingId(booking.getBookingId());
+            response.setBookingStatus(booking.getBookingStatus());
+            response.setBookingType(booking.getBookingType());
+            response.setBookingAmount(booking.getBookingAmount());
+            response.setPaymentMode(booking.getPaymentMode());
+            response.setPaymentStatus(booking.getPaymentStatus());
+            response.setBookingDate(booking.getBookingDate());
+            response.setBookingStartTime(booking.getBookingStartTime());
+            response.setBookingEndTime(booking.getBookingEndTime());
+
+            updatedBookings.add(response);
+        }
+
+        return updatedBookings;
+    }
     
     public List<BookingRequest> getAllSuccessfulBookings() {
         List<Booking> successfulBookings = bookingRepository.findByPaymentStatus("Paid");
