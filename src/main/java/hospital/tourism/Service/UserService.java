@@ -85,44 +85,44 @@ public class UserService {
                 MultipartFile patientaxrays,
                 MultipartFile patientreports) {
 
-users user = userRepository.findById(empId)
-.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
+	    	users user = userRepository.findById(empId)
+	    			.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
 
-if (profilePicture != null && !profilePicture.isEmpty()) {
-String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
-if (user.getProfilePictureUrls() == null) {
-user.setProfilePictureUrls(new ArrayList<>());
-}
-user.getProfilePictureUrls().add(url);
-}
+	    	if (profilePicture != null && !profilePicture.isEmpty()) {
+	    		String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
+	    		if (user.getProfilePictureUrls() == null) {
+	    			user.setProfilePictureUrls(new ArrayList<>());
+	    		}
+	    		user.getProfilePictureUrls().add(url);
+	    	}
 
-if (prescription != null && !prescription.isEmpty()) {
-String url = uploadFileToSupabase(prescription, "prescriptions", empId);
-if (user.getPrescriptionUrls() == null) {
-user.setPrescriptionUrls(new ArrayList<>());
-}
-user.getPrescriptionUrls().add(url);
-}
+	    	if (prescription != null && !prescription.isEmpty()) {
+	    		String url = uploadFileToSupabase(prescription, "prescriptions", empId);
+	    		if (user.getPrescriptionUrls() == null) {
+	    			user.setPrescriptionUrls(new ArrayList<>());
+	    		}
+	    		user.getPrescriptionUrls().add(url);
+	    	}
 
-if (patientaxrays != null && !patientaxrays.isEmpty()) {
-String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
-if (user.getPatientAxraysUrls() == null) {
-user.setPatientAxraysUrls(new ArrayList<>());
-}
-user.getPatientAxraysUrls().add(url);
-}
+	    	if (patientaxrays != null && !patientaxrays.isEmpty()) {
+	    		String url = uploadFileToSupabase(patientaxrays, "xray_files", empId);
+	    		if (user.getPatientAxraysUrls() == null) {
+	    			user.setPatientAxraysUrls(new ArrayList<>());
+	    		}
+	    		user.getPatientAxraysUrls().add(url);
+	    	}
 
-if (patientreports != null && !patientreports.isEmpty()) {
-String url = uploadFileToSupabase(patientreports, "reports", empId);
-if (user.getPatientReportsUrls() == null) {
-user.setPatientReportsUrls(new ArrayList<>());
-}
-user.getPatientReportsUrls().add(url);
-}
+	    	if (patientreports != null && !patientreports.isEmpty()) {
+	    		String url = uploadFileToSupabase(patientreports, "reports", empId);
+	    		if (user.getPatientReportsUrls() == null) {
+	    			user.setPatientReportsUrls(new ArrayList<>());
+	    		}
+	    		user.getPatientReportsUrls().add(url);
+	    	}
 
-userRepository.save(user);
-return mapToDTO(user);
-}
+	    	userRepository.save(user);
+	    	return mapToDTO(user);
+	    }
 
 	    private String uploadFileToSupabase(MultipartFile file, String folder, Long empId) {
 	        try {
@@ -270,5 +270,23 @@ return mapToDTO(user);
 				users updatedUser = userRepository.save(user);
 				return mapToDTO(updatedUser);
 			}
+			
+			//getAllusers
+			public List<UsersDTO>getAllPriscriptions(){
+				List<users> users = userRepository.findAll();
+				return users.stream().map(user -> {
+					UsersDTO dto = new UsersDTO();
+					dto.setId(user.getId());
+					dto.setName(user.getName());
+					dto.setEmail(user.getEmail());
+					dto.setMobilenum(user.getMobilenum());
+					dto.setCountry(user.getCountry());
+			
+					dto.setPrescriptionUrls(
+							user.getPrescriptionUrls() != null ? user.getPrescriptionUrls() : new ArrayList<>());
+					return dto;
+				}).collect(Collectors.toList());
+			}
+			
 }
 		
