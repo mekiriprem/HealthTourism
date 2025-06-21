@@ -34,10 +34,7 @@ public class SpaServicessImpl {
 	    return spaservicesRepo.save(spaService);
 	}
 
-	public SpaServicese getSpaServiceById(Long id) {
-		return spaservicesRepo.findById(id)
-				.orElseThrow(() -> new RuntimeException("Spa Service not found with id " + id));
-	}
+	
 	
 	public List<SpaServicese> getServicesBySpaCenterId(Long spaId) {
 	    return spaservicesRepo.findBySpaCenterSpaId(spaId);
@@ -47,6 +44,7 @@ public List<SpaServiceDTO>getAllServicesss(){
 	List<SpaServicese>spaServiceses= spaservicesRepo.findAll();
 	return spaServiceses.stream().map(spaService -> {
 		SpaServiceDTO spaServiceDTO = new SpaServiceDTO();
+		spaServiceDTO.setServiceIdLong(spaService.getServiceId());
 		spaServiceDTO.setServiceIdLong(spaServiceDTO.getServiceIdLong());
 		spaServiceDTO.setServiceName(spaService.getServiceName());
 		spaServiceDTO.setServiceDescription(spaService.getServiceDescription());

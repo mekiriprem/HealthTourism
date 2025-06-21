@@ -136,4 +136,10 @@ public class SpaServicesController {
 		SpaServiceDTO updatedSpaService = spaServicessImpl.updateSpaService(id, spaServiceDto);
 		return ResponseEntity.ok(updatedSpaService);
 	}
+    
+    @GetMapping("/getSpaService/{id}")
+	public ResponseEntity<SpaServiceDTO> getSpaServiceByIds(@PathVariable Long id) {
+		SpaServiceDTO spaService = spaServicessImpl.getoneRecordById(id);
+		return ResponseEntity.ok(spaService);
+	}
 }

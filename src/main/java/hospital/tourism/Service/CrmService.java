@@ -67,11 +67,11 @@ public class CrmService {
         return salesFollowUpRepository.findBySalesTeam_Id(salesId);
     }
     public List<SalesFollowUp> getFollowUpsByBookingId(Long bookingId) {
-        return salesFollowUpRepository.findByBooking_Id(bookingId);
+        return salesFollowUpRepository.findByBooking_BookingId(bookingId);
     }
     
     public List<SalesFollowUp> getFollowUpHistoryByBookingId(Long bookingId) {
-        return salesFollowUpRepository.findByBooking_IdOrderByFollowUpDateDesc(bookingId);
+        return salesFollowUpRepository.findByBooking_BookingIdOrderByFollowUpDateDesc(bookingId);
     }
 
     public List<Booking> getBookingsAssignedToSales(Long salesId) {

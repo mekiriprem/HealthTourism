@@ -31,6 +31,7 @@ public class DiognosticsController {
         return ResponseEntity.ok(diagonosticsServices.getAllDiagnostics());
     }
 
+    
     // 🔍 Get lab tests by diagnostics ID
     @GetMapping("/{id}")
     public ResponseEntity<List<Labtests>> getLabtestsByDiagnosticsId(@PathVariable("id") Integer diagnosticsId) {
