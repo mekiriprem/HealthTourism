@@ -12,5 +12,7 @@ public class ServicePackageDTO {
     private String description;
     private double totalPrice;
     private int durationDays;
+    private String imageUrl;
+    private String featured;
     private List<PackageServiceItemDTO> serviceItems;
 }

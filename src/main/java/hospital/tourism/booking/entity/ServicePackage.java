@@ -22,6 +22,11 @@ public class ServicePackage {
 	    @Column(name = "total_price")
 	    private double totalPrice;
 	    private int durationDays;
+	    
+	    @Column(name = "image_url")
+	    private String imageUrl;
+	    @Column(name = "featured")
+	    private String featured;
 
 	    @OneToMany(mappedBy = "servicePackage", cascade = CascadeType.ALL)
 	    private List<PackageServiceItem> serviceItems;

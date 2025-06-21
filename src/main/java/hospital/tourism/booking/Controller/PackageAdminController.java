@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.booking.DTO.PackageRequestDTO;
 import hospital.tourism.booking.DTO.ServiceItemsDTO;
@@ -35,14 +37,16 @@ public class PackageAdminController {
         return ResponseEntity.ok(adminService.addServiceItem(item));
     }
 
-    @PostMapping("/package")
-    public ResponseEntity<ServicePackageDTO> createPackage(@RequestBody PackageRequestDTO dto) {
-        return ResponseEntity.ok(adminService.createPackage(
-                dto.getName(),
-                dto.getDescription(),
-                dto.getDurationDays(),
-                dto.getServiceItemIds()
-        ));
+    @PostMapping(value = "/package", consumes = "multipart/form-data")
+    public ResponseEntity<ServicePackageDTO> createServicePackage(
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam int duration,
+            @RequestParam("serviceItemIds") List<Long> serviceItemIds,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        ServicePackageDTO createdPackage = adminService.createPackage(name, description, duration, serviceItemIds, imageFile);
+        return ResponseEntity.ok(createdPackage);
     }
     
     //get all packages
@@ -76,9 +80,31 @@ public class PackageAdminController {
     
     //update package
     @PutMapping("/packages/{id}")
-        public ResponseEntity<ServicePackageDTO> updatePackage(@PathVariable Long id, @RequestBody PackageRequestDTO dto) {
-    	adminService.updateServicePackage(id, dto);
-		return ResponseEntity.ok(adminService.getServicePackageById(id));
+    public ResponseEntity<?> updatePackage(@PathVariable Long id, @RequestBody PackageRequestDTO dto) {
+        try {
+            ServicePackageDTO updatedPackage = adminService.updateServicePackage(id, dto);
+            return ResponseEntity.ok(updatedPackage);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(500).body(new ErrorResponse("Failed to update package: " + e.getMessage()));
+        }
+    }
+
+    public static class ErrorResponse {
+        private String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
     //delete service item
     @GetMapping("/service/items/delete/{id}")
@@ -91,6 +117,16 @@ public class PackageAdminController {
         public ResponseEntity<String> deletePackage(@PathVariable Long id) {
     		        adminService.deleteServicePackage(id);
     		                return ResponseEntity.ok("Service package deleted successfully");
+    }
+    
+    //update featured status
+    @PutMapping("/packages/featured/{id}")
+    public ResponseEntity<ServicePackageDTO> updateFeaturedStatus(
+            @PathVariable Long id,
+            @RequestParam String featured) {
+
+        ServicePackageDTO updatedDto = adminService.updateFeaturedStatus(id, featured);
+        return ResponseEntity.ok(updatedDto);
     }
     
 }
