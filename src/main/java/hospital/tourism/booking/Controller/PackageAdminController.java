@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.booking.DTO.PackageRequestDTO;
 import hospital.tourism.booking.DTO.ServiceItemsDTO;
@@ -35,14 +37,16 @@ public class PackageAdminController {
         return ResponseEntity.ok(adminService.addServiceItem(item));
     }
 
-    @PostMapping("/package")
-    public ResponseEntity<ServicePackageDTO> createPackage(@RequestBody PackageRequestDTO dto) {
-        return ResponseEntity.ok(adminService.createPackage(
-                dto.getName(),
-                dto.getDescription(),
-                dto.getDurationDays(),
-                dto.getServiceItemIds()
-        ));
+    @PostMapping(value = "/package", consumes = "multipart/form-data")
+    public ResponseEntity<ServicePackageDTO> createServicePackage(
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam int duration,
+            @RequestParam("serviceItemIds") List<Long> serviceItemIds,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        ServicePackageDTO createdPackage = adminService.createPackage(name, description, duration, serviceItemIds, imageFile);
+        return ResponseEntity.ok(createdPackage);
     }
     
     //get all packages
@@ -92,5 +96,13 @@ public class PackageAdminController {
     		        adminService.deleteServicePackage(id);
     		                return ResponseEntity.ok("Service package deleted successfully");
     }
+    
+    //update featured status
+    @PutMapping("/packages/featured/{id}")
+	public ResponseEntity<ServicePackageDTO> updateFeaturedStatus(@PathVariable Long id,
+			@RequestParam String featured) {
+		ServicePackageDTO updatedPackage = adminService.updateFeaturedStatus(id);
+		return ResponseEntity.ok(updatedPackage);
+	}
     
 }

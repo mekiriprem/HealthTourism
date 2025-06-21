@@ -1,10 +1,16 @@
 package hospital.tourism.booking.service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.booking.DTO.PackageRequestDTO;
 import hospital.tourism.booking.DTO.PackageServiceItemDTO;
@@ -46,16 +52,17 @@ public class AdminServicePackage {
 	    }
 
     
-//	    public ServicePackage createPackage(String name, String description, int duration, List<Long> serviceItemIds) {
-//	        // Step 1: Initialize the service package without totalPrice and serviceItems for now
+
+
+
+//	    public ServicePackageDTO createPackage(String name, String description, int duration, List<Long> serviceItemIds) {
+//	        // Step 1: Build base package entity
 //	        ServicePackage servicePackage = new ServicePackage();
 //	        servicePackage.setName(name);
 //	        servicePackage.setDescription(description);
 //	        servicePackage.setDurationDays(duration);
-//	        
-//	         // Initialize to zero, will be updated later
 //
-//	        // Step 2: Fetch all service items and calculate the total price
+//	        // Step 2: Calculate total price and prepare link entities
 //	        List<PackageServiceItem> packageServiceItems = new ArrayList<>();
 //	        double totalPrice = 0.0;
 //
@@ -63,97 +70,50 @@ public class AdminServicePackage {
 //	            ServiceItems serviceItem = serviceItemRepo.findById(itemId)
 //	                    .orElseThrow(() -> new RuntimeException("Service item not found with ID: " + itemId));
 //
-//	            // Create link entity
 //	            PackageServiceItem psi = new PackageServiceItem();
 //	            psi.setServiceItem(serviceItem);
-//	            psi.setServicePackage(servicePackage); // Will be saved later
-//
+//	            psi.setServicePackage(servicePackage);
 //	            packageServiceItems.add(psi);
 //	            totalPrice += serviceItem.getPrice();
 //	        }
 //
-//	        // Step 3: Validate total price
 //	        if (totalPrice <= 0) {
 //	            throw new RuntimeException("Cannot create a package with zero or negative total price.");
 //	        }
 //
-//	        // Step 4: Set total price and persist package (without serviceItems for now)
+//	        // Step 3: Save base package
 //	        servicePackage.setTotalPrice(totalPrice);
 //	        ServicePackage savedPackage = servicePackageRepo.save(servicePackage);
 //
-//	        // Step 5: Update each link with saved package reference and save all
+//	        // Step 4: Save linked items
 //	        for (PackageServiceItem psi : packageServiceItems) {
 //	            psi.setServicePackage(savedPackage);
 //	        }
 //
 //	        psiRepo.saveAll(packageServiceItems);
+//	        savedPackage.setServiceItems(packageServiceItems); // optional
 //
-//	        // Step 6: (Optional) Set back the list to return the full object with items
-//	        savedPackage.setServiceItems(packageServiceItems);
+//	        // Step 5: Convert to DTO
+//	        ServicePackageDTO dto = new ServicePackageDTO();
+//	        dto.setId(savedPackage.getId());
+//	        dto.setName(savedPackage.getName());
+//	        dto.setDescription(savedPackage.getDescription());
+//	        dto.setTotalPrice(savedPackage.getTotalPrice());
+//	        dto.setDurationDays(savedPackage.getDurationDays());
 //
-//	        return savedPackage;
+//	        // Convert each PackageServiceItem to DTO
+//	        List<PackageServiceItemDTO> psiDTOList = packageServiceItems.stream().map(psi -> {
+//	            PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
+//	            itemDTO.setId(psi.getId());
+//	            itemDTO.setServiceItemId(psi.getServiceItem().getId());
+//	            itemDTO.setServicePackageId(savedPackage.getId());
+//	            return itemDTO;
+//	        }).toList();
+//
+//	        dto.setServiceItems(psiDTOList);
+//	        return dto;
 //	    }
-
-
-	    public ServicePackageDTO createPackage(String name, String description, int duration, List<Long> serviceItemIds) {
-	        // Step 1: Build base package entity
-	        ServicePackage servicePackage = new ServicePackage();
-	        servicePackage.setName(name);
-	        servicePackage.setDescription(description);
-	        servicePackage.setDurationDays(duration);
-
-	        // Step 2: Calculate total price and prepare link entities
-	        List<PackageServiceItem> packageServiceItems = new ArrayList<>();
-	        double totalPrice = 0.0;
-
-	        for (Long itemId : serviceItemIds) {
-	            ServiceItems serviceItem = serviceItemRepo.findById(itemId)
-	                    .orElseThrow(() -> new RuntimeException("Service item not found with ID: " + itemId));
-
-	            PackageServiceItem psi = new PackageServiceItem();
-	            psi.setServiceItem(serviceItem);
-	            psi.setServicePackage(servicePackage);
-	            packageServiceItems.add(psi);
-	            totalPrice += serviceItem.getPrice();
-	        }
-
-	        if (totalPrice <= 0) {
-	            throw new RuntimeException("Cannot create a package with zero or negative total price.");
-	        }
-
-	        // Step 3: Save base package
-	        servicePackage.setTotalPrice(totalPrice);
-	        ServicePackage savedPackage = servicePackageRepo.save(servicePackage);
-
-	        // Step 4: Save linked items
-	        for (PackageServiceItem psi : packageServiceItems) {
-	            psi.setServicePackage(savedPackage);
-	        }
-
-	        psiRepo.saveAll(packageServiceItems);
-	        savedPackage.setServiceItems(packageServiceItems); // optional
-
-	        // Step 5: Convert to DTO
-	        ServicePackageDTO dto = new ServicePackageDTO();
-	        dto.setId(savedPackage.getId());
-	        dto.setName(savedPackage.getName());
-	        dto.setDescription(savedPackage.getDescription());
-	        dto.setTotalPrice(savedPackage.getTotalPrice());
-	        dto.setDurationDays(savedPackage.getDurationDays());
-
-	        // Convert each PackageServiceItem to DTO
-	        List<PackageServiceItemDTO> psiDTOList = packageServiceItems.stream().map(psi -> {
-	            PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
-	            itemDTO.setId(psi.getId());
-	            itemDTO.setServiceItemId(psi.getServiceItem().getId());
-	            itemDTO.setServicePackageId(savedPackage.getId());
-	            return itemDTO;
-	        }).toList();
-
-	        dto.setServiceItems(psiDTOList);
-	        return dto;
-	    }
-	    
+//	    
 		public List<ServiceItemsDTO> getAllServiceItems() {
 			List<ServiceItems> items = serviceItemRepo.findAll();
 			List<ServiceItemsDTO> dtos = new ArrayList<>();
@@ -171,34 +131,7 @@ public class AdminServicePackage {
 			return dtos;
 		}
 
-		public List<ServicePackageDTO> getAllServicePackages() {
-			List<ServicePackage> packages = servicePackageRepo.findAll();
-			List<ServicePackageDTO> dtos = new ArrayList<>();
-
-			for (ServicePackage pkg : packages) {
-				ServicePackageDTO dto = new ServicePackageDTO();
-				dto.setId(pkg.getId());
-				dto.setName(pkg.getName());
-				dto.setDescription(pkg.getDescription());
-				dto.setTotalPrice(pkg.getTotalPrice());
-				dto.setDurationDays(pkg.getDurationDays());
-
-				// Convert PackageServiceItems to DTOs
-				List<PackageServiceItemDTO> psiDTOs = pkg.getServiceItems().stream().map(psi -> {
-					PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
-					itemDTO.setId(psi.getId());
-					itemDTO.setServiceItemId(psi.getServiceItem().getId());
-					itemDTO.setServicePackageId(pkg.getId());
-					return itemDTO;
-				}).toList();
-
-				dto.setServiceItems(psiDTOs);
-				dtos.add(dto);
-			}
-
-			return dtos;
-		}
-
+		
 		public ServiceItemsDTO getServiceItemById(Long id) {
 			ServiceItems item = serviceItemRepo.findById(id)
 					.orElseThrow(() -> new RuntimeException("Service item not found with ID: " + id));
@@ -272,30 +205,217 @@ public class AdminServicePackage {
 			return dto;
 		}
 
-		public ServicePackageDTO updateServicePackage(Long id, PackageRequestDTO dto2) {
+		// Update service package
+		public ServicePackageDTO updateServicePackage(Long id, PackageRequestDTO dto) {
+            ServicePackage existingPackage = servicePackageRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Service package not found with ID: " + id));
+
+            existingPackage.setName(dto.getName());
+            existingPackage.setDescription(dto.getDescription());
+            existingPackage.setDurationDays(dto.getDurationDays());
+
+            // Clear existing items
+            List<PackageServiceItem> existingItems = existingPackage.getServiceItems();
+            if (existingItems != null) {
+                psiRepo.deleteAll(existingItems);
+            }
+
+            // Add new items
+            List<PackageServiceItem> packageServiceItems = new ArrayList<>();
+            double totalPrice = 0.0;
+
+            for (Long itemId : dto.getServiceItemIds()) {
+                ServiceItems serviceItem = serviceItemRepo.findById(itemId)
+                        .orElseThrow(() -> new RuntimeException("Service item not found with ID: " + itemId));
+
+                PackageServiceItem psi = new PackageServiceItem();
+                psi.setServiceItem(serviceItem);
+                psi.setServicePackage(existingPackage);
+                packageServiceItems.add(psi);
+                totalPrice += serviceItem.getPrice();
+            }
+
+            if (totalPrice <= 0) {
+                throw new RuntimeException("Cannot update package with zero or negative total price.");
+            }
+
+            existingPackage.setTotalPrice(totalPrice);
+            ServicePackage savedPackage = servicePackageRepo.save(existingPackage);
+
+            // Save new package service items
+            for (PackageServiceItem psi : packageServiceItems) {
+                psi.setServicePackage(savedPackage);
+            }
+
+            psiRepo.saveAll(packageServiceItems);
+            savedPackage.setServiceItems(packageServiceItems); // optional
+
+            ServicePackageDTO responseDto = new ServicePackageDTO();
+            responseDto.setId(savedPackage.getId());
+            responseDto.setName(savedPackage.getName());
+            responseDto.setDescription(savedPackage.getDescription());
+            responseDto.setTotalPrice(savedPackage.getTotalPrice());
+            responseDto.setDurationDays(savedPackage.getDurationDays());
+
+            List<PackageServiceItemDTO> psiDTOList = packageServiceItems.stream().map(psi -> {
+                PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
+                itemDTO.setId(psi.getId());
+                itemDTO.setServiceItemId(psi.getServiceItem().getId());
+                itemDTO.setServicePackageId(savedPackage.getId());
+                return itemDTO;
+                }).toList();
+            responseDto.setServiceItems(psiDTOList);
+            return responseDto;
+                    }
+		
+		
+		//get All Packages
+		public List<ServicePackageDTO> getAllServicePackages() {
+			List<ServicePackage> packages = servicePackageRepo.findAll();
+			List<ServicePackageDTO> dtos = new ArrayList<>();
+
+			for (ServicePackage sp : packages) {
+				ServicePackageDTO dto = new ServicePackageDTO();
+				dto.setId(sp.getId());
+				dto.setName(sp.getName());
+				dto.setDescription(sp.getDescription());
+				dto.setTotalPrice(sp.getTotalPrice());
+				dto.setDurationDays(sp.getDurationDays());
+
+				// Convert PackageServiceItems to DTOs
+				List<PackageServiceItemDTO> psiDTOs = sp.getServiceItems().stream().map(psi -> {
+					PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
+					itemDTO.setId(psi.getId());
+					itemDTO.setServiceItemId(psi.getServiceItem().getId());
+					itemDTO.setServicePackageId(sp.getId());
+					return itemDTO;
+				}).toList();
+
+				dto.setServiceItems(psiDTOs);
+				dtos.add(dto);
+			}
+
+			return dtos;
+		}
+
+		
+		
+		public ServicePackageDTO createPackage(
+		        String name,
+		        String description,
+		        int duration,
+		        List<Long> serviceItemIds,
+		        MultipartFile imageFile // 👈 Add this for image
+		) {
+		    // Step 1: Build base package entity
+		    ServicePackage servicePackage = new ServicePackage();
+		    servicePackage.setName(name);
+		    servicePackage.setDescription(description);
+		    servicePackage.setDurationDays(duration);
+
+		    // Step 2: Upload image to Supabase
+		    if (imageFile != null && !imageFile.isEmpty()) {
+		        String imageUrl = uploadFileToSupabase(imageFile, "service_packages");
+		        servicePackage.setImageUrl(imageUrl);
+		    }
+
+		    servicePackage.setFeatured("yes"); // 👈 Set featured to "yes"
+
+		    // Step 3: Calculate total price and link items
+		    List<PackageServiceItem> packageServiceItems = new ArrayList<>();
+		    double totalPrice = 0.0;
+
+		    for (Long itemId : serviceItemIds) {
+		        ServiceItems serviceItem = serviceItemRepo.findById(itemId)
+		                .orElseThrow(() -> new RuntimeException("Service item not found with ID: " + itemId));
+
+		        PackageServiceItem psi = new PackageServiceItem();
+		        psi.setServiceItem(serviceItem);
+		        psi.setServicePackage(servicePackage);
+		        packageServiceItems.add(psi);
+		        totalPrice += serviceItem.getPrice();
+		    }
+
+		    if (totalPrice <= 0) {
+		        throw new RuntimeException("Cannot create a package with zero or negative total price.");
+		    }
+
+		    servicePackage.setTotalPrice(totalPrice);
+		    ServicePackage savedPackage = servicePackageRepo.save(servicePackage);
+
+		    // Step 4: Save package service items
+		    for (PackageServiceItem psi : packageServiceItems) {
+		        psi.setServicePackage(savedPackage);
+		    }
+
+		    psiRepo.saveAll(packageServiceItems);
+		    savedPackage.setServiceItems(packageServiceItems); // optional
+
+		    // Step 5: Convert to DTO
+		    ServicePackageDTO dto = new ServicePackageDTO();
+		    dto.setId(savedPackage.getId());
+		    dto.setName(savedPackage.getName());
+		    dto.setDescription(savedPackage.getDescription());
+		    dto.setTotalPrice(savedPackage.getTotalPrice());
+		    dto.setDurationDays(savedPackage.getDurationDays());
+		    dto.setImageUrl(savedPackage.getImageUrl());
+		    dto.setFeatured(savedPackage.getFeatured());
+
+		    List<PackageServiceItemDTO> psiDTOList = packageServiceItems.stream().map(psi -> {
+		        PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
+		        itemDTO.setId(psi.getId());
+		        itemDTO.setServiceItemId(psi.getServiceItem().getId());
+		        itemDTO.setServicePackageId(savedPackage.getId());
+		        return itemDTO;
+		    }).toList();
+
+		    dto.setServiceItems(psiDTOList);
+		    return dto;
+		}
+		public String uploadFileToSupabase(MultipartFile file, String folderName) {
+		    try {
+		        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+		        byte[] fileBytes = file.getBytes();
+
+		        HttpClient client = HttpClient.newHttpClient();
+		        HttpRequest request = HttpRequest.newBuilder()
+		                .uri(URI.create("https://zzbbomzdumhdqfvqhsqp.supabase.co/storage/v1/object/" +
+		                        "healthtourism1/" + folderName + "/" + fileName))
+		                .header("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." /* full API key */)
+		                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." /* same key */)
+		                .header("Content-Type", file.getContentType())
+		                .PUT(HttpRequest.BodyPublishers.ofByteArray(fileBytes))
+		                .build();
+
+		        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		        if (response.statusCode() == 200 || response.statusCode() == 201) {
+		            return "https://zzbbomzdumhdqfvqhsqp.supabase.co/storage/v1/object/public/healthtourism1/" + folderName + "/" + fileName;
+		        } else {
+		            throw new RuntimeException("Failed to upload file: " + response.body());
+		        }
+		    } catch (Exception e) {
+		        throw new RuntimeException("Supabase file upload error: " + e.getMessage(), e);
+		    }
+		    
+		    
+		}
+		
+		//update featured status
+		public ServicePackageDTO updateFeaturedStatus(Long id) {
 			ServicePackage existingPackage = servicePackageRepo.findById(id)
 					.orElseThrow(() -> new RuntimeException("Service package not found with ID: " + id));
 
-			existingPackage.setName(dto2.getName());
-			existingPackage.setDescription(dto2.getDescription());
-			existingPackage.setDurationDays(dto2.getDurationDays());
-
-			// Recalculate total price
-			double totalPrice = 0.0;
-			for (PackageServiceItem psi : existingPackage.getServiceItems()) {
-				totalPrice += psi.getServiceItem().getPrice();
-			}
-			existingPackage.setTotalPrice(totalPrice);
-
+			existingPackage.setFeatured("No");
 			ServicePackage savedPackage = servicePackageRepo.save(existingPackage);
-
 			ServicePackageDTO dto = new ServicePackageDTO();
 			dto.setId(savedPackage.getId());
 			dto.setName(savedPackage.getName());
 			dto.setDescription(savedPackage.getDescription());
 			dto.setTotalPrice(savedPackage.getTotalPrice());
 			dto.setDurationDays(savedPackage.getDurationDays());
-
+			dto.setImageUrl(savedPackage.getImageUrl());
+			dto.setFeatured(savedPackage.getFeatured());
 			// Convert PackageServiceItems to DTOs
 			List<PackageServiceItemDTO> psiDTOs = savedPackage.getServiceItems().stream().map(psi -> {
 				PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
@@ -304,12 +424,10 @@ public class AdminServicePackage {
 				itemDTO.setServicePackageId(savedPackage.getId());
 				return itemDTO;
 			}).toList();
-
 			dto.setServiceItems(psiDTOs);
 			return dto;
 		}
-		
-		
+
 
 	    
 }
