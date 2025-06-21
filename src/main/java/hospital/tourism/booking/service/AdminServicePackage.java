@@ -1,14 +1,17 @@
 package hospital.tourism.booking.service;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,7 +39,58 @@ public class AdminServicePackage {
 
 	    @Autowired
 	    private PackageServiceItemRepository psiRepo;
+	    
+	    
+	    @Value("${supabase.url}")
+	    private String supabaseUrl;
 
+	    @Value("${supabase.api.key}")
+	    private String supabaseKey;
+
+	    @Value("${supabase.bucket}")
+	    private String supabaseBucket;
+
+
+	    public String uploadFileToSupabase(MultipartFile file, String folderName) {
+	        try {
+	            // Generate unique and URL-safe file name
+	            String rawFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+	            String encodedFileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8); // ✅ Handles spaces, ( ), etc.
+	            byte[] fileBytes = file.getBytes();
+
+	            // Construct the upload URL
+	            String uploadUrl = String.format(
+	                "%s/storage/v1/object/%s/%s/%s",
+	                supabaseUrl, supabaseBucket, folderName, encodedFileName
+	            );
+
+	            HttpRequest request = HttpRequest.newBuilder()
+	                .uri(URI.create(uploadUrl))
+	                .header("apikey", supabaseKey)
+	                .header("Authorization", "Bearer " + supabaseKey)
+	                .header("Content-Type", file.getContentType())
+	                .PUT(HttpRequest.BodyPublishers.ofByteArray(fileBytes))
+	                .build();
+
+	            HttpClient client = HttpClient.newHttpClient();
+	            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+	            if (response.statusCode() == 200 || response.statusCode() == 201) {
+	                // Public access URL
+	                return String.format(
+	                    "%s/storage/v1/object/public/%s/%s/%s",
+	                    supabaseUrl, supabaseBucket, folderName, encodedFileName
+	                );
+	            } else {
+	                throw new RuntimeException("Failed to upload file: " + response.body());
+	            }
+
+	        } catch (Exception e) {
+	            throw new RuntimeException("Supabase file upload error: " + e.getMessage(), e);
+	        }
+	    }
+	
+	    
 	    public ServiceItemsDTO addServiceItem(ServiceItems item) {
 	        ServiceItems savedItem = serviceItemRepo.save(item);
 
@@ -371,34 +425,6 @@ public class AdminServicePackage {
 
 		    dto.setServiceItems(psiDTOList);
 		    return dto;
-		}
-		public String uploadFileToSupabase(MultipartFile file, String folderName) {
-		    try {
-		        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-		        byte[] fileBytes = file.getBytes();
-
-		        HttpClient client = HttpClient.newHttpClient();
-		        HttpRequest request = HttpRequest.newBuilder()
-		                .uri(URI.create("https://zzbbomzdumhdqfvqhsqp.supabase.co/storage/v1/object/" +
-		                        "healthtourism1/" + folderName + "/" + fileName))
-		                .header("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." /* full API key */)
-		                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." /* same key */)
-		                .header("Content-Type", file.getContentType())
-		                .PUT(HttpRequest.BodyPublishers.ofByteArray(fileBytes))
-		                .build();
-
-		        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		        if (response.statusCode() == 200 || response.statusCode() == 201) {
-		            return "https://zzbbomzdumhdqfvqhsqp.supabase.co/storage/v1/object/public/healthtourism1/" + folderName + "/" + fileName;
-		        } else {
-		            throw new RuntimeException("Failed to upload file: " + response.body());
-		        }
-		    } catch (Exception e) {
-		        throw new RuntimeException("Supabase file upload error: " + e.getMessage(), e);
-		    }
-		    
-		    
 		}
 		
 		//update featured status
