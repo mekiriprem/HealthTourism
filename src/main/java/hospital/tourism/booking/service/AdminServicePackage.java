@@ -187,7 +187,13 @@ public class AdminServicePackage {
 				List<PackageServiceItemDTO> psiDTOs = pkg.getServiceItems().stream().map(psi -> {
 					PackageServiceItemDTO itemDTO = new PackageServiceItemDTO();
 					itemDTO.setId(psi.getId());
-					itemDTO.setServiceItemId(psi.getServiceItem().getId());
+					  ServiceItems serviceItem = psi.getServiceItem();
+				        if (serviceItem != null) {
+				            itemDTO.setServiceItemId(serviceItem.getId());
+				        } else {
+				            itemDTO.setServiceItemId(null); // or throw custom error/log
+				        }
+
 					itemDTO.setServicePackageId(pkg.getId());
 					return itemDTO;
 				}).toList();
