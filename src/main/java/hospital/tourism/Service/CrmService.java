@@ -1,5 +1,6 @@
 package hospital.tourism.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class CrmService {
 
     public List<Booking> getUnpaidOfflineFreeBookings() {
         return bookingRepository.findByBookingAmountAndBookingStatusAndPaymentModeAndPaymentStatus(
-            0.0, "Booked", "Offline", "Unpaid"
+            0, "Booked", "offline", "Unpaid"
         );
     }
 
@@ -65,8 +66,10 @@ public class CrmService {
     }
     public List<SalesFollowUp> getFollowUpsBySalesId(Long salesId) {
         return salesFollowUpRepository.findBySalesTeam_Id(salesId);
+
     }
-    public List<SalesFollowUp> getFollowUpsByBookingId(Long bookingId) {
+        public List<SalesFollowUp> getFollowUpsByBookingId(Long bookingId) {
+
         return salesFollowUpRepository.findByBooking_BookingId(bookingId);
     }
     
@@ -100,5 +103,36 @@ public class CrmService {
     public Optional<SalesTeam> getById(Long id) {
         return salesTeamRepository.findById(id);
     }
+    
+    public List<SalesTeam> getAllSales() {
+        return salesTeamRepository.findAll();
+    }
+    public List<Booking> assignMultipleToSales(List<Long> bookingIds, Long salesId, String remark) {
+        SalesTeam sales = salesTeamRepository.findById(salesId)
+            .orElseThrow(() -> new RuntimeException("Sales Team not found"));
+
+        List<Booking> updatedBookings = new ArrayList<>();
+
+        for (Long bookingId : bookingIds) {
+            Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found: " + bookingId));
+
+            booking.setSalesTeam(sales);
+            bookingRepository.save(booking);
+
+            SalesFollowUp followUp = new SalesFollowUp();
+            followUp.setBooking(booking);
+            followUp.setSalesTeam(sales);
+            followUp.setRemarks(remark != null ? remark : "Assigned");
+            followUp.setStatus("Assigned");
+
+            salesFollowUpRepository.save(followUp);
+
+            updatedBookings.add(booking);
+        }
+
+        return updatedBookings;
+    }
+
 }
 

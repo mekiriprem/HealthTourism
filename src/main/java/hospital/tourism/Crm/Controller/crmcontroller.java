@@ -1,12 +1,15 @@
 package hospital.tourism.Crm.Controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,14 +36,15 @@ public class crmcontroller {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<Booking> assignToSales(
-        @RequestParam Long bookingId,
+    public ResponseEntity<List<Booking>> assignMultipleBookingsToSales(
         @RequestParam Long salesId,
+        @RequestBody List<Long> bookingIds,
         @RequestParam(required = false) String remark
     ) {
-        Booking updated = bookingService.assignToSales(bookingId, salesId, remark);
-        return ResponseEntity.ok(updated);
+        List<Booking> updatedBookings = bookingService.assignMultipleToSales(bookingIds, salesId, remark);
+        return ResponseEntity.ok(updatedBookings);
     }
+
 
     @PostMapping("/followup")
     public ResponseEntity<SalesFollowUp> addFollowUp(
@@ -89,6 +93,52 @@ public class crmcontroller {
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<SalesTeam>> getAllSalesTeam() {
+        return ResponseEntity.ok(bookingService.getAllSales());
+    }
 
+    @GetMapping("/stats/sales/{salesId}")
+    public ResponseEntity<Map<String, Object>> getSalesStats(@PathVariable Long salesId) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        List<Booking> bookings = bookingService.getBookingsAssignedToSales(salesId);
+        List<SalesFollowUp> followUps = bookingService.getFollowUpsBySalesId(salesId);
+        
+        double totalRevenue = bookings.stream()
+            .mapToDouble(Booking::getBookingAmount)
+            .sum();
+        
+        long confirmedBookings = bookings.stream()
+            .filter(b -> "confirmed".equalsIgnoreCase(b.getBookingStatus()))
+            .count();
+            
+        long paidBookings = bookings.stream()
+            .filter(b -> "paid".equalsIgnoreCase(b.getPaymentStatus()))
+            .count();
+        
+        stats.put("totalBookings", bookings.size());
+        stats.put("totalFollowUps", followUps.size());
+        stats.put("totalRevenue", totalRevenue);
+        stats.put("confirmedBookings", confirmedBookings);
+        stats.put("paidBookings", paidBookings);
+        stats.put("conversionRate", bookings.isEmpty() ? 0 : (confirmedBookings * 100.0 / bookings.size()));
+        
+        return ResponseEntity.ok(stats);
+    }    @PutMapping("/update/{id}")
+    public ResponseEntity<SalesTeam> updateSalesTeam(@PathVariable Long id, @RequestBody SalesTeam salesTeam) {
+        return bookingService.getById(id)
+            .map(existingMember -> {
+                existingMember.setName(salesTeam.getName());
+                existingMember.setEmail(salesTeam.getEmail());
+                if (salesTeam.getPassword() != null && !salesTeam.getPassword().isEmpty()) {
+                    existingMember.setPassword(salesTeam.getPassword());
+                }
+                SalesTeam updated = bookingService.register(existingMember);
+                return ResponseEntity.ok(updated);
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
 
 }
