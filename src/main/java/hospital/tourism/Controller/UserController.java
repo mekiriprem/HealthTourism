@@ -112,5 +112,15 @@ public class UserController {
 		}
 	}
 
+	//get all users pricriptions
+	@GetMapping("/get-all-prescriptions")
+	public ResponseEntity<?> getAllPrescriptions() {
+		try {
+			return ResponseEntity.ok(userService.getAllPriscriptions());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+		}
+	}
 
+	
 }
