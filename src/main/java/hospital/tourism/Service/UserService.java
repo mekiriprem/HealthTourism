@@ -281,7 +281,6 @@ public class UserService {
 					dto.setEmail(user.getEmail());
 					dto.setMobilenum(user.getMobilenum());
 					dto.setCountry(user.getCountry());
-			
 					dto.setPrescriptionUrls(
 							user.getPrescriptionUrls() != null ? user.getPrescriptionUrls() : new ArrayList<>());
 					return dto;
