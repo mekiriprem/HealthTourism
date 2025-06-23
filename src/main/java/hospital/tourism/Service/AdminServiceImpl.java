@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -191,14 +192,14 @@ public class AdminServiceImpl {
 				logger.warn("Delete failed: Admin with ID {} not found", adminId);
 				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
 			}
-         }
-         
-         /**
-          * get all sub-admins
+         }         /**
+          * get all sub-admins (only users with role = 'subadmin')
           * 
           */
          public List<AdminEntity> getAllSubAdmins() {
-             return adminRepository.findAll();         
+             return adminRepository.findAll().stream()
+                     .filter(admin -> "subadmin".equalsIgnoreCase(admin.getRole()))
+                     .collect(Collectors.toList());         
          }
          
 	
@@ -254,11 +255,35 @@ public class AdminServiceImpl {
 	            throw new EntityNotFoundException("Admin not found with ID: " + adminId);
 	        }
 	    }
-		
-		//get sub-admin by id
+				//get sub-admin by id
 		public AdminEntity getSubAdminById(Integer adminId) {
-			return adminRepository.findById(adminId)
+			AdminEntity admin = adminRepository.findById(adminId)
 					.orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
+			
+			// Verify that this is actually a sub-admin
+			if (!"subadmin".equalsIgnoreCase(admin.getRole())) {
+				throw new IllegalArgumentException("Admin with ID " + adminId + " is not a sub-admin");
+			}
+			
+			return admin;
+		}
+		
+		//get sub-admin by employee ID
+		public AdminEntity getSubAdminByEmployeeId(String employeeId) {
+			if (employeeId == null || employeeId.trim().isEmpty()) {
+				throw new IllegalArgumentException("Employee ID is required");
+			}
+			
+			List<AdminEntity> allAdmins = adminRepository.findAll();
+			Optional<AdminEntity> admin = allAdmins.stream()
+					.filter(a -> employeeId.equals(a.getEmployeeId()) && "subadmin".equalsIgnoreCase(a.getRole()))
+					.findFirst();
+			
+			if (admin.isEmpty()) {
+				throw new EntityNotFoundException("Sub-admin not found with Employee ID: " + employeeId);
+			}
+			
+			return admin.get();
 		}
 		
 		/**
@@ -317,4 +342,65 @@ public class AdminServiceImpl {
             }
         }
 	
+        /**
+         * Reset a sub-admin's password to a new random password
+         * This will generate a new password, update it in the database, and return the new password
+         */
+        @Transactional
+        public String resetSubAdminPassword(Integer adminId) {
+            if (adminId == null) {
+                logger.warn("Password reset failed: Admin ID is required");
+                throw new IllegalArgumentException("Admin ID is required");
+            }
+            
+            Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
+            if (optionalAdmin.isEmpty()) {
+                logger.warn("Password reset failed: Admin with ID {} not found", adminId);
+                throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+            }
+            
+            AdminEntity admin = optionalAdmin.get();
+            
+            // Generate a new random password
+            String newPassword = UUID.randomUUID().toString().substring(0, 8);
+            
+            // Update the password in the database
+            admin.setAdminPassword(passwordEncoder.encode(newPassword));
+            adminRepository.save(admin);
+            
+            logger.info("Password reset successful for admin ID: {}", adminId);
+            
+            // Send email with the new password if email service is available
+            try {
+                sendPasswordResetEmail(admin.getAdminEmail(), admin.getAdminName(), newPassword);
+            } catch (Exception e) {
+                logger.error("Failed to send password reset email: {}", e.getMessage());
+                // We continue even if email fails since we'll return the password to the admin
+            }
+            
+            return newPassword;
+        }
+        
+        /**
+         * Send password reset email
+         */
+        private void sendPasswordResetEmail(String email, String name, String newPassword) {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Password Reset - Hospital Tourism");
+            
+            message.setText(String.format(
+                "Dear %s,\n\n" +
+                "Your password has been reset.\n\n" +
+                "Login Email: %s\n" +
+                "New Password: %s\n\n" +
+                "Please log in and change your password immediately.\n\n" +
+                "Best regards,\n" +
+                "Hospital Tourism Team",
+                name, email, newPassword
+            ));
+            
+            mailSender.send(message);
+            logger.info("Password reset email sent to: {}", email);
+        }
 }

@@ -1,6 +1,9 @@
 package hospital.tourism.Controller;
 
+import java.util.Map;
 import java.util.Optional;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -158,6 +161,33 @@ public class AdminController {
             AdminEntity admin = adminServiceimpl.getSubAdminById(adminId);
             return ResponseEntity.ok(admin);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    	 }
+    
+    	 // Reset a sub-admin's password
+    	 @PostMapping("/reset-password/{adminId}")
+    	 public ResponseEntity<?> resetSubAdminPassword(@PathVariable Integer adminId) {
+        try {
+            String newPassword = adminServiceimpl.resetSubAdminPassword(adminId);
+            return ResponseEntity.ok(Map.of(
+                "message", "Password reset successful",
+                "newPassword", newPassword
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error resetting password: " + e.getMessage());
+        }
+    	 }
+    
+    	 // Get sub-admin by Employee ID
+    	 @GetMapping("/get-subadmin-by-employee/{employeeId}")
+    	 public ResponseEntity<?> getSubAdminByEmployeeId(@PathVariable String employeeId) {
+        try {
+            AdminEntity admin = adminServiceimpl.getSubAdminByEmployeeId(employeeId);
+            return ResponseEntity.ok(admin);
+        } catch (IllegalArgumentException | EntityNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     	 }
