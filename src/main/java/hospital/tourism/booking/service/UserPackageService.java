@@ -99,6 +99,10 @@ public class UserPackageService {
 	            dto.setBookingDate(booking.getBookingDate());
 	            dto.setStatus(booking.getStatus());
 	            dto.setTotalPrice(booking.getTotalPrice());
+	            dto.setServicePackageName(booking.getServicePackage().getName());
+	            dto.setServicePackageDescription(booking.getServicePackage().getDescription());
+	            dto.setServicePackageImageUrl(booking.getServicePackage().getImageUrl());
+	            
 	            return dto;
 	        }).toList();
 	    }

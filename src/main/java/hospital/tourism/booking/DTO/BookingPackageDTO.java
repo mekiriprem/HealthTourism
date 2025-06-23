@@ -19,4 +19,13 @@ public class BookingPackageDTO {
     private Long phNumber;
     private String email;
     private String address;
+    private String servicePackageName;
+    private String servicePackageDescription;
+    private String servicePackageImageUrl;
+    private String servicePackageCategory;
+    private String servicePackageType;
+    private String servicePackageDuration;
+    private String servicePackagePrice;
+    private String servicePackageStatus; // e.g., ACTIVE, INACTIVE
+    
 }

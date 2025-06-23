@@ -507,6 +507,12 @@ public class AdminServicePackage {
 				dto.setEmail(booking.getUser().getEmail()); // Assuming getEmail() exists
 				// Add any other user details you need
 				dto.setAddress(booking.getUser().getAddress()); // Assuming getAddress() exists
+				dto.setServicePackageName(booking.getServicePackage().getName());
+				dto.setServicePackageDescription(booking.getServicePackage().getDescription());
+				dto.setServicePackageImageUrl(booking.getServicePackage().getImageUrl());
+				
+				dto.setTotalPrice(booking.getTotalPrice());
+		 // Assuming getStatus() exists);
                 dtos.add(dto);
             }
             return dtos;

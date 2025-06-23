@@ -20,7 +20,7 @@ public class AdminEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "admin_id")
+   
     private Integer adminId;
 
     @Column(name = "admin_name")
