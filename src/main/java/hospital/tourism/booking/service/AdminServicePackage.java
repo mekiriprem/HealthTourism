@@ -15,13 +15,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.booking.DTO.BookingPackageDTO;
 import hospital.tourism.booking.DTO.PackageRequestDTO;
 import hospital.tourism.booking.DTO.PackageServiceItemDTO;
 import hospital.tourism.booking.DTO.ServiceItemsDTO;
 import hospital.tourism.booking.DTO.ServicePackageDTO;
+import hospital.tourism.booking.entity.BookingPackage;
 import hospital.tourism.booking.entity.PackageServiceItem;
 import hospital.tourism.booking.entity.ServiceItems;
 import hospital.tourism.booking.entity.ServicePackage;
+import hospital.tourism.booking.repo.BookingRepositoryPackage;
 import hospital.tourism.booking.repo.PackServiceItemRepository;
 import hospital.tourism.booking.repo.PackageServiceItemRepository;
 import hospital.tourism.booking.repo.ServicePackageRepository;
@@ -39,6 +42,9 @@ public class AdminServicePackage {
 
 	    @Autowired
 	    private PackageServiceItemRepository psiRepo;
+	    
+	    @Autowired
+	    private BookingRepositoryPackage bookingRepository;
 	    
 	    
 	    @Value("${supabase.url}")
@@ -484,4 +490,27 @@ public class AdminServicePackage {
 		}
 
 	    
+		//get All booking 
+		public List<BookingPackageDTO> getAllBookings() {
+            List<BookingPackage> bookings = bookingRepository.findAll();
+            List<BookingPackageDTO> dtos = new ArrayList<>();
+            for (BookingPackage booking : bookings) {
+                BookingPackageDTO dto = new BookingPackageDTO();
+                dto.setId(booking.getId());
+                dto.setUserId(booking.getUser().getId());
+                dto.setServicePackageId(booking.getServicePackage().getId());
+                dto.setBookingDate(booking.getBookingDate());
+                dto.setStatus(booking.getStatus());
+                dto.setTotalPrice(booking.getTotalPrice());
+                dto.setUserName(booking.getUser().getName()); // Assuming getName() exists
+                dto.setPhNumber(booking.getUser().getMobilenum()); // Assuming getPhNumber() exists
+				dto.setEmail(booking.getUser().getEmail()); // Assuming getEmail() exists
+				// Add any other user details you need
+				dto.setAddress(booking.getUser().getAddress()); // Assuming getAddress() exists
+                dtos.add(dto);
+            }
+            return dtos;
+            
+		}
+		
 }

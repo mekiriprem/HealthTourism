@@ -40,5 +40,8 @@ public class AdminEntity {
     private List<String> permissions;
 
     @Column(name = "status", nullable = false)
-    private String status = "active";  
+    private String status = "active";
+    
+    @Column(name = "role", nullable = false)
+    private String role;
 }

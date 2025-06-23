@@ -32,6 +32,11 @@ public class UserControllerPackage {
     public ResponseEntity<List<ServicePackageDTO>> listPackages() {
         return ResponseEntity.ok(userService.listPackages());
     }
+    //get all bookings by user id
+    @GetMapping("/bookings/{userId}")
+	public ResponseEntity<List<BookingPackageDTO>> getBookingsByUserId(@PathVariable Long userId) {
+		return ResponseEntity.ok(userService.listBookingsByUser(userId));
+	}
 
   
 }

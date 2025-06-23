@@ -91,6 +91,10 @@ public class UserPackageService {
 	            BookingPackageDTO dto = new BookingPackageDTO();
 	            dto.setId(booking.getId());
 	            dto.setUserId(user.getId());
+	            dto.setUserName(user.getName()); // Assuming users has a getName() method
+	            dto.setPhNumber(user.getMobilenum()); // Assuming users has a getPhoneNumber() method
+	            dto.setEmail(user.getEmail()); // Assuming users has a getEmail() method
+	            
 	            dto.setServicePackageId(booking.getServicePackage().getId());
 	            dto.setBookingDate(booking.getBookingDate());
 	            dto.setStatus(booking.getStatus());

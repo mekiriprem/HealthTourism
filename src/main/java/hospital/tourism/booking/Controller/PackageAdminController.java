@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.booking.DTO.BookingPackageDTO;
 import hospital.tourism.booking.DTO.PackageRequestDTO;
 import hospital.tourism.booking.DTO.ServiceItemsDTO;
 import hospital.tourism.booking.DTO.ServicePackageDTO;
@@ -128,5 +129,15 @@ public class PackageAdminController {
         ServicePackageDTO updatedDto = adminService.updateFeaturedStatus(id, featured);
         return ResponseEntity.ok(updatedDto);
     }
+    
+  //get all Booking
+    @GetMapping("/bookings")
+	public List<BookingPackageDTO> getAllBookings() {
+		return adminService.getAllBookings();
+	}
+
+	
+
+	
     
 }

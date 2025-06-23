@@ -14,4 +14,9 @@ public class BookingPackageDTO {
     private LocalDate bookingDate;
     private String status;             // e.g., PENDING, CONFIRMED
     private double totalPrice;
+    
+    private String userName;
+    private Long phNumber;
+    private String email;
+    private String address;
 }

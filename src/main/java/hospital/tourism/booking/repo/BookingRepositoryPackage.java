@@ -8,9 +8,9 @@ import hospital.tourism.Entity.Booking;
 import hospital.tourism.Entity.users;
 import hospital.tourism.booking.entity.BookingPackage;
 
-public interface BookingRepositoryPackage extends JpaRepository<Booking, Long> {
+public interface BookingRepositoryPackage extends JpaRepository<BookingPackage, Long> {
 
-	BookingPackage save(BookingPackage booking);
+public 	BookingPackage save(BookingPackage booking);
 
 	List<BookingPackage> findByUser(users user);
 
