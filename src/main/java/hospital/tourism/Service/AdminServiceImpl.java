@@ -1,5 +1,6 @@
 package hospital.tourism.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,8 @@ public class AdminServiceImpl {
         if (lockoutTimestamps.containsKey(normalizedEmail)) {
             long lockTime = lockoutTimestamps.get(normalizedEmail);
             if (System.currentTimeMillis() - lockTime < LOCKOUT_DURATION) {
-                throw new IllegalStateException("Account is temporarily locked due to multiple failed login attempts. Please try again later.");
+                logger.warn("Account locked for {}. Try again later.", normalizedEmail);
+                throw new IllegalArgumentException("Account locked. Please try again later.");
             } else {
                 lockoutTimestamps.remove(normalizedEmail);
                 loginAttempts.remove(normalizedEmail);
@@ -112,6 +114,18 @@ public class AdminServiceImpl {
         if (!passwordEncoder.matches(password, admin.getAdminPassword())) {
             incrementFailedAttempts(normalizedEmail);
             throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        // Role-based access check
+        if ("subadmin".equalsIgnoreCase(admin.getRole())) {
+            // Optional: Add specific permission checks for sub-admins if needed
+            if (admin.getPermissions() == null || admin.getPermissions().isEmpty()) {
+                logger.warn("Sub-admin {} has no permissions.", normalizedEmail);
+                // Depending on requirements, you might want to deny login if no permissions are assigned
+            }
+        } else if (!"admin".equalsIgnoreCase(admin.getRole())) {
+            logger.warn("Login failed: Unknown role for user {}", normalizedEmail);
+            throw new IllegalArgumentException("Access denied: Invalid role");
         }
 
         loginAttempts.remove(normalizedEmail);
@@ -159,46 +173,24 @@ public class AdminServiceImpl {
         }
     }
     
-	/**
-	 * Update sub-admin details
-	 */
-    @Transactional
-    public AdminEntity updateSubAdmin(AdminEntity subAdmin) {
-        if (subAdmin.getAdminId() == null) {
-            logger.warn("Update failed: Admin ID is required");
-            throw new IllegalArgumentException("Admin ID is required");
-        }
 
-        Optional<AdminEntity> existingAdmin = adminRepository.findById(subAdmin.getAdminId());
-        if (existingAdmin.isPresent()) {
-            AdminEntity admn = existingAdmin.get();
-            admn.setAdminName(subAdmin.getAdminName());
-            admn.setAdminEmail(subAdmin.getAdminEmail());
-            admn.setAdminPassword(subAdmin.getAdminPassword());
-            return adminRepository.save(admn); // Save and return updated entity
-        } else {
-            logger.warn("Update failed: Admin with ID {} not found", subAdmin.getAdminId());
-            throw new EntityNotFoundException("Admin not found with ID: " + subAdmin.getAdminId());
-        }
-    }
-
-        /**
-         * Delete sub-admin by ID
+         /**
+         * Delete admin or sub-admin by ID
          * */
          @Transactional
          public void deleteSubAdmin(Integer adminId) {
-				if (adminId == null) {
-					logger.warn("Delete failed: Admin ID is required");
-					throw new IllegalArgumentException("Admin ID is required");
-				}
-				Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
-				if (existingAdmin.isPresent()) {
-					adminRepository.deleteById(adminId);
-					logger.info("Sub-admin with ID {} deleted successfully", adminId);
-				} else {
-					logger.warn("Delete failed: Admin with ID {} not found", adminId);
-					throw new EntityNotFoundException("Admin not found with ID: " + adminId);
-				}
+			if (adminId == null) {
+				logger.warn("Delete failed: Admin ID is required");
+				throw new IllegalArgumentException("Admin ID is required");
+			}
+			Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
+			if (existingAdmin.isPresent()) {
+				adminRepository.deleteById(adminId);
+				logger.info("Admin with ID {} deleted successfully", adminId);
+			} else {
+				logger.warn("Delete failed: Admin with ID {} not found", adminId);
+				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+			}
          }
          
          /**
@@ -239,11 +231,10 @@ public class AdminServiceImpl {
 			
 			Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
 			if (existingAdmin.isPresent()) {
-				AdminEntity admin = existingAdmin.get();
-				admin.setStatus("active"); // Set status to active");
-				return adminRepository.save(admin); // Save and return updated entity
-			} else {
-				logger.warn("Update status failed: Admin with ID {} not found", adminId);
+                AdminEntity admin = existingAdmin.get();
+                admin.setStatus("active");
+                return adminRepository.save(admin);
+            } else {
 				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
 			}
 		}
@@ -254,12 +245,13 @@ public class AdminServiceImpl {
 	            AdminEntity existingAdmin = optionalAdmin.get();
 	            existingAdmin.setAdminName(updatedAdmin.getAdminName());
 	            existingAdmin.setAdminEmail(updatedAdmin.getAdminEmail());
-	            existingAdmin.setAdminPassword(updatedAdmin.getAdminPassword());
 	            existingAdmin.setEmployeeId(updatedAdmin.getEmployeeId());
-	            existingAdmin.setPermissions(updatedAdmin.getPermissions());
+	            existingAdmin.setPermissions(updatedAdmin.getPermissions() != null ? updatedAdmin.getPermissions() : Collections.emptyList());
+
+	            // Do not update password here unless a specific flow for it exists
 	            return adminRepository.save(existingAdmin);
 	        } else {
-	            throw new RuntimeException("Admin not found with ID: " + adminId);
+	            throw new EntityNotFoundException("Admin not found with ID: " + adminId);
 	        }
 	    }
 		
@@ -269,4 +261,60 @@ public class AdminServiceImpl {
 					.orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
 		}
 		
+		/**
+         * Find admin by email (public method for controller use)
+         */
+        public Optional<AdminEntity> findByEmail(String email) {
+            String normalizedEmail = email.trim().toLowerCase();
+            return adminRepository.findByAdminEmail(normalizedEmail);
+        }
+
+        /**
+         * Create admin with specific password (for default admin creation)
+         */
+        @Transactional
+        public AdminEntity createAdminWithPassword(AdminEntity admin, String password) {
+            if (admin.getAdminEmail() == null || admin.getAdminEmail().isEmpty()) {
+                logger.warn("Admin creation failed: Email is required");
+                throw new IllegalArgumentException("Email is required");
+            }
+
+            String normalizedEmail = admin.getAdminEmail().trim().toLowerCase();
+            admin.setAdminEmail(normalizedEmail);
+
+            if (!normalizedEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                logger.warn("Admin creation failed: Invalid email format for {}", normalizedEmail);
+                throw new IllegalArgumentException("Invalid email format");
+            }
+
+            if (admin.getAdminName() == null || admin.getAdminName().isEmpty()) {
+                logger.warn("Admin creation failed: Name is required");
+                throw new IllegalArgumentException("Name is required");
+            }
+
+            if (password == null || password.isEmpty()) {
+                logger.warn("Admin creation failed: Password is required");
+                throw new IllegalArgumentException("Password is required");
+            }
+
+            Optional<AdminEntity> existingAdmin = adminRepository.findByAdminEmail(normalizedEmail);
+            if (existingAdmin.isPresent()) {
+                logger.warn("Admin creation failed: Email already registered - {}", normalizedEmail);
+                throw new IllegalArgumentException("Email already registered");
+            }
+
+            // Set the password with proper encoding
+            admin.setAdminPassword(passwordEncoder.encode(password));
+
+            try {
+                logger.info("Creating admin with email: {}", normalizedEmail);
+                AdminEntity savedAdmin = adminRepository.save(admin);
+                logger.info("Admin created successfully: {}", normalizedEmail);
+                return savedAdmin;
+            } catch (DataIntegrityViolationException e) {
+                logger.error("Email conflict on save: {}", normalizedEmail);
+                throw new IllegalArgumentException("Email already registered");
+            }
+        }
+	
 }

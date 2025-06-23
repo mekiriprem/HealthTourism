@@ -1,5 +1,7 @@
 package hospital.tourism.Controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +12,7 @@ import hospital.tourism.Service.AdminServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 
 
-@CrossOrigin(origins = "http://localhost:8082")
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000"})
 @RestController
 @RequestMapping("/admin")
 @Slf4j
@@ -20,7 +22,7 @@ public class AdminController {
     private AdminServiceImpl adminServiceimpl;
 
     // Register new sub-admin
-    @PostMapping("/register")
+    @PostMapping("/subadminregister")
     public ResponseEntity<?> registerSubAdmin(@RequestBody AdminEntity admin) {
         try {
             AdminEntity savedAdmin = adminServiceimpl.registerSubAdmin(admin);
@@ -32,27 +34,58 @@ public class AdminController {
 
     // Login with email and password
     @PostMapping("/login")
-    public ResponseEntity<AdminEntity> loginAdmin(@RequestBody AdminEntity loginRequest) {
-      
+    public ResponseEntity<?> loginAdmin(@RequestBody AdminEntity loginRequest) {
+        try {
+            log.info("Login attempt for email: {}", loginRequest.getAdminEmail());
+            
+            if (loginRequest.getAdminEmail() == null || loginRequest.getAdminEmail().trim().isEmpty()) {
+                log.warn("Login failed: Email is required");
+                return ResponseEntity.badRequest().body("Email is required");
+            }
+            
+            if (loginRequest.getAdminPassword() == null || loginRequest.getAdminPassword().trim().isEmpty()) {
+                log.warn("Login failed: Password is required");
+                return ResponseEntity.badRequest().body("Password is required");
+            }
+            
             AdminEntity admin = adminServiceimpl.login(
                 loginRequest.getAdminEmail(),
                 loginRequest.getAdminPassword()
-                
             );
-            log.info("Admin logged in successfully: {}", admin);
+            log.info("Admin logged in successfully: {}", admin.getAdminEmail());
             return ResponseEntity.ok(admin);
-       
+        } catch (IllegalArgumentException e) {
+            log.error("Login failed for email {}: {}", loginRequest.getAdminEmail(), e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error during login: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+      // Create default admin for testing (remove in production)
+    @PostMapping("/create-default-admin")
+    public ResponseEntity<?> createDefaultAdmin() {
+        try {
+            // Check if admin already exists
+            Optional<AdminEntity> existingAdmin = adminServiceimpl.findByEmail("admin@gmail.com");
+            if (existingAdmin.isPresent()) {
+                return ResponseEntity.badRequest().body("Admin already exists with email: admin@gmail.com");
+            }
+            
+            AdminEntity defaultAdmin = new AdminEntity();
+            defaultAdmin.setAdminName("Super Admin");
+            defaultAdmin.setAdminEmail("admin@gmail.com");
+            defaultAdmin.setRole("admin");
+            defaultAdmin.setStatus("active");
+            
+            // Create admin with specific password
+            AdminEntity savedAdmin = adminServiceimpl.createAdminWithPassword(defaultAdmin, "admin@123");
+            return ResponseEntity.ok("Default admin created: " + savedAdmin.getAdminEmail() + " with password: admin123");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to create default admin: " + e.getMessage());
+        }
     }
     
-    @PutMapping("/update-subadmin")
-    public ResponseEntity<?> updateSubAdmin(@RequestBody AdminEntity subAdmin) {
-        try {
-            AdminEntity updatedAdmin = adminServiceimpl.updateSubAdmin(subAdmin);
-            return ResponseEntity.ok(updatedAdmin);
-           } catch (IllegalArgumentException e) {
-        	               return ResponseEntity.badRequest().body(e.getMessage());
-           }
-    }
     @DeleteMapping("/delete-subadmin/{adminId}")
     public ResponseEntity<?> deleteSubAdmin(@PathVariable Integer adminId) {
         try {
@@ -99,7 +132,7 @@ public class AdminController {
 			if (updatedAdmin == null) {
 				return ResponseEntity.notFound().build();
 			}
-			log.error("Sub-admin status updated successfully: {}", updatedAdmin);
+			log.info("Sub-admin status updated successfully: {}", updatedAdmin);
             return ResponseEntity.ok(updatedAdmin);
             } catch (IllegalArgumentException e) {
             	return ResponseEntity.badRequest().body(e.getMessage());
@@ -107,11 +140,16 @@ public class AdminController {
     	}
     	
     	 @PutMapping("/update-subadmin/{adminId}")
-    	    public AdminEntity updateSubAdmin(
+    	    public ResponseEntity<?> updateSubAdmin(
     	            @PathVariable Integer adminId,
     	            @RequestBody AdminEntity updatedAdmin
     	    ) {
-    	        return adminServiceimpl.updateSubAdmin(adminId, updatedAdmin);
+    	        try {
+    	        	AdminEntity result = adminServiceimpl.updateSubAdmin(adminId, updatedAdmin);
+    	        	return ResponseEntity.ok(result);
+				} catch (Exception e) {
+					return ResponseEntity.badRequest().body(e.getMessage());
+				}
     	    }
     	 // Get sub-admin by ID
     	 @GetMapping("/get-subadmin/{adminId}")
