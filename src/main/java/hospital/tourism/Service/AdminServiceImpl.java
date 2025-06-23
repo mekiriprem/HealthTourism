@@ -5,14 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hospital.tourism.Entity.AdminEntity;
+import hospital.tourism.Entity.SubAdminEntity;
 import hospital.tourism.repo.AdminRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AdminServiceImpl {
@@ -42,9 +40,7 @@ public class AdminServiceImpl {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    /**
-     * Register a new sub-admin with a temporary password sent via email
-     */
+   
     @Transactional
     public AdminEntity registerSubAdmin(AdminEntity subAdmin) {
         if (subAdmin.getAdminEmail() == null || subAdmin.getAdminEmail().isEmpty()) {
@@ -65,21 +61,25 @@ public class AdminServiceImpl {
             throw new IllegalArgumentException("Name is required");
         }
 
+        if (subAdmin.getAdminPassword() == null || subAdmin.getAdminPassword().isEmpty()) {
+            logger.warn("Registration failed: Password is required");
+            throw new IllegalArgumentException("Password is required");
+        }
+
         Optional<AdminEntity> existingAdmin = adminRepository.findByAdminEmail(normalizedEmail);
         if (existingAdmin.isPresent()) {
             logger.warn("Registration failed: Email already registered - {}", normalizedEmail);
             throw new IllegalArgumentException("Email already registered");
         }
 
-        // Generate temporary password
-        String resetToken = UUID.randomUUID().toString().substring(0, 8);
-        subAdmin.setAdminPassword(passwordEncoder.encode(resetToken));
-
         try {
             logger.info("Registering sub-admin with email: {}", normalizedEmail);
             AdminEntity savedAdmin = adminRepository.save(subAdmin);
             logger.info("Sub-admin registered successfully: {}", normalizedEmail);
-            sendRegistrationEmail(normalizedEmail, savedAdmin.getAdminName(), resetToken);
+
+            // Optional: send confirmation email
+            // sendRegistrationEmail(normalizedEmail, savedAdmin.getAdminName(), subAdmin.getAdminPassword());
+
             return savedAdmin;
         } catch (DataIntegrityViolationException e) {
             logger.error("Email conflict on save: {}", normalizedEmail);
@@ -87,9 +87,10 @@ public class AdminServiceImpl {
         }
     }
 
-    /**
-     * Login method with lockout logic
-     */
+
+
+   // Login method with role-based access control 
+    @Transactional
     public AdminEntity login(String email, String password) {
         String normalizedEmail = email.trim().toLowerCase();
 
@@ -220,18 +221,19 @@ public class AdminServiceImpl {
 			}
 		}
 		
-		//List<AdminEntity> allAdmins = adminRepository.findAllAdmins();
-		public List<AdminEntity> getAllAdmins() {
-			return adminRepository.findAllAdmins();
-		}
+	
 		
+		//get All admins
+		public List<AdminEntity> getAllAdmins() {
+			return adminRepository.findByAllAdmins();
+		}
 		//update sub-admin status
 		@Transactional
 		public AdminEntity updateSubAdminStatus(Integer adminId) {
 			
 			Optional<AdminEntity> existingAdmin = adminRepository.findById(adminId);
 			if (existingAdmin.isPresent()) {
-                AdminEntity admin = existingAdmin.get();
+				AdminEntity admin = existingAdmin.get();
                 admin.setStatus("active");
                 return adminRepository.save(admin);
             } else {
@@ -242,10 +244,10 @@ public class AdminServiceImpl {
 		public AdminEntity updateSubAdmin(Integer adminId, AdminEntity updatedAdmin) {
 	        Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
 	        if (optionalAdmin.isPresent()) {
-	            AdminEntity existingAdmin = optionalAdmin.get();
+	        	AdminEntity existingAdmin = optionalAdmin.get();
 	            existingAdmin.setAdminName(updatedAdmin.getAdminName());
 	            existingAdmin.setAdminEmail(updatedAdmin.getAdminEmail());
-	            existingAdmin.setEmployeeId(updatedAdmin.getEmployeeId());
+	         
 	            existingAdmin.setPermissions(updatedAdmin.getPermissions() != null ? updatedAdmin.getPermissions() : Collections.emptyList());
 
 	            // Do not update password here unless a specific flow for it exists
@@ -316,5 +318,21 @@ public class AdminServiceImpl {
                 throw new IllegalArgumentException("Email already registered");
             }
         }
+        @Transactional
+        public AdminEntity loggingig(String email, String password) {
+            String normalizedEmail = email.trim().toLowerCase();
+
+            AdminEntity subAdmin = adminRepository.findByAdminEmailAndAdminPassword(normalizedEmail, password);
+            
+            if (subAdmin == null) {
+                logger.warn("Login failed: Invalid email or password for {}", normalizedEmail);
+                throw new IllegalArgumentException("Invalid email or password");
+            }
+
+            logger.info("Login successful for {}", normalizedEmail);
+            return subAdmin;
+        }
+
+
 	
 }

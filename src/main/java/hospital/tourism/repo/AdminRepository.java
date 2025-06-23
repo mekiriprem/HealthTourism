@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import hospital.tourism.Entity.AdminEntity;
 
+
+
 public interface AdminRepository extends JpaRepository<AdminEntity, Integer> {
 
 	public AdminEntity findByAdminEmailAndAdminPassword(String adminEmail, String adminPassword);
@@ -16,6 +18,7 @@ public interface AdminRepository extends JpaRepository<AdminEntity, Integer> {
 
 	public  List<AdminEntity> findByStatus(String status);
 	
-	@Query("SELECT a FROM AdminEntity a") // fetch all without filtering
-    List<AdminEntity> findAllAdmins();
+	//get all where role admin
+	@Query("SELECT a FROM AdminEntity a WHERE a.role = 'subadmin'")
+	public List<AdminEntity> findByAllAdmins();
 }
