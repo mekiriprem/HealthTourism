@@ -53,9 +53,8 @@ public class LocationService {
 
             // 🏥 Hospitals
             List<HospitalDTO> hospitalDTOs = location.getHospitalList().stream().map(hospital -> {
-                HospitalDTO hDto = new HospitalDTO();
-                hDto.setHospitalId(hospital.getHospitalId());
-                hDto.setHositalName(hospital.getHositalName());
+                HospitalDTO hDto = new HospitalDTO();                hDto.setHospitalId(hospital.getHospitalId());
+                hDto.setHospitalName(hospital.getHospitalName());  // Fixed: Capital H in both getter and setter
                 hDto.setHospitalDescription(hospital.getHospitalDescription());
                 hDto.setHospitalImage(hospital.getHospitalImage());
                 hDto.setRating(hospital.getRating());

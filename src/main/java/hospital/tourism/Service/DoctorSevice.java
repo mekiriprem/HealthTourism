@@ -34,44 +34,6 @@ public class DoctorSevice {
         }
    }
 
-//    public DoctorsDTO saveDoctor(DoctorsDTO doctorDto, int hospitalId) {
-//        Optional<Hospital> optionalHospital = hospitalRepository.findById(hospitalId);
-//        if (optionalHospital.isPresent()) {
-//            Hospital hospital = optionalHospital.get();
-//
-//            Doctors doctor = new Doctors();
-//            doctor.setName(doctorDto.getName());
-//            doctor.setEmail(doctorDto.getEmail());
-//            doctor.setRating(doctorDto.getRating());
-//            doctor.setDescription(doctorDto.getDescription());
-//            doctor.setDepartment(doctorDto.getDepartment());
-//            doctor.setProfilepic(doctorDto.getProfilepic());
-//            doctor.setStatus(
-//                doctorDto.getStatus() == null || doctorDto.getStatus().isEmpty() ? "active" : doctorDto.getStatus()
-//            );
-//            doctor.setHospital(hospital);
-//
-//            Doctors savedDoctor = doctorRepository.save(doctor);
-//
-//            // Convert back to DTO
-//            DoctorsDTO savedDto = new DoctorsDTO();
-//            savedDto.setId(savedDoctor.getId());
-//            savedDto.setName(savedDoctor.getName());
-//            savedDto.setEmail(savedDoctor.getEmail());
-//            savedDto.setRating(savedDoctor.getRating());
-//            savedDto.setDescription(savedDoctor.getDescription());
-//            savedDto.setDepartment(savedDoctor.getDepartment());
-//            savedDto.setProfilepic(savedDoctor.getProfilepic());
-//            savedDto.setStatus(savedDoctor.getStatus());
-//            savedDto.setHospitalId(hospital.getHospitalId());
-//            savedDto.setHospitalName(hospital.getHositalName());
-//
-//            return savedDto;
-//        } else {
-//            throw new IllegalArgumentException("Hospital with ID " + hospitalId + " not found.");
-//        }
-//    }
-
     public List<Doctors> getAllDoctors() {
         return doctorRepository.findAll();
     }
@@ -88,10 +50,9 @@ public class DoctorSevice {
         dto.setDescription(doctor.getDescription());
         dto.setDepartment(doctor.getDepartment());
         dto.setProfilepic(doctor.getProfilepic());
-        dto.setStatus(doctor.getStatus());
-		if (doctor.getHospital() != null) {
+        dto.setStatus(doctor.getStatus());		if (doctor.getHospital() != null) {
 			dto.setHospitalId(doctor.getHospital().getHospitalId());
-			dto.setHospitalName(doctor.getHospital().getHositalName());
+			dto.setHospitalName(doctor.getHospital().getHospitalName());  // Fixed: Capital H
 		} else {
 			dto.setHospitalId(null);
 			dto.setHospitalName(null);
@@ -152,9 +113,8 @@ public class DoctorSevice {
     	    updatedDTO.setDescription(updated.getDescription());
     	    updatedDTO.setDepartment(updated.getDepartment());
     	    updatedDTO.setProfilepic(updated.getProfilepic());
-    	    updatedDTO.setStatus(updated.getStatus());
-    	    updatedDTO.setHospitalId(updated.getHospital() != null ? updated.getHospital().getHospitalId() : null);
-    	    updatedDTO.setHospitalName(updated.getHospital() != null ? updated.getHospital().getHositalName() : null);
+    	    updatedDTO.setStatus(updated.getStatus());    	    updatedDTO.setHospitalId(updated.getHospital() != null ? updated.getHospital().getHospitalId() : null);
+    	    updatedDTO.setHospitalName(updated.getHospital() != null ? updated.getHospital().getHospitalName() : null);  // Fixed: Capital H
 
     	    return updatedDTO;
     	}
@@ -174,10 +134,9 @@ public class DoctorSevice {
 			dto.setDescription(doctors.getDescription());
 			dto.setDepartment(doctors.getDepartment());
 			dto.setProfilepic(doctors.getProfilepic());
-			dto.setStatus(doctors.getStatus());
-			if (doctors.getHospital() != null) {
+			dto.setStatus(doctors.getStatus());			if (doctors.getHospital() != null) {
 				dto.setHospitalId(doctors.getHospital().getHospitalId());
-				dto.setHospitalName(doctors.getHospital().getHositalName());
+				dto.setHospitalName(doctors.getHospital().getHospitalName());  // Fixed: Capital H
 			} else {
 				dto.setHospitalId(null);
 				dto.setHospitalName(null);
