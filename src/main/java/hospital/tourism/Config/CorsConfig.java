@@ -18,14 +18,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsConfig {
 	/*"https://hospital-tourism-fe.vercel.app"*/
 	/*http://localhost:8081/
-	*/   
-	@Bean
+	*/    @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")  // allow all paths
-						.allowedOriginPatterns("http://localhost:8081/")  // use allowedOriginPatterns instead of allowedOrigins
+						.allowedOriginPatterns("https://hospital-tourism-fe.vercel.app")  // use allowedOriginPatterns instead of allowedOrigins
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);
