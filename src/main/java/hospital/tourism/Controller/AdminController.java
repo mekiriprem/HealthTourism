@@ -78,6 +78,7 @@ public class AdminController {
 //        }
 //    }
     
+    // Delete sub-admin by ID
     @DeleteMapping("/delete-subadmin/{adminId}")
     public ResponseEntity<?> deleteSubAdmin(@PathVariable Integer adminId) {
         try {

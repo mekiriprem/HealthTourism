@@ -266,11 +266,13 @@ public class UserService {
 				user.setMobilenum(userDto.getMobilenum());
 				user.setCountry(userDto.getCountry());
 				user.setAddress(userDto.getAddress());
-
+				user.setCountry(userDto.getCountry());
+				user.setProfilePictureUrls(userDto.getProfilePictureUrls());
 				users updatedUser = userRepository.save(user);
 				return mapToDTO(updatedUser);
 			}
 			
+		
 			//getAllusers
 			public List<UsersDTO>getAllPriscriptions(){
 				List<users> users = userRepository.findAll();
