@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hospital.tourism.Entity.AdminEntity;
-import hospital.tourism.Entity.SubAdminEntity;
 import hospital.tourism.repo.AdminRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -192,14 +193,14 @@ public class AdminServiceImpl {
 				logger.warn("Delete failed: Admin with ID {} not found", adminId);
 				throw new EntityNotFoundException("Admin not found with ID: " + adminId);
 			}
-         }
-         
-         /**
-          * get all sub-admins
+         }         /**
+          * get all sub-admins (only users with role = 'subadmin')
           * 
           */
          public List<AdminEntity> getAllSubAdmins() {
-             return adminRepository.findAll();         
+             return adminRepository.findAll().stream()
+                     .filter(admin -> "subadmin".equalsIgnoreCase(admin.getRole()))
+                     .collect(Collectors.toList());         
          }
          
 	
@@ -241,27 +242,76 @@ public class AdminServiceImpl {
 			}
 		}
 		
+		@Transactional
 		public AdminEntity updateSubAdmin(Integer adminId, AdminEntity updatedAdmin) {
-	        Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
-	        if (optionalAdmin.isPresent()) {
-	        	AdminEntity existingAdmin = optionalAdmin.get();
-	            existingAdmin.setAdminName(updatedAdmin.getAdminName());
-	            existingAdmin.setAdminEmail(updatedAdmin.getAdminEmail());
-	         
-	            existingAdmin.setPermissions(updatedAdmin.getPermissions() != null ? updatedAdmin.getPermissions() : Collections.emptyList());
+		    if (adminId == null || updatedAdmin == null) {
+		        logger.warn("Update failed: Admin ID or updated details are missing");
+		        throw new IllegalArgumentException("Admin ID and updated data are required");
+		    }
 
-	            // Do not update password here unless a specific flow for it exists
-	            return adminRepository.save(existingAdmin);
-	        } else {
-	            throw new EntityNotFoundException("Admin not found with ID: " + adminId);
-	        }
-	    }
-		
-		//get sub-admin by id
-		public AdminEntity getSubAdminById(Integer adminId) {
-			return adminRepository.findById(adminId)
-					.orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
+		    Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
+		    if (optionalAdmin.isEmpty()) {
+		        logger.warn("Update failed: Admin with ID {} not found", adminId);
+		        throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+		    }
+
+		    AdminEntity existingAdmin = optionalAdmin.get();
+
+		    // Ensure role is subadmin
+		    if (!"subadmin".equalsIgnoreCase(existingAdmin.getRole())) {
+		        logger.warn("Update failed: Admin with ID {} is not a sub-admin", adminId);
+		        throw new IllegalArgumentException("Only sub-admins can be updated via this method");
+		    }
+
+		    // Update only non-null and meaningful fields
+		    if (updatedAdmin.getAdminName() != null && !updatedAdmin.getAdminName().trim().isEmpty()) {
+		        existingAdmin.setAdminName(updatedAdmin.getAdminName().trim());
+		    }
+
+		    if (updatedAdmin.getAdminEmail() != null && !updatedAdmin.getAdminEmail().trim().isEmpty()) {
+		        String normalizedEmail = updatedAdmin.getAdminEmail().trim().toLowerCase();
+		        Optional<AdminEntity> emailCheck = adminRepository.findByAdminEmail(normalizedEmail);
+		        if (emailCheck.isPresent() && !emailCheck.get().getAdminId().equals(adminId)) {
+		            logger.warn("Update failed: Email already taken - {}", normalizedEmail);
+		            throw new IllegalArgumentException("Email already in use by another admin");
+		        }
+		        existingAdmin.setAdminEmail(normalizedEmail);
+		    }
+
+		    // Update permissions if provided
+		    if (updatedAdmin.getPermissions() != null) {
+		        existingAdmin.setPermissions(updatedAdmin.getPermissions());
+		    }
+
+		    // Optional: Only update password if explicitly given
+		    if (updatedAdmin.getAdminPassword() != null && !updatedAdmin.getAdminPassword().isEmpty()) {
+		        String encodedPassword = passwordEncoder.encode(updatedAdmin.getAdminPassword());
+		        existingAdmin.setAdminPassword(encodedPassword);
+		    }
+
+		    // Update status if provided
+		    if (updatedAdmin.getStatus() != null && !updatedAdmin.getStatus().trim().isEmpty()) {
+		        existingAdmin.setStatus(updatedAdmin.getStatus().trim());
+		    }
+
+		    logger.info("Sub-admin with ID {} updated successfully", adminId);
+		    return adminRepository.save(existingAdmin);
 		}
+
+				//get sub-admin by id
+		public AdminEntity getSubAdminById(Integer adminId) {
+			AdminEntity admin = adminRepository.findById(adminId)
+					.orElseThrow(() -> new EntityNotFoundException("Sub-admin not found with ID: " + adminId));
+			
+			// Verify that this is actually a sub-admin
+			if (!"subadmin".equalsIgnoreCase(admin.getRole())) {
+				throw new IllegalArgumentException("Admin with ID " + adminId + " is not a sub-admin");
+			}
+			
+			return admin;
+		}
+		
+		//get sub-admin by employee ID
 		
 		/**
          * Find admin by email (public method for controller use)
@@ -335,4 +385,65 @@ public class AdminServiceImpl {
 
 
 	
+        /**
+         * Reset a sub-admin's password to a new random password
+         * This will generate a new password, update it in the database, and return the new password
+         */
+        @Transactional
+        public String resetSubAdminPassword(Integer adminId) {
+            if (adminId == null) {
+                logger.warn("Password reset failed: Admin ID is required");
+                throw new IllegalArgumentException("Admin ID is required");
+            }
+            
+            Optional<AdminEntity> optionalAdmin = adminRepository.findById(adminId);
+            if (optionalAdmin.isEmpty()) {
+                logger.warn("Password reset failed: Admin with ID {} not found", adminId);
+                throw new EntityNotFoundException("Admin not found with ID: " + adminId);
+            }
+            
+            AdminEntity admin = optionalAdmin.get();
+            
+            // Generate a new random password
+            String newPassword = UUID.randomUUID().toString().substring(0, 8);
+            
+            // Update the password in the database
+            admin.setAdminPassword(passwordEncoder.encode(newPassword));
+            adminRepository.save(admin);
+            
+            logger.info("Password reset successful for admin ID: {}", adminId);
+            
+            // Send email with the new password if email service is available
+            try {
+                sendPasswordResetEmail(admin.getAdminEmail(), admin.getAdminName(), newPassword);
+            } catch (Exception e) {
+                logger.error("Failed to send password reset email: {}", e.getMessage());
+                // We continue even if email fails since we'll return the password to the admin
+            }
+            
+            return newPassword;
+        }
+        
+        /**
+         * Send password reset email
+         */
+        private void sendPasswordResetEmail(String email, String name, String newPassword) {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Password Reset - Hospital Tourism");
+            
+            message.setText(String.format(
+                "Dear %s,\n\n" +
+                "Your password has been reset.\n\n" +
+                "Login Email: %s\n" +
+                "New Password: %s\n\n" +
+                "Please log in and change your password immediately.\n\n" +
+                "Best regards,\n" +
+                "Hospital Tourism Team",
+                name, email, newPassword
+            ));
+            
+            mailSender.send(message);
+            logger.info("Password reset email sent to: {}", email);
+        }
 }

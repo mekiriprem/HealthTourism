@@ -1,9 +1,13 @@
 package hospital.tourism.Controller;
 
+
+
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Entity.AdminEntity;
-import hospital.tourism.Entity.SubAdminEntity;
 import hospital.tourism.Service.AdminServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -124,18 +128,21 @@ public class AdminController {
             }
     	}
     	
-    	 @PutMapping("/update-subadmin/{adminId}")
-    	    public ResponseEntity<?> updateSubAdmin(
-    	            @PathVariable Integer adminId,
-    	            @RequestBody AdminEntity updatedAdmin
-    	    ) {
-    	        try {
-    	        	AdminEntity result = adminServiceimpl.updateSubAdmin(adminId, updatedAdmin);
-    	        	return ResponseEntity.ok(result);
-				} catch (Exception e) {
-					return ResponseEntity.badRequest().body(e.getMessage());
-				}
-    	    }
+    	@PutMapping("/subadmin/update/{adminId}")
+        public ResponseEntity<?> updateSubAdmin(
+                @PathVariable Integer adminId,
+                @RequestBody AdminEntity updatedAdmin) {
+
+            try {
+                AdminEntity updated = adminServiceimpl.updateSubAdmin(adminId, updatedAdmin);
+                return ResponseEntity.ok(updated);
+            } catch (IllegalArgumentException | EntityNotFoundException e) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.singletonMap("error", "Something went wrong"));
+            }
+        }
     	 // Get sub-admin by ID
     	 @GetMapping("/get-subadmin/{adminId}")
     	 public ResponseEntity<AdminEntity> getSubAdminById(@PathVariable Integer adminId) {
@@ -144,5 +151,23 @@ public class AdminController {
             return ResponseEntity.ok(admin);
        
     	 }
+    
+    	 // Reset a sub-admin's password
+    	 @PostMapping("/reset-password/{adminId}")
+    	 public ResponseEntity<?> resetSubAdminPassword(@PathVariable Integer adminId) {
+        try {
+            String newPassword = adminServiceimpl.resetSubAdminPassword(adminId);
+            return ResponseEntity.ok(Map.of(
+                "message", "Password reset successful",
+                "newPassword", newPassword
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error resetting password: " + e.getMessage());
+        }
+    	 }
+    
+    	
     
 }
