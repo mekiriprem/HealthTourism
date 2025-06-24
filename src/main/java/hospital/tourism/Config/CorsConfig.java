@@ -24,7 +24,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")  // allow all paths
-						.allowedOriginPatterns("https://hospital-tourism-fe.vercel.app")  // use allowedOriginPatterns instead of allowedOrigins
+						.allowedOriginPatterns("http://localhost:8081/")  // use allowedOriginPatterns instead of allowedOrigins
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);

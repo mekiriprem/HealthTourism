@@ -14,6 +14,8 @@ import hospital.tourism.Service.LabtestsServices;
 @RequestMapping("/api/labtests")
 public class LabtestsController {
 
+	
+
     @Autowired
     private LabtestsServices labtestsServices;
 
