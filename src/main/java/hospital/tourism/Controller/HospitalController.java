@@ -67,11 +67,9 @@ public class HospitalController {
                 }
             } catch (NumberFormatException e) {
                 return ResponseEntity.badRequest().body("Invalid rating format");
-            }
-
-            // Build Hospital entity
+            }            // Build Hospital entity
             Hospital hospital = new Hospital();
-            hospital.setHositalName(name);  // ✅ Fixed typo here
+            hospital.setHospitalName(name);  // Fixed: Capital H in Hospital
             hospital.setHospitalDescription(description);
             hospital.setRating(ratingStr);
             hospital.setAddress(address);
@@ -105,11 +103,23 @@ public class HospitalController {
                     .body("Error saving hospital: " + e.getMessage());
         }
     }
-
-
     @GetMapping("/getall/hospitals")
     public List<HospitalDTO> getAllHospitals() {
-        return hospitalService.getAllHospitalsAsDto();
+        System.out.println("Controller: getAllHospitals called");
+        List<HospitalDTO> result = hospitalService.getAllHospitalsAsDto();
+        System.out.println("Controller: Returning " + result.size() + " hospitals");
+        return result;
+    }
+
+    // Debug endpoint to check raw data
+    @GetMapping("/debug/raw")
+    public ResponseEntity<?> debugRawHospitals() {
+        try {
+            List<Hospital> rawHospitals = hospitalService.getAllRawHospitals();
+            return ResponseEntity.ok(rawHospitals);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
     
@@ -127,15 +137,32 @@ public class HospitalController {
     @PutMapping("/activate/{id}")
     public void activateHospital(@PathVariable Integer id) {
         hospitalService.activateHospitalIfInactive(id);
-    }
-
-    @PutMapping("/update-hospital/{id}")
+    }    @PutMapping("/update-hospital/{id}")
 	public ResponseEntity<HospitalDTO> updateHospital(@PathVariable Integer id, @RequestBody HospitalDTO hospitalDto) {
-		HospitalDTO updatedHospital = hospitalService.updateHospital(id, hospitalDto);
-		if (updatedHospital != null) {
-			return new ResponseEntity<>(updatedHospital, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		System.out.println("=== UPDATE HOSPITAL REQUEST ===");
+		System.out.println("Path variable ID: " + id);
+		System.out.println("ID type: " + (id != null ? id.getClass().getSimpleName() : "null"));
+		System.out.println("Request body: " + hospitalDto);
+		System.out.println("Request body hospitalId: " + (hospitalDto != null ? hospitalDto.getHospitalId() : "null"));
+		System.out.println("===============================");
+				if (id == null) {
+			System.out.println("ERROR: Path variable ID is null!");
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		try {
+			HospitalDTO updatedHospital = hospitalService.updateHospital(id, hospitalDto);
+			if (updatedHospital != null) {
+				System.out.println("Successfully updated hospital: " + updatedHospital.getHospitalId());
+				return new ResponseEntity<>(updatedHospital, HttpStatus.OK);
+			} else {
+				System.out.println("Update returned null - hospital not found");
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			System.out.println("ERROR in updateHospital: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

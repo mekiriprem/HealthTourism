@@ -43,23 +43,46 @@ public class HospitalService {
         hospital.setAddress(fullAddress);
 
         return hospitalRepository.save(hospital);
-    }
-    public List<HospitalDTO> getAllHospitalsAsDto() {
+    }    public List<HospitalDTO> getAllHospitalsAsDto() {
+        System.out.println("Getting all hospitals from database...");
         List<Hospital> hospitals = hospitalRepository.findAll();
+        System.out.println("Found " + hospitals.size() + " hospitals in database");
+        
+        if (hospitals.isEmpty()) {
+            System.out.println("No hospitals found in database!");
+            return List.of(); // Return empty list
+        }
 
         return hospitals.stream().map(hospital -> {
+            System.out.println("Processing hospital: " + hospital.getHospitalId() + " - " + hospital.getHospitalName());
             HospitalDTO dto = new HospitalDTO();
             dto.setHospitalId(hospital.getHospitalId());
-            dto.setHositalName(hospital.getHositalName());
+            dto.setHospitalName(hospital.getHospitalName());
             dto.setHospitalDescription(hospital.getHospitalDescription());
             dto.setHospitalImage(hospital.getHospitalImage());
             dto.setRating(hospital.getRating());
             dto.setAddress(hospital.getAddress());
             dto.setStatus(hospital.getStatus());
-
+            dto.setHospitallocationId(hospital.getHospitallocationId());
+            
+            // Add location name if available
+            if (hospital.getLocation() != null) {
+                dto.setHospitallocationName(hospital.getLocation().getCity());
+            }
 
             return dto;
         }).toList();
+    }
+
+    // Debug method to get raw hospital data
+    public List<Hospital> getAllRawHospitals() {
+        System.out.println("Getting raw hospitals from database...");
+        List<Hospital> hospitals = hospitalRepository.findAll();
+        System.out.println("Raw hospitals count: " + hospitals.size());
+        for (Hospital h : hospitals) {
+            System.out.println("Raw Hospital: ID=" + h.getHospitalId() + ", Name=" + h.getHospitalName() + ", Status=" + h.getStatus());
+        }
+        return hospitals;
     }
 
 
@@ -85,27 +108,41 @@ public class HospitalService {
             hospitalRepository.save(hospital);
         }
     }
-    
-	public HospitalDTO updateHospital(Integer hospitalId, HospitalDTO dto) {
+    	public HospitalDTO updateHospital(Integer hospitalId, HospitalDTO dto) {
+		System.out.println("=== SERVICE UPDATE HOSPITAL ===");
+		System.out.println("Service received hospitalId: " + hospitalId);
+		System.out.println("Service received DTO: " + dto);
+		System.out.println("DTO hospitallocationId: " + (dto != null ? dto.getHospitallocationId() : "null"));
+		System.out.println("==============================");
+		
+		if (hospitalId == null) {
+			System.out.println("ERROR: Service received null hospitalId!");
+			throw new RuntimeException("Hospital ID cannot be null");
+		}
+		
 		Hospital hospital = hospitalRepository.findById(hospitalId)
 				.orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + hospitalId));
-
-		hospital.setHositalName(dto.getHositalName());
+		hospital.setHospitalName(dto.getHospitalName());
 		hospital.setHospitalDescription(dto.getHospitalDescription());
 		hospital.setHospitalImage(dto.getHospitalImage());
 		hospital.setRating(dto.getRating());
 		hospital.setAddress(dto.getAddress());
 		hospital.setStatus(dto.getStatus());
 
-		LocationEntity location = locationrepo.findById(dto.getHospitallocationId())
-				.orElseThrow(() -> new RuntimeException("Location not found with ID: " + dto.getHospitallocationId()));
-		hospital.setLocation(location);
+		// Handle location update only if locationId is provided
+		if (dto.getHospitallocationId() != null) {
+			LocationEntity location = locationrepo.findById(dto.getHospitallocationId())
+					.orElseThrow(() -> new RuntimeException("Location not found with ID: " + dto.getHospitallocationId()));
+			hospital.setLocation(location);
+		} else {
+			System.out.println("Warning: No location ID provided, keeping existing location");
+		}
 
 		Hospital updatedHospital = hospitalRepository.save(hospital);
 
 		HospitalDTO updatedDto = new HospitalDTO();
 		updatedDto.setHospitalId(updatedHospital.getHospitalId());
-		updatedDto.setHositalName(updatedHospital.getHositalName());
+		updatedDto.setHospitalName(updatedHospital.getHospitalName());
 		updatedDto.setHospitalDescription(updatedHospital.getHospitalDescription());
 		updatedDto.setHospitalImage(updatedHospital.getHospitalImage());
 		updatedDto.setRating(updatedHospital.getRating());
