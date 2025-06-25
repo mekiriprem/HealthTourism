@@ -5,7 +5,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.Service.LabtestsServices;
@@ -36,7 +42,16 @@ public class LabtestsController {
     // 📋 Get all lab tests
     @GetMapping
     public ResponseEntity<List<Labtests>> getAllLabtests() {
-        return ResponseEntity.ok(labtestsServices.getAllLabtests());
+        System.out.println("=== GET ALL LABTESTS REQUEST ===");
+        try {
+            List<Labtests> labtests = labtestsServices.getAllLabtests();
+            System.out.println("Found " + labtests.size() + " lab tests");
+            return ResponseEntity.ok(labtests);
+        } catch (Exception e) {
+            System.out.println("ERROR in getAllLabtests: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
     // 🔍 Get lab test by ID
@@ -68,7 +83,19 @@ public class LabtestsController {
     // Update lab test
     @PutMapping("/update/{id}")
 	public ResponseEntity<Labtests> updateLabtest(@PathVariable Long id, @RequestBody Labtests updatedLabtest) {
-		Labtests labtest = labtestsServices.updateLabtest(id, updatedLabtest);
-		return ResponseEntity.ok(labtest);
+		System.out.println("=== UPDATE LABTEST REQUEST ===");
+		System.out.println("Path variable ID: " + id);
+		System.out.println("Request body: " + updatedLabtest);
+		System.out.println("==============================");
+		
+		try {
+			Labtests labtest = labtestsServices.updateLabtest(id, updatedLabtest);
+			System.out.println("Successfully updated labtest: " + labtest.getId());
+			return ResponseEntity.ok(labtest);
+		} catch (Exception e) {
+			System.out.println("ERROR in updateLabtest: " + e.getMessage());
+			e.printStackTrace();
+			return ResponseEntity.status(500).build();
+		}
 	}
 }

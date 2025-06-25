@@ -58,14 +58,30 @@ public class LabtestsServices {
     }
     
 	public Labtests updateLabtest(Long id, Labtests updatedLabtest) {
+		System.out.println("=== SERVICE UPDATE LABTEST ===");
+		System.out.println("Service received ID: " + id);
+		System.out.println("Service received labtest: " + updatedLabtest);
+		System.out.println("==============================");
+		
 		Labtests existingLabtest = labtestsRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
 
 		existingLabtest.setTestTitle(updatedLabtest.getTestTitle());
 		existingLabtest.setTestDescription(updatedLabtest.getTestDescription());
 		existingLabtest.setTestPrice(updatedLabtest.getTestPrice());
-		existingLabtest.setStatus(updatedLabtest.getStatus());
+		existingLabtest.setTestDepartment(updatedLabtest.getTestDepartment());
+		
+		// Only update status if provided
+		if (updatedLabtest.getStatus() != null) {
+			existingLabtest.setStatus(updatedLabtest.getStatus());
+		}
+		
+		// Keep existing image and diagnostics relationship
+		// existingLabtest.setTestImage() - don't change existing image
+		// existingLabtest.setDiognostics() - don't change existing relationship
 
-		return labtestsRepo.save(existingLabtest);
+		Labtests saved = labtestsRepo.save(existingLabtest);
+		System.out.println("Successfully updated labtest: " + saved.getId());
+		return saved;
 	}
 }
