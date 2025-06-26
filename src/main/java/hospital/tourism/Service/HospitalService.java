@@ -1,6 +1,8 @@
 package hospital.tourism.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,13 +45,15 @@ public class HospitalService {
         hospital.setAddress(fullAddress);
 
         return hospitalRepository.save(hospital);
-    }    public List<HospitalDTO> getAllHospitalsAsDto() {
-        System.out.println("Getting all hospitals from database...");
-        List<Hospital> hospitals = hospitalRepository.findAll();
-        System.out.println("Found " + hospitals.size() + " hospitals in database");
-        
+    }   
+    
+    public List<HospitalDTO> getAllHospitalsAsDto() {
+        System.out.println("Getting all ACTIVE hospitals from database...");
+        List<Hospital> hospitals = hospitalRepository.findByStatus("Active");
+        System.out.println("Found " + hospitals.size() + " active hospitals in database");
+
         if (hospitals.isEmpty()) {
-            System.out.println("No hospitals found in database!");
+            System.out.println("No active hospitals found in database!");
             return List.of(); // Return empty list
         }
 
@@ -63,10 +67,10 @@ public class HospitalService {
             dto.setRating(hospital.getRating());
             dto.setAddress(hospital.getAddress());
             dto.setStatus(hospital.getStatus());
-            dto.setHospitallocationId(hospital.getHospitallocationId());
-            
-            // Add location name if available
+
+            // Set location id and name
             if (hospital.getLocation() != null) {
+                dto.setHospitallocationId(hospital.getLocation().getLocationId());
                 dto.setHospitallocationName(hospital.getLocation().getCity());
             }
 
@@ -152,4 +156,94 @@ public class HospitalService {
 		return updatedDto;
 	}
 
+    	public List<HospitalDTO> getHospitalsByCityAndSpecialization(String city, String specialization) {
+    	    List<Hospital> hospitals = hospitalRepository
+    	        .findByStatusAndLocation_CityAndSpecializationIgnoreCase("ACTIVE", city, specialization);
+
+    	    return hospitals.stream().map(hospital -> {
+    	        HospitalDTO dto = new HospitalDTO();
+    	        dto.setHospitalId(hospital.getHospitalId());
+    	        dto.setHospitalName(hospital.getHospitalName());
+    	        dto.setHospitalDescription(hospital.getHospitalDescription());
+    	        dto.setHospitalImage(hospital.getHospitalImage());
+    	        dto.setRating(hospital.getRating());
+    	        dto.setAddress(hospital.getAddress());
+    	        dto.setStatus(hospital.getStatus());
+
+    	        if (hospital.getLocation() != null) {
+    	            dto.setHospitallocationId(hospital.getLocation().getLocationId());
+    	            dto.setHospitallocationName(hospital.getLocation().getCity());
+    	        }
+
+    	        return dto;
+    	    }).toList();
+    	}
+
+    	public List<HospitalDTO> getHospitalsByCity(String city) {
+    	    List<Hospital> hospitals = hospitalRepository.findByStatusAndLocation_City("Active", city);
+
+    	    return hospitals.stream().map(hospital -> {
+    	        HospitalDTO dto = new HospitalDTO();
+    	        dto.setHospitalId(hospital.getHospitalId());
+    	        dto.setHospitalName(hospital.getHospitalName());
+    	        dto.setHospitalDescription(hospital.getHospitalDescription());
+    	        dto.setHospitalImage(hospital.getHospitalImage());
+    	        dto.setRating(hospital.getRating());
+    	        dto.setAddress(hospital.getAddress());
+    	        dto.setStatus(hospital.getStatus());
+
+    	        if (hospital.getLocation() != null) {
+    	            dto.setHospitallocationId(hospital.getLocation().getLocationId());
+    	            dto.setHospitallocationName(hospital.getLocation().getCity());
+    	        }
+
+    	        return dto;
+    	    }).toList();
+    	}
+
+    	public List<HospitalDTO> searchHospitalsByCityOrState(String searchTerm) {
+    	    List<Hospital> hospitals = hospitalRepository.searchByCityOrState(searchTerm);
+
+    	    return hospitals.stream().map(hospital -> {
+    	        HospitalDTO dto = new HospitalDTO();
+    	        dto.setHospitalId(hospital.getHospitalId());
+    	        dto.setHospitalName(hospital.getHospitalName());
+    	        dto.setHospitalDescription(hospital.getHospitalDescription());
+    	        dto.setHospitalImage(hospital.getHospitalImage());
+    	        dto.setRating(hospital.getRating());
+    	        dto.setAddress(hospital.getAddress());
+    	        dto.setStatus(hospital.getStatus());
+
+    	        if (hospital.getLocation() != null) {
+    	            dto.setHospitallocationId(hospital.getLocation().getLocationId());
+    	            dto.setHospitallocationName(hospital.getLocation().getCity());
+    	        }
+
+    	        return dto;
+    	    }).toList();
+    	}
+
+
+		public List<HospitalDTO> getHospitalsBySpecilization(String specialization) {
+			List<Hospital> hospitals = hospitalRepository.findBySpecialization(specialization);
+
+			return hospitals.stream().map(hospital -> {
+				HospitalDTO dto = new HospitalDTO();
+				dto.setHospitalId(hospital.getHospitalId());
+				dto.setHospitalName(hospital.getHospitalName());
+				dto.setHospitalDescription(hospital.getHospitalDescription());
+				dto.setHospitalImage(hospital.getHospitalImage());
+				dto.setRating(hospital.getRating());
+				dto.setAddress(hospital.getAddress());
+				dto.setStatus(hospital.getStatus());
+				dto.setSpecialization(hospital.getSpecialization());
+
+				if (hospital.getLocation() != null) {
+					dto.setHospitallocationId(hospital.getLocation().getLocationId());
+					dto.setHospitallocationName(hospital.getLocation().getCity());
+				}
+
+				return dto;
+			}).toList();
+		}
 }

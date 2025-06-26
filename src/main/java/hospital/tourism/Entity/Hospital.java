@@ -51,6 +51,9 @@ public class Hospital {
         @Column(name = "address")
         private String address;
         
+        @Column(name = "specialization")
+        private String specialization;
+        
         @Column(name = "status")
         private String status;
         

@@ -12,11 +12,13 @@ public class HospitalDTO {
 	    private String hospitalImage;
 	    private String rating;
 	    private String address;
-	    private String status;
+	    private String status ; // Default status is ACTIVE;
+	    private String specialization;
 
 	    // Optional: Only include minimal location info to avoid recursion
 	    private Integer hospitallocationId;
 	    private String hospitallocationName;
 
+	    
 }
 

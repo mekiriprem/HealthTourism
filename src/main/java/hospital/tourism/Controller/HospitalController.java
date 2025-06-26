@@ -44,7 +44,8 @@ public class HospitalController {
             @RequestParam("hospitalRating") String ratingStr,
             @RequestParam("locationId") Integer locationId,
             @RequestParam("hospitalAdress") String address,
-            @RequestPart("image") MultipartFile imageFile
+            @RequestPart("image") MultipartFile imageFile,
+            @RequestParam("specialization") String specialization
     ) {
         try {
             // Validations
@@ -73,7 +74,8 @@ public class HospitalController {
             hospital.setHospitalDescription(description);
             hospital.setRating(ratingStr);
             hospital.setAddress(address);
-            hospital.setStatus("null");
+            hospital.setStatus("Active");
+            hospital.setSpecialization(specialization); // Assuming specialization is passed as a parameter);
 
             // Upload image to Supabase
             String fileName = UUID.randomUUID() + "_" + Objects.requireNonNull(imageFile.getOriginalFilename());
@@ -165,4 +167,29 @@ public class HospitalController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+    @GetMapping("/by-city-specialization")
+    public ResponseEntity<List<HospitalDTO>> getByCityAndSpecialization(
+        @RequestParam String city,
+        @RequestParam String specialization) {
+        return ResponseEntity.ok(hospitalService.getHospitalsByCityAndSpecialization(city, specialization));
+    }
+    
+    @GetMapping("/by-city/{city}")
+    public ResponseEntity<List<HospitalDTO>> getByCity(@PathVariable String city) {
+        return ResponseEntity.ok(hospitalService.getHospitalsByCity(city));
+    }
+    @GetMapping("/search-by-location")
+    public ResponseEntity<List<HospitalDTO>> searchByCityOrState(@RequestParam String location) {
+        List<HospitalDTO> result = hospitalService.searchHospitalsByCityOrState(location);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/by-specialization/{specialization}")
+    public ResponseEntity<List<HospitalDTO>> getHospitalsBySpecialization(@PathVariable String specialization) {
+        List<HospitalDTO> hospitals = hospitalService.getHospitalsBySpecilization(specialization);
+        return ResponseEntity.ok(hospitals);
+    }
+
+
 }

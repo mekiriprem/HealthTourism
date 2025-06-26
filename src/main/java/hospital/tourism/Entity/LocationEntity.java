@@ -28,7 +28,9 @@ public class LocationEntity {
     private String country;
   
 
-    
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Hospital> hospitals;
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Hospital> hospitalList;
