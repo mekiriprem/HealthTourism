@@ -39,7 +39,9 @@ public class SpaServicesController {
             @RequestParam("description") String description,
             @RequestParam("spaCenterId") Integer spaCenterId,
             @RequestParam("spaPrice") Double spaPrice,
-            @RequestPart("image") MultipartFile imageFile
+            @RequestPart("image") MultipartFile imageFile,
+            @RequestParam(value = "status", defaultValue = "Active") String status,
+            @RequestParam(value = "rating", defaultValue = "0.0") Double rating
     ) {
         try {
             if (imageFile == null || imageFile.isEmpty()) {

@@ -13,7 +13,9 @@ public class SpaServiceDTO {
     // getters and setters
 	private Long serviceIdLong;
 	private String status;
-		// TODO Auto-generated method stub
-		
+
+	public SpaServiceDTO() {
+		this.status = "active"; // Default status is active
+	}
 	
 }
