@@ -30,6 +30,7 @@ public class SpaServicessImpl {
 	    spaService.setRating(dto.getRating());
 	    spaService.setPrice(dto.getPrice());
 	    spaService.setSpaCenter(spaCenter);
+	    spaService.setStatus("Active"); // Default status set to Active
 
 	    return spaservicesRepo.save(spaService);
 	}
