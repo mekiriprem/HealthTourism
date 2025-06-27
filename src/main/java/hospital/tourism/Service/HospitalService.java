@@ -269,4 +269,10 @@ public class HospitalService {
             return dto;
 		        }).collect(Collectors.toList());
 		}
+		
+		
+		
+		  public List<Hospital> getActiveHospitalsBySpecialization(String specialization) {
+		        return hospitalRepository.findBySpecializationAndStatus(specialization, "Active");
+		    }
 }

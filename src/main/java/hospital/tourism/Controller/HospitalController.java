@@ -191,11 +191,18 @@ public class HospitalController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/by-specialization/{specialization}")
-    public ResponseEntity<List<HospitalDTO>> getHospitalsBySpecialization(@PathVariable String specialization) {
-        List<HospitalDTO> hospitals = hospitalService.getHospitalsBySpecilization(specialization);
-        return ResponseEntity.ok(hospitals);
-    }
+//    @GetMapping("/by-specialization/{specialization}")
+//    public ResponseEntity<List<HospitalDTO>> getHospitalsBySpecialization(@PathVariable String specialization) {
+//        List<HospitalDTO> hospitals = hospitalService.getHospitalsBySpecilization(specialization);
+//        return ResponseEntity.ok(hospitals);
+//    }
 
+    
+    
+    @GetMapping("/specialization/{specialization}")
+    public ResponseEntity<List<Hospital>> getHospitalsBySpecialization(@PathVariable String specialization) {
+        List<Hospital> hospitals = hospitalService.getActiveHospitalsBySpecialization(specialization);
+        return new ResponseEntity<>(hospitals, HttpStatus.OK);
+    }
 
 }

@@ -30,5 +30,7 @@ public interface HospitalRepo extends JpaRepository<Hospital, Integer>{
 
 	@Query("SELECT h FROM Hospital h WHERE h.status = 'Active' AND h.specialization = :specialization")
 	List<Hospital> findBySpecialization(String specialization);
+	
+	  List<Hospital> findBySpecializationAndStatus(String specialization, String status);
 
 }
