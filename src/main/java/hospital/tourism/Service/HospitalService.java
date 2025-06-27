@@ -246,4 +246,27 @@ public class HospitalService {
 				return dto;
 			}).toList();
 		}
+		
+		//find All hospitals
+		public List<HospitalDTO>getAllHospitalss(){
+		List<Hospital>listHospitals=	hospitalRepository.findAll();
+		HospitalDTO hsDto=new HospitalDTO();
+		return listHospitals.stream().map(hospital -> {
+            HospitalDTO dto = new HospitalDTO();
+            dto.setHospitalId(hospital.getHospitalId());
+            dto.setHospitalName(hospital.getHospitalName());
+            dto.setHospitalDescription(hospital.getHospitalDescription());
+            dto.setHospitalImage(hospital.getHospitalImage());
+            dto.setRating(hospital.getRating());
+            dto.setAddress(hospital.getAddress());
+            dto.setStatus(hospital.getStatus());
+
+            if (hospital.getLocation() != null) {
+                dto.setHospitallocationId(hospital.getLocation().getLocationId());
+                dto.setHospitallocationName(hospital.getLocation().getCity());
+            }
+
+            return dto;
+		        }).collect(Collectors.toList());
+		}
 }

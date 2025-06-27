@@ -105,7 +105,7 @@ public class HospitalController {
                     .body("Error saving hospital: " + e.getMessage());
         }
     }
-    @GetMapping("/getall/hospitals")
+    @GetMapping("/getall/hospitals/active")
     public List<HospitalDTO> getAllHospitals() {
         System.out.println("Controller: getAllHospitals called");
         List<HospitalDTO> result = hospitalService.getAllHospitalsAsDto();
@@ -113,6 +113,12 @@ public class HospitalController {
         return result;
     }
 
+    @GetMapping("/getall/hospitals")
+	public ResponseEntity<List<HospitalDTO>> getAllRawHospitals() {
+			List<HospitalDTO> hospitals = hospitalService.getAllHospitalss();
+			return ResponseEntity.ok(hospitals);
+		
+	}
     // Debug endpoint to check raw data
     @GetMapping("/debug/raw")
     public ResponseEntity<?> debugRawHospitals() {
