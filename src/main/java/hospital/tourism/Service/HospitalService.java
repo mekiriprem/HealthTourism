@@ -270,9 +270,14 @@ public class HospitalService {
 		        }).collect(Collectors.toList());
 		}
 		
-		
+
 		
 		  public List<Hospital> getActiveHospitalsBySpecialization(String specialization) {
-		        return hospitalRepository.findBySpecializationAndStatus(specialization, "Active");
+		        return hospitalRepository.findBySpecializationIgnoreCaseAndStatus(specialization, "Active");
 		    }
+		  
+		  public List<Hospital> getHospitalsByCitys(String city) {
+			    return hospitalRepository.findByLocation_CityIgnoreCaseAndStatus(city, "Active");
+			}
+			
 }
