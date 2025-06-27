@@ -36,6 +36,7 @@ public class TranslatorsController {
             @RequestParam("translatorLanguages") String languages,
             @RequestParam("locationId") Integer locationId,
             @RequestPart("image") MultipartFile imageFile
+            
     ) {
         try {
             if (name == null || name.isEmpty()) {
@@ -65,7 +66,7 @@ public class TranslatorsController {
             translator.setTranslatorDescription(description);
             translator.setTranslatorRating(ratingStr);
             translator.setTranslatorLanguages(languages);
-            translator.setStatus("NUll");
+            translator.setStatus("Active"); // Default status");
 
             // Build storage path
             String fileName = UUID.randomUUID() + "_" + Objects.requireNonNull(imageFile.getOriginalFilename());

@@ -33,6 +33,7 @@ public class PhysioImpl {
 	    physio.setAddress(dto.getAddress());
 	    physio.setPrice(dto.getPrice());
 	    physio.setLocation(location);
+	    physio.setStatus("Active"); // Default status set to Active
 
 	    return physioRepo.save(physio);
 	}

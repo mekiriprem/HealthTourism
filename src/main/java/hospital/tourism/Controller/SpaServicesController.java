@@ -70,6 +70,7 @@ public class SpaServicesController {
             dto.setPrice(spaPrice);
             dto.setSpaCenterId(spaCenterId);
             dto.setServiceImage(imageUrl);
+            dto.setStatus("Active"); // Default status)
 
             // Save service
             SpaServicese savedEntity = spaServicessImpl.saveSpaService(dto);

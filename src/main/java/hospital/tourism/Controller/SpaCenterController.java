@@ -94,6 +94,7 @@ public class SpaCenterController {
             spaCenterDTO.setRating(ratingStr);
             spaCenterDTO.setLocationId(locationId);
             spaCenterDTO.setSpaImage(publicImageUrl);
+            spaCenterDTO.setStatus("Active"); // Default status
 
             SpaCenter savedSpaCenter = spaCenterService.saveSpaCenter(spaCenterDTO);
             return ResponseEntity.ok(savedSpaCenter);

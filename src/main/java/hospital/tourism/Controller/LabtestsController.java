@@ -34,6 +34,7 @@ public class LabtestsController {
         labtest.setTestPrice(Double.parseDouble(labtestMap.get("testPrice").toString()));
         labtest.setTestDepartment((String) labtestMap.get("testDepartment"));
         labtest.setTestImage((String) labtestMap.get("testImage"));
+        labtest.setStatus("Active"); // Default status)
 
         Integer diognosticsId = Integer.parseInt(labtestMap.get("diognosticsId").toString());
 

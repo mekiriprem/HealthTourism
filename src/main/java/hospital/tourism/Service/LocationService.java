@@ -59,6 +59,7 @@ public class LocationService {
                 hDto.setHospitalImage(hospital.getHospitalImage());
                 hDto.setRating(hospital.getRating());
                 hDto.setAddress(hospital.getAddress());
+                hDto.setStatus(hospital.getStatus());
                 return hDto;
             }).toList();
             dto.setHospitals(hospitalDTOs);
