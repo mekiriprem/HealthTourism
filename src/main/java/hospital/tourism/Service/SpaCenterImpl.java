@@ -68,4 +68,21 @@ public class SpaCenterImpl {
 	
     }
     
+	// Soft delete
+	public void softDeleteSpaCenter(Integer id) {
+		SpaCenter spaCenter = spaCenterRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Spa Center not found with ID: " + id));
+		spaCenter.setStatus("Inactive");
+		spaCenterRepo.save(spaCenter);
+	}
+	
+	// Reactivate
+	public void activateSpaCenter(Integer id) {
+		SpaCenter spaCenter = spaCenterRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Spa Center not found with ID: " + id));
+		if ("Inactive".equalsIgnoreCase(spaCenter.getStatus())) {
+			spaCenter.setStatus("Active");
+			spaCenterRepo.save(spaCenter);
+		}
+	}
 }

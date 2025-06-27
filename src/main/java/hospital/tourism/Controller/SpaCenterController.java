@@ -134,5 +134,38 @@ public class SpaCenterController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+    
+    // Soft delete spa center
+    @PutMapping("/soft-delete/{id}")
+	public ResponseEntity<String> softDeleteSpaCenter(@PathVariable Integer id) {
+		try {
+			spaCenterService.softDeleteSpaCenter(id);
+			return ResponseEntity.ok("Spa Center soft deleted successfully");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+		}
+	}
+
+	// Activate spa center
+	@PutMapping("/activate/{id}")
+	public ResponseEntity<String> activateSpaCenter(@PathVariable Integer id) {
+		try {
+			spaCenterService.activateSpaCenter(id);
+			return ResponseEntity.ok("Spa Center activated successfully");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+		}
+	}
+
+	// Get spa center by ID
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getSpaCenterById(@PathVariable Integer id) {
+		try {
+			 spaCenterService.activateSpaCenter(id);
+			return ResponseEntity.ok("Spa Center activated successfully");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
    
 }
