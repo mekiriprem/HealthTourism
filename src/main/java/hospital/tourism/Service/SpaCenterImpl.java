@@ -30,6 +30,7 @@ public class SpaCenterImpl {
 	    spaCenter.setRating(dto.getRating());
 	    spaCenter.setAddress(dto.getAddress());
 	    spaCenter.setLocation(location);
+	    spaCenter.setStatus("Active"); // Default status set to Active
 
 	    return spaCenterRepo.save(spaCenter);
 	}
