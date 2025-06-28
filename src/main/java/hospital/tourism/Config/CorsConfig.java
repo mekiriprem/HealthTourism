@@ -29,7 +29,7 @@ public class CorsConfig {
                             "https://hospital-tourism-fe.vercel.app",
                             "http://localhost:*",
                             "http://127.0.0.1:*",
-                            "https://medi-tailor.com/"
+                            "https://medi-tailor.com/",
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                         .allowedHeaders("*")
@@ -58,7 +58,8 @@ public class CorsConfig {
                 corsConfiguration.setAllowedOriginPatterns(java.util.List.of(
                     "https://hospital-tourism-fe.vercel.app",
                     "http://localhost:*",
-                    "http://127.0.0.1:*"
+                    "http://127.0.0.1:*",
+                    "https://medi-tailor.com/"
                 ));
                 corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
                 corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
