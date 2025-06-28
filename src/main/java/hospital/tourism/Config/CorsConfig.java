@@ -28,7 +28,8 @@ public class CorsConfig {
                         .allowedOriginPatterns(
                             "https://hospital-tourism-fe.vercel.app",
                             "http://localhost:*",
-                            "http://127.0.0.1:*"
+                            "http://127.0.0.1:*",
+                            "https://medi-tailor.com/"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                         .allowedHeaders("*")
