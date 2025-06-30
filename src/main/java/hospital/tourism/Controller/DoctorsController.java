@@ -21,6 +21,8 @@ import hospital.tourism.Dto.DoctorsDTO;
 import hospital.tourism.Entity.Doctors;
 import hospital.tourism.Service.DoctorSevice;
 
+
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
 @RestController
 @RequestMapping("/api")
 public class DoctorsController {

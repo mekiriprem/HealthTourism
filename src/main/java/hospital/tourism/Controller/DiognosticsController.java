@@ -11,6 +11,8 @@ import hospital.tourism.Entity.Diognstics;
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.Service.DiagonosticsServices;
 
+
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
 @RestController
 @RequestMapping("/api/diagnostics")
 public class DiognosticsController {

@@ -16,6 +16,8 @@ import hospital.tourism.Dto.SpaServiceDTO;
 import hospital.tourism.Entity.SpaServicese;
 import hospital.tourism.Service.SpaServicessImpl;
 
+
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
 @RestController
 @RequestMapping("/spaServices")
 public class SpaServicesController {

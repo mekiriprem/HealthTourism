@@ -14,9 +14,12 @@ import hospital.tourism.Entity.users;
 import hospital.tourism.Service.UserService;
 import hospital.tourism.repo.usersrepo;
 
+
+
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:8081")
+
 public class UserController {
 
     @Autowired
