@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hospital.tourism.booking.entity.EmergencyContact;
 import hospital.tourism.booking.service.EmergencyContactServiceIMpl;
 
-@CrossOrigin(origins = "*")
+
 @RestController
 @RequestMapping("/emergency-contact")
 public class EmergencyContactController {
