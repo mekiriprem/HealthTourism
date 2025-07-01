@@ -46,10 +46,8 @@ public class users {
 	    @Column(unique = true)
 	    private String verificationToken;
 
-	    @ElementCollection
-	    @CollectionTable(name = "user_profile_pictures", joinColumns = @JoinColumn(name = "user_id"))
-	    @Column(name = "url")
-	    private List<String> profilePictureUrls;
+	    @Column(name = "profile_picture_url")
+	    private String profilePictureUrls;
 
 	    @ElementCollection
 	    @CollectionTable(name = "user_prescriptions", joinColumns = @JoinColumn(name = "user_id"))

@@ -88,13 +88,10 @@ public class UserService {
 	    	users user = userRepository.findById(empId)
 	    			.orElseThrow(() -> new RuntimeException("User not found with ID: " + empId));
 
-	    	if (profilePicture != null && !profilePicture.isEmpty()) {
-	    		String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
-	    		if (user.getProfilePictureUrls() == null) {
-	    			user.setProfilePictureUrls(new ArrayList<>());
-	    		}
-	    		user.getProfilePictureUrls().add(url);
-	    	}
+	    	  if (profilePicture != null && !profilePicture.isEmpty()) {
+	    	        String url = uploadFileToSupabase(profilePicture, "profile_pictures", empId);
+	    	        user.setProfilePictureUrls(url); // now it's a single String
+	    	    }
 
 	    	if (prescription != null && !prescription.isEmpty()) {
 	    		String url = uploadFileToSupabase(prescription, "prescriptions", empId);
@@ -241,7 +238,7 @@ public class UserService {
 	        dto.setEmailVerified(user.isEmailVerified());
 	        dto.setAddress(user.getAddress());
 
-	        dto.setProfilePictureUrls(user.getProfilePictureUrls() != null ? user.getProfilePictureUrls() : new ArrayList<>());
+	        dto.setProfilePictureUrls(user.getProfilePictureUrls());
 	        dto.setPrescriptionUrls(user.getPrescriptionUrls() != null ? user.getPrescriptionUrls() : new ArrayList<>());
 	        dto.setPatientAxraysUrls(user.getPatientAxraysUrls() != null ? user.getPatientAxraysUrls() : new ArrayList<>());
 	        dto.setPatientReportsUrls(user.getPatientReportsUrls() != null ? user.getPatientReportsUrls() : new ArrayList<>());

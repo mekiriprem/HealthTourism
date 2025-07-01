@@ -42,7 +42,7 @@ public class CouponController {
 	    public ResponseEntity<List<CouponResponseDTO>> getAllCoupons() {
 	        return ResponseEntity.ok(couponService.getAllCoupons());
 	    }
-
+	    
 	    @PutMapping("/{id}")
 	    public ResponseEntity<CouponResponseDTO> updateCoupon(@PathVariable Integer id, @RequestBody CouponEntity coupon) {
 	        return ResponseEntity.ok(couponService.updateCoupon(id, coupon));

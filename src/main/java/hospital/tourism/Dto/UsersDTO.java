@@ -17,7 +17,7 @@ public class UsersDTO {
 	    private boolean emailVerified;
 	    private String verificationToken;
 
-	    private List<String> profilePictureUrls;
+	    private String profilePictureUrls;
 	    private List<String> prescriptionUrls;
 	    private List<String> patientAxraysUrls;
 	    private List<String> patientReportsUrls;
