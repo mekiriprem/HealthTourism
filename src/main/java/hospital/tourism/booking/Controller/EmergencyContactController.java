@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hospital.tourism.booking.entity.EmergencyContact;
 import hospital.tourism.booking.service.EmergencyContactServiceIMpl;
 
-
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
 @RestController
 @RequestMapping("/emergency-contact")
 public class EmergencyContactController {
