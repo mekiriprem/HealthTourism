@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Dto.BookingRequest;
+import hospital.tourism.Dto.CartCheckoutRequest;
 import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Booking;
 import hospital.tourism.Service.BookingService;
@@ -207,4 +208,9 @@ public class BookingController {
 		return ResponseEntity.ok("Bookings deleted successfully");
 	}
 
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkoutBooking(@RequestBody CartCheckoutRequest request) {
+        Booking savedBooking = bookingService.checkoutBooking(request);
+        return ResponseEntity.ok(savedBooking);
+    }
 }

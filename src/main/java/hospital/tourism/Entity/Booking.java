@@ -47,8 +47,10 @@ public class Booking {
     private LocalDateTime bookingStartTime;
     private LocalDateTime bookingEndTime;
     
+    @Column(name = "ctotal_amount", nullable = false)
+    private double ctotalAmount;
+  
    
-
     private String additionalRemarks;
     
     @ManyToOne
@@ -90,6 +92,12 @@ public class Booking {
     
     @Column(name = "package_booking_id")
     private String packageBookingId;
+    
+    
+    @ManyToOne
+    @JoinColumn(name = "coupon_id", nullable = true)
+    private CouponEntity coupon;
+
 
     public String getServiceType() {
         if (physio != null) return "physio";
@@ -104,10 +112,7 @@ public class Booking {
 
 
 
-	
 
-
-    // Apply similar for other services
 
 
 }
