@@ -22,9 +22,6 @@ public class CouponServiceMapping {
     @Column(nullable = false)
     private String serviceType; // e.g., "SPA", "DOCTOR", "CHEF"
 
-    @Column(nullable = false)
-    private Long serviceId;
-
     @ManyToOne
     @JoinColumn(name = "coupon_id", nullable = false)
     private CouponEntity coupon;

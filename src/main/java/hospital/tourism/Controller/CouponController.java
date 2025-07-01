@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hospital.tourism.Dto.CouponApplyRequest;
 import hospital.tourism.Dto.CouponApplyResponse;
+import hospital.tourism.Dto.CouponResponseDTO;
 import hospital.tourism.Entity.CouponEntity;
 import hospital.tourism.Service.CouponServiceIMple;
 import hospital.tourism.repo.CouponRepository;
@@ -33,17 +34,17 @@ public class CouponController {
 		private CouponRepository couponRepository;
 
 	    @PostMapping
-	    public ResponseEntity<CouponEntity> createCoupon(@RequestBody CouponEntity coupon) {
+	    public ResponseEntity<CouponResponseDTO> createCoupon(@RequestBody CouponEntity coupon) {
 	        return ResponseEntity.ok(couponService.createCoupon(coupon));
 	    }
 
 	    @GetMapping
-	    public ResponseEntity<List<CouponEntity>> getAllCoupons() {
+	    public ResponseEntity<List<CouponResponseDTO>> getAllCoupons() {
 	        return ResponseEntity.ok(couponService.getAllCoupons());
 	    }
 
 	    @PutMapping("/{id}")
-	    public ResponseEntity<CouponEntity> updateCoupon(@PathVariable Integer id, @RequestBody CouponEntity coupon) {
+	    public ResponseEntity<CouponResponseDTO> updateCoupon(@PathVariable Integer id, @RequestBody CouponEntity coupon) {
 	        return ResponseEntity.ok(couponService.updateCoupon(id, coupon));
 	    }
 
@@ -53,9 +54,9 @@ public class CouponController {
 	        return ResponseEntity.noContent().build();
 	    }
 	    @GetMapping("/{code}")
-		public ResponseEntity<CouponEntity> getCouponByCode(@PathVariable String code) {
-			CouponEntity coupon = (CouponEntity) couponService.getCouponByCode(code);
-			return ResponseEntity.ok(coupon);
+		public ResponseEntity<CouponResponseDTO> getCouponByCode(@PathVariable String code) {
+			 couponService.getCouponByCodes(code);
+			return ResponseEntity.ok(couponService.getCouponByCodes(code));
 		}
 	    
 	    @GetMapping("/validate")
@@ -125,5 +126,14 @@ public class CouponController {
 	        CouponApplyResponse response = couponService.applyCoupon(req);
 	        return ResponseEntity.ok(response);
 	    }
+	   @PutMapping("/active/{id}")
+		public void activateCoupon(@PathVariable Integer id) {
+		   couponService.activateCouponById(id);
+		}
+
+		@PutMapping("/deactivate/{id}")
+		public void deactivateCoupon(@PathVariable Integer id) {
+			couponService.inactivateCouponById(id);
+		}
 }
 
