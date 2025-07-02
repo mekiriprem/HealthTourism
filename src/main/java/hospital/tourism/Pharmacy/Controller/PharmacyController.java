@@ -5,16 +5,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Pharmacy.DTO.PharmacyDashboardResponse;
 import hospital.tourism.Pharmacy.Entity.PharmacyEntity;
@@ -29,13 +32,32 @@ public class PharmacyController {
 	private PharmacyService pharmacyService;
 	
 	// Add methods to handle requests for pharmacy operations
-	
-	//add madicine
-	@RequestMapping("/addMadicine")
-	public ResponseEntity<PharmacyEntity> addMadicine(@RequestBody PharmacyEntity pharmacyEntity) {
-		PharmacyEntity savedEntity = pharmacyService.addMadicine(pharmacyEntity);
-		return ResponseEntity.ok(savedEntity);
+	@PostMapping("/addMadicine")
+	public ResponseEntity<PharmacyEntity> addMadicine(
+	        @RequestParam("medicineName") String name,
+	        @RequestParam("medicineType") String type,
+	        @RequestParam("medicineDescription") String description,
+	        @RequestParam("medicinePrice") double price,
+	        @RequestParam("medicineQuantity") Integer quantity,
+	        @RequestParam("medicineExpiryDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDate,
+	        @RequestParam("medicineManufacturer") String manufacturer,
+	        @RequestParam("medicineCategory") String category,
+	        @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+	) {
+	    PharmacyEntity pharmacyEntity = new PharmacyEntity();
+	    pharmacyEntity.setMedicineName(name);
+	    pharmacyEntity.setMedicineType(type);
+	    pharmacyEntity.setMedicineDescription(description);
+	    pharmacyEntity.setMedicinePrice(price);
+	    pharmacyEntity.setMedicineQuantity(quantity);
+	    pharmacyEntity.setMedicineExpiryDate(expiryDate);
+	    pharmacyEntity.setMedicineManufacturer(manufacturer);
+	    pharmacyEntity.setMedicineCategory(category);
+
+	    PharmacyEntity savedEntity = pharmacyService.addMadicine(pharmacyEntity, imageFile);
+	    return ResponseEntity.ok(savedEntity);
 	}
+
 	
 	//get All Madicines
 	@GetMapping("/getAllMadicines")
@@ -50,12 +72,33 @@ public class PharmacyController {
 		return ResponseEntity.ok(msg);
 	}
 	
-	//update Madicine
 	@PutMapping("/updateMadicine/{madicineId}")
-	public ResponseEntity<PharmacyEntity> updateMadicine(@PathVariable Integer madicineId, @RequestBody PharmacyEntity pharmacyEntity) {
-		PharmacyEntity updatedEntity = pharmacyService.updateMadicine(madicineId,pharmacyEntity);
-		return ResponseEntity.ok(updatedEntity);
+	public ResponseEntity<PharmacyEntity> updateMadicine(
+	        @PathVariable Integer madicineId,
+	        @RequestParam("medicineName") String name,
+	        @RequestParam("medicineType") String type,
+	        @RequestParam("medicineDescription") String description,
+	        @RequestParam("medicinePrice") double price,
+	        @RequestParam("medicineQuantity") Integer quantity,
+	        @RequestParam("medicineExpiryDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDate,
+	        @RequestParam("medicineManufacturer") String manufacturer,
+	        @RequestParam("medicineCategory") String category,
+	        @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+	) {
+	    PharmacyEntity pharmacyEntity = new PharmacyEntity();
+	    pharmacyEntity.setMedicineName(name);
+	    pharmacyEntity.setMedicineType(type);
+	    pharmacyEntity.setMedicineDescription(description);
+	    pharmacyEntity.setMedicinePrice(price);
+	    pharmacyEntity.setMedicineQuantity(quantity);
+	    pharmacyEntity.setMedicineExpiryDate(expiryDate);
+	    pharmacyEntity.setMedicineManufacturer(manufacturer);
+	    pharmacyEntity.setMedicineCategory(category);
+
+	    PharmacyEntity updatedEntity = pharmacyService.updateMadicine(madicineId, pharmacyEntity, imageFile);
+	    return ResponseEntity.ok(updatedEntity);
 	}
+
 	
 	// Get Madicine by Id
 	@GetMapping("/getMadicineById/{madicineId}")

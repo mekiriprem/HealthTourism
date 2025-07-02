@@ -3,6 +3,7 @@ package hospital.tourism.Controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,9 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.PhysioDTO;
 import hospital.tourism.Entity.Physio;
@@ -27,10 +29,28 @@ public class PhysioController {
 	  @Autowired
 	    private PhysioImpl physioService;
 
-	    @PostMapping("/save-Physio")
-	    public Physio savePhysio(@RequestBody PhysioDTO dto) {
-	        return physioService.savePhysio(dto);
-	    }
+	  @PostMapping("/save-Physio")
+	  public ResponseEntity<Physio> savePhysio(
+	          @RequestParam("physioName") String physioName,
+	          @RequestParam("physioDescription") String physioDescription,
+	          @RequestParam("rating") String rating,
+	          @RequestParam("address") String address,
+	          @RequestParam("price") Double price,
+	          @RequestParam("locationId") Integer locationId,
+	          @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+	  ) {
+	      PhysioDTO dto = new PhysioDTO();
+	      dto.setPhysioName(physioName);
+	      dto.setPhysioDescription(physioDescription);
+	      dto.setRating(rating);
+	      dto.setAddress(address);
+	      dto.setPrice(price);
+	      dto.setLocationId(locationId);
+
+	      Physio saved = physioService.savePhysio(dto, imageFile);
+	      return ResponseEntity.status(HttpStatus.SC_CREATED).body(saved);
+	  }
+
 	    @GetMapping
 	    public List<Physio> getAllPhysios() {
 	        return physioService.getallphysios();
@@ -75,8 +95,26 @@ public class PhysioController {
 	        physioService.activatePhysioIfInactive(id);
 	    }
 	    @PutMapping("/update-physio/{id}")
-		public ResponseEntity<PhysioDTO> updatePhysio(@PathVariable Long id, @RequestBody PhysioDTO dto) {
-			PhysioDTO updatedDto = physioService.updatePhysio(id, dto);
-			return ResponseEntity.ok(updatedDto);
-		}
+	    public ResponseEntity<PhysioDTO> updatePhysio(
+	            @PathVariable Long id,
+	            @RequestParam("physioName") String physioName,
+	            @RequestParam("physioDescription") String physioDescription,
+	            @RequestParam("rating") String rating,
+	            @RequestParam("address") String address,
+	            @RequestParam("price") Double price,
+	            @RequestParam("locationId") Integer locationId,
+	            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+	    ) {
+	        PhysioDTO dto = new PhysioDTO();
+	        dto.setPhysioName(physioName);
+	        dto.setPhysioDescription(physioDescription);
+	        dto.setRating(rating);
+	        dto.setAddress(address);
+	        dto.setPrice(price);
+	        dto.setLocationId(locationId);
+
+	        PhysioDTO updatedDto = physioService.updatePhysio(id, dto, imageFile);
+	        return ResponseEntity.ok(updatedDto);
+	    }
+
 }

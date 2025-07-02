@@ -1,7 +1,6 @@
 package hospital.tourism.Controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.Service.LabtestsServices;
@@ -30,20 +31,26 @@ public class LabtestsController {
 
     // ✅ Add a new lab test
     @PostMapping("/add")
-    public ResponseEntity<Labtests> addLabtest(@RequestBody Map<String, Object> labtestMap) {
+    public ResponseEntity<Labtests> addLabtest(
+            @RequestParam("testTitle") String testTitle,
+            @RequestParam("testDescription") String testDescription,
+            @RequestParam("testPrice") double testPrice,
+            @RequestParam("testDepartment") String testDepartment,
+            @RequestParam("diognosticsId") Integer diognosticsId,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
         Labtests labtest = new Labtests();
-        labtest.setTestTitle((String) labtestMap.get("testTitle"));
-        labtest.setTestDescription((String) labtestMap.get("testDescription"));
-        labtest.setTestPrice(Double.parseDouble(labtestMap.get("testPrice").toString()));
-        labtest.setTestDepartment((String) labtestMap.get("testDepartment"));
-        labtest.setTestImage((String) labtestMap.get("testImage"));
-        labtest.setStatus("Active"); // Default status)
+        labtest.setTestTitle(testTitle);
+        labtest.setTestDescription(testDescription);
+        labtest.setTestPrice(testPrice);
+        labtest.setTestDepartment(testDepartment);
+        labtest.setStatus("Active");
 
-        Integer diognosticsId = Integer.parseInt(labtestMap.get("diognosticsId").toString());
-
-        Labtests saved = labtestsServices.saveLabtest(labtest, diognosticsId);
+        // Image will be handled in service
+        Labtests saved = labtestsServices.saveLabtest(labtest, imageFile, diognosticsId);
         return ResponseEntity.ok(saved);
     }
+
 
     // 📋 Get all lab tests
     @GetMapping
@@ -88,20 +95,37 @@ public class LabtestsController {
     }
     // Update lab test
     @PutMapping("/update/{id}")
-	public ResponseEntity<Labtests> updateLabtest(@PathVariable Long id, @RequestBody Labtests updatedLabtest) {
-		System.out.println("=== UPDATE LABTEST REQUEST ===");
-		System.out.println("Path variable ID: " + id);
-		System.out.println("Request body: " + updatedLabtest);
-		System.out.println("==============================");
-		
-		try {
-			Labtests labtest = labtestsServices.updateLabtest(id, updatedLabtest);
-			System.out.println("Successfully updated labtest: " + labtest.getId());
-			return ResponseEntity.ok(labtest);
-		} catch (Exception e) {
-			System.out.println("ERROR in updateLabtest: " + e.getMessage());
-			e.printStackTrace();
-			return ResponseEntity.status(500).build();
-		}
-	}
+    public ResponseEntity<Labtests> updateLabtest(
+            @PathVariable Long id,
+            @RequestParam("testTitle") String testTitle,
+            @RequestParam("testDescription") String testDescription,
+            @RequestParam("testPrice") double testPrice,
+            @RequestParam("testDepartment") String testDepartment,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        System.out.println("=== UPDATE LABTEST REQUEST ===");
+        System.out.println("Path variable ID: " + id);
+        System.out.println("Title: " + testTitle);
+        System.out.println("Image file: " + (imageFile != null ? imageFile.getOriginalFilename() : "No Image"));
+        System.out.println("==============================");
+
+        try {
+            Labtests updatedLabtest = new Labtests();
+            updatedLabtest.setTestTitle(testTitle);
+            updatedLabtest.setTestDescription(testDescription);
+            updatedLabtest.setTestPrice(testPrice);
+            updatedLabtest.setTestDepartment(testDepartment);
+            updatedLabtest.setStatus(status);
+
+            Labtests saved = labtestsServices.updateLabtest(id, updatedLabtest, imageFile);
+            System.out.println("Successfully updated labtest: " + saved.getId());
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            System.out.println("ERROR in updateLabtest: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
 }

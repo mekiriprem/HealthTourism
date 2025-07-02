@@ -1,9 +1,18 @@
 package hospital.tourism.Service;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Entity.Chefs;
@@ -26,6 +35,15 @@ public class chefService {
     
     @Autowired
     private BookingRepo bookingRepository;
+    
+    @Value("${supabase.url}")
+    private String supabaseProjectUrl;
+
+    @Value("${supabase.bucket}")
+    private String supabaseBucketName;
+
+    @Value("${supabase.api.key}")
+    private String supabaseApiKey;
 
 //    // Save a chef with location mapping
 //    public ChefDTO saveChef(ChefDTO chefDto, Integer locationId) {
@@ -87,14 +105,16 @@ public class chefService {
     
     
     
-    public ChefDTO saveChef(ChefDTO chefDto, Integer locationId) {
+    // ✅ Save chef with image upload
+    public ChefDTO saveChef(ChefDTO chefDto, Integer locationId, MultipartFile imageFile) {
+        // Step 1: Get Location
         LocationEntity location = locationRepo.findById(locationId)
-            .orElseThrow(() -> new RuntimeException("Location not found with ID: " + locationId));
+                .orElseThrow(() -> new RuntimeException("Location not found with ID: " + locationId));
 
+        // Step 2: Map DTO to Entity
         Chefs chefs = new Chefs();
         chefs.setChefName(chefDto.getChefName());
         chefs.setChefDescription(chefDto.getChefDescription());
-        chefs.setChefImage(chefDto.getChefImage());
         chefs.setChefRating(chefDto.getChefRating());
         chefs.setExperience(chefDto.getExperience());
         chefs.setStyles(chefDto.getStyles());
@@ -102,8 +122,22 @@ public class chefService {
         chefs.setPrice(chefDto.getPrice());
         chefs.setLocation(location);
 
+        // Step 3: Upload Image if provided
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = uploadToSupabase(imageFile);
+                chefs.setChefImage(imageUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload chef image", e);
+            }
+        } else {
+            chefs.setChefImage(chefDto.getChefImage()); // fallback if DTO already has a URL
+        }
+
+        // Step 4: Save Entity
         Chefs savedChef = chefsRepo.save(chefs);
 
+        // Step 5: Map back to DTO
         ChefDTO savedChefDto = new ChefDTO();
         savedChefDto.setChefID(savedChef.getChefID());
         savedChefDto.setChefName(savedChef.getChefName());
@@ -112,12 +146,36 @@ public class chefService {
         savedChefDto.setChefRating(savedChef.getChefRating());
         savedChefDto.setExperience(savedChef.getExperience());
         savedChefDto.setStyles(savedChef.getStyles());
-
+        savedChefDto.setStatus(savedChef.getStatus());
         savedChefDto.setPrice(savedChef.getPrice());
         savedChefDto.setLocation(location);
-       
 
         return savedChefDto;
+    }
+
+    // ✅ Supabase Image Upload Logic
+    private String uploadToSupabase(MultipartFile file) throws Exception {
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + fileName;
+
+        HttpPost post = new HttpPost(uploadUrl);
+        post.setHeader("apikey", supabaseApiKey);
+        post.setHeader("Authorization", "Bearer " + supabaseApiKey);
+        post.setHeader("Content-Type", file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream();
+             CloseableHttpClient client = HttpClients.createDefault()) {
+
+            post.setEntity(new InputStreamEntity(inputStream));
+            HttpResponse response = client.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode != 200 && statusCode != 201) {
+                throw new RuntimeException("Supabase image upload failed with status: " + statusCode);
+            }
+        }
+
+        return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + fileName;
     }
 
     
@@ -189,34 +247,47 @@ public class chefService {
         }
     }
     
-	public ChefDTO updateChef(Long chefId, ChefDTO chefDto) {
-		Chefs chef = chefsRepo.findById(chefId)
-				.orElseThrow(() -> new RuntimeException("Chef not found with ID: " + chefId));
+    public ChefDTO updateChef(Long chefId, ChefDTO chefDto, MultipartFile imageFile) {
+        // Step 1: Fetch existing chef
+        Chefs chef = chefsRepo.findById(chefId)
+                .orElseThrow(() -> new RuntimeException("Chef not found with ID: " + chefId));
 
-		chef.setChefName(chefDto.getChefName());
-		chef.setChefDescription(chefDto.getChefDescription());
-		chef.setChefImage(chefDto.getChefImage());
-		chef.setChefRating(chefDto.getChefRating());
-		chef.setExperience(chefDto.getExperience());
-		chef.setStyles(chefDto.getStyles());
-		chef.setStatus(chefDto.getStatus());
-		chef.setPrice(chefDto.getPrice());
+        // Step 2: Update fields
+        chef.setChefName(chefDto.getChefName());
+        chef.setChefDescription(chefDto.getChefDescription());
+        chef.setChefRating(chefDto.getChefRating());
+        chef.setExperience(chefDto.getExperience());
+        chef.setStyles(chefDto.getStyles());
+        chef.setStatus(chefDto.getStatus());
+        chef.setPrice(chefDto.getPrice());
 
-		Chefs updatedChef = chefsRepo.save(chef);
+        // Step 3: Replace image only if new one is uploaded
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = uploadToSupabase(imageFile);
+                chef.setChefImage(imageUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload new chef image", e);
+            }
+        }
 
-		ChefDTO updatedChefDto = new ChefDTO();
-		updatedChefDto.setChefID(updatedChef.getChefID());
-		updatedChefDto.setChefName(updatedChef.getChefName());
-		updatedChefDto.setChefDescription(updatedChef.getChefDescription());
-		updatedChefDto.setChefImage(updatedChef.getChefImage());
-		updatedChefDto.setChefRating(updatedChef.getChefRating());
-		updatedChefDto.setExperience(updatedChef.getExperience());
-		updatedChefDto.setStyles(updatedChef.getStyles());
-		updatedChefDto.setStatus(updatedChef.getStatus());
-		updatedChefDto.setPrice(updatedChef.getPrice());
+        // Step 4: Save updated chef
+        Chefs updatedChef = chefsRepo.save(chef);
 
-		return updatedChefDto;
-	}
-	
+        // Step 5: Convert to DTO
+        ChefDTO updatedChefDto = new ChefDTO();
+        updatedChefDto.setChefID(updatedChef.getChefID());
+        updatedChefDto.setChefName(updatedChef.getChefName());
+        updatedChefDto.setChefDescription(updatedChef.getChefDescription());
+        updatedChefDto.setChefImage(updatedChef.getChefImage());
+        updatedChefDto.setChefRating(updatedChef.getChefRating());
+        updatedChefDto.setExperience(updatedChef.getExperience());
+        updatedChefDto.setStyles(updatedChef.getStyles());
+        updatedChefDto.setStatus(updatedChef.getStatus());
+        updatedChefDto.setPrice(updatedChef.getPrice());
+
+        return updatedChefDto;
+    }
+
 
 }

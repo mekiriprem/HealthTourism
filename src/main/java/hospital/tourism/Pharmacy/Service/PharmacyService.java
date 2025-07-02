@@ -1,11 +1,20 @@
 package hospital.tourism.Pharmacy.Service;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Pharmacy.DTO.PharmacyDashboardResponse;
 import hospital.tourism.Pharmacy.Entity.PharmacyEntity;
@@ -16,10 +25,54 @@ public class PharmacyService {
 @Autowired
 	private ImadicineRepository imadicineRepository;
 
+	@Value("${supabase.url}")
+	private String supabaseProjectUrl;
+
+	@Value("${supabase.bucket}")
+	private String supabaseBucketName;
+	
+	@Value("${supabase.api.key}")
+		private String supabaseApiKey;
+
 		//add madicines
-		public PharmacyEntity addMadicine(PharmacyEntity pharmacyEntity) {
-				return imadicineRepository.save(pharmacyEntity);
-		}
+	// ✅ Save medicine with optional image upload
+	public PharmacyEntity addMadicine(PharmacyEntity pharmacyEntity, MultipartFile imageFile) {
+		if (imageFile != null && !imageFile.isEmpty()) {
+			try {
+				String imageUrl = uploadToSupabase(imageFile);
+            pharmacyEntity.setMedicineImage(imageUrl);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload medicine image", e);
+        }
+    }
+
+    return imadicineRepository.save(pharmacyEntity);
+}
+
+// ✅ Upload image to Supabase and return public URL
+private String uploadToSupabase(MultipartFile file) throws Exception {
+    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+    String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + fileName;
+
+    HttpPost post = new HttpPost(uploadUrl);
+    post.setHeader("apikey", supabaseApiKey);
+    post.setHeader("Authorization", "Bearer " + supabaseApiKey);
+    post.setHeader("Content-Type", file.getContentType());
+
+    try (InputStream inputStream = file.getInputStream();
+         CloseableHttpClient client = HttpClients.createDefault()) {
+
+        post.setEntity(new InputStreamEntity(inputStream));
+        HttpResponse response = client.execute(post);
+        int statusCode = response.getStatusLine().getStatusCode();
+
+        if (statusCode != 200 && statusCode != 201) {
+            throw new RuntimeException("Supabase upload failed with status code: " + statusCode);
+        }
+    }
+
+    return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + fileName;
+}
 		//get All Madicines
 		public List<PharmacyEntity> getAllMadicines() {
 			return imadicineRepository.findAll();
@@ -37,27 +90,36 @@ public class PharmacyService {
 			}
 			
 		}
-		//update Madicine
-		public PharmacyEntity updateMadicine(Integer madiceid, PharmacyEntity pharmacyEntity) {
-			Optional<PharmacyEntity> optionalMadicine = imadicineRepository.findById(madiceid);
-			if (optionalMadicine.isPresent()) {
-				PharmacyEntity existingMadicine = optionalMadicine.get();
-				existingMadicine.setMedicineName(pharmacyEntity.getMedicineName());
-				existingMadicine.setMedicineType(pharmacyEntity.getMedicineType());
-				existingMadicine.setMedicineDescription(pharmacyEntity.getMedicineDescription());
-				existingMadicine.setMedicinePrice(pharmacyEntity.getMedicinePrice());
-				existingMadicine.setMedicineQuantity(pharmacyEntity.getMedicineQuantity());
-				existingMadicine.setMedicineExpiryDate(pharmacyEntity.getMedicineExpiryDate());
-				existingMadicine.setMedicineManufacturer(pharmacyEntity.getMedicineManufacturer());
-				existingMadicine.setMedicineImage(pharmacyEntity.getMedicineImage());
-				existingMadicine.setMedicineCategory(pharmacyEntity.getMedicineCategory());
+		public PharmacyEntity updateMadicine(Integer madiceid, PharmacyEntity pharmacyEntity, MultipartFile imageFile) {
+		    Optional<PharmacyEntity> optionalMadicine = imadicineRepository.findById(madiceid);
 
-				return imadicineRepository.save(existingMadicine);
-			} else {
-				throw new RuntimeException("Madicine not found with id: " + pharmacyEntity.getMadicineid());
-			}
+		    if (optionalMadicine.isPresent()) {
+		        PharmacyEntity existingMadicine = optionalMadicine.get();
+
+		        existingMadicine.setMedicineName(pharmacyEntity.getMedicineName());
+		        existingMadicine.setMedicineType(pharmacyEntity.getMedicineType());
+		        existingMadicine.setMedicineDescription(pharmacyEntity.getMedicineDescription());
+		        existingMadicine.setMedicinePrice(pharmacyEntity.getMedicinePrice());
+		        existingMadicine.setMedicineQuantity(pharmacyEntity.getMedicineQuantity());
+		        existingMadicine.setMedicineExpiryDate(pharmacyEntity.getMedicineExpiryDate());
+		        existingMadicine.setMedicineManufacturer(pharmacyEntity.getMedicineManufacturer());
+		        existingMadicine.setMedicineCategory(pharmacyEntity.getMedicineCategory());
+
+		        if (imageFile != null && !imageFile.isEmpty()) {
+		            try {
+		                String newImageUrl = uploadToSupabase(imageFile);
+		                existingMadicine.setMedicineImage(newImageUrl);
+		            } catch (Exception e) {
+		                throw new RuntimeException("Failed to upload new medicine image", e);
+		            }
+		        }
+
+		        return imadicineRepository.save(existingMadicine);
+		    } else {
+		        throw new RuntimeException("Medicine not found with ID: " + madiceid);
+		    }
 		}
-		
+
 		// Get Madicine by Id
 		public PharmacyEntity getMadicineById(Integer madicineId) {
 			Optional<PharmacyEntity> optionalMadicine = imadicineRepository.findById(madicineId);

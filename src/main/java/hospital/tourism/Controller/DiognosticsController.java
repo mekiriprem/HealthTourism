@@ -86,9 +86,23 @@ public class DiognosticsController {
     	diagonosticsServices.activateDiognstics(id);
     }
     @PutMapping("/update/{id}")
-	public ResponseEntity<DiagnosticsDTO> updateDiagnostics(@PathVariable Integer id, @RequestBody DiagnosticsDTO dto) {
-		DiagnosticsDTO updatedDto = diagonosticsServices.updateDiagnostics(id, dto);
-		return ResponseEntity.ok(updatedDto);
-	}
+    public ResponseEntity<DiagnosticsDTO> updateDiagnostics(
+            @PathVariable Integer id,
+            @RequestParam("diognosticsName") String name,
+            @RequestParam("diognosticsDescription") String description,
+            @RequestParam("diognosticsrating") String rating,
+            @RequestParam("diognosticsaddress") String address,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        DiagnosticsDTO dto = new DiagnosticsDTO();
+        dto.setDiognosticsName(name);
+        dto.setDiognosticsDescription(description);
+        dto.setDiognosticsrating(rating);
+        dto.setDiognosticsaddress(address);
+
+        DiagnosticsDTO updated = diagonosticsServices.updateDiagnostics(id, dto, imageFile);
+        return ResponseEntity.ok(updated);
+    }
+
 }
 

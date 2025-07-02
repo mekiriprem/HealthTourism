@@ -132,22 +132,31 @@ public class DiagonosticsServices {
     }
     // Update diagnostics
     
-    public DiagnosticsDTO updateDiagnostics(Integer id, DiagnosticsDTO dto) {
-        // Step 1: Get existing entity from DB
+    public DiagnosticsDTO updateDiagnostics(Integer id, DiagnosticsDTO dto, MultipartFile imageFile) {
+        // Step 1: Fetch existing diagnostics
         Diognstics existing = diagnosticsRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Diagnostics not found with ID: " + id));
 
-        // Step 2: Update entity fields
+        // Step 2: Update basic fields
         existing.setDiognosticsName(dto.getDiognosticsName());
         existing.setDiognosticsDescription(dto.getDiognosticsDescription());
-        existing.setDiognosticsImage(dto.getDiognosticsImage());
         existing.setDiognosticsrating(dto.getDiognosticsrating());
         existing.setDiognosticsaddress(dto.getDiognosticsaddress());
 
-        // Step 3: Save updated entity
+        // Step 3: Upload and update image if new one is provided
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = uploadToSupabase(imageFile);
+                existing.setDiognosticsImage(imageUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload image to Supabase", e);
+            }
+        }
+
+        // Step 4: Save updated entity
         Diognstics updated = diagnosticsRepo.save(existing);
 
-        // Step 4: Convert updated entity back to DTO
+        // Step 5: Convert back to DTO
         DiagnosticsDTO updatedDto = new DiagnosticsDTO();
         updatedDto.setDiognosticsId(updated.getDiognosticsId());
         updatedDto.setDiognosticsName(updated.getDiognosticsName());
