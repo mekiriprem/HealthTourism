@@ -11,15 +11,21 @@ import hospital.tourism.Dto.ChefDTO;
 import hospital.tourism.Dto.DiagnosticsDTO;
 import hospital.tourism.Dto.HospitalDTO;
 import hospital.tourism.Dto.LocationDTO;
-
+import hospital.tourism.Dto.PhysioDTO;
 import hospital.tourism.Dto.TranslatorDTO;
 
 import hospital.tourism.Dto.SpaCenterDTO;
 
 import hospital.tourism.Entity.LocationEntity;
 import hospital.tourism.Entity.SpaCenter;
+import hospital.tourism.repo.DoctorsRepo;
 import hospital.tourism.repo.LocationRepo;
+import hospital.tourism.repo.PhysioRepo;
 import hospital.tourism.repo.SpaCenterRepo;
+import hospital.tourism.repo.SpaservicesRepo;
+import hospital.tourism.repo.TranslatorsRepo;
+import hospital.tourism.repo.chefsRepo;
+import hospital.tourism.repo.labtestsRepo;
 
 @Service
 public class LocationService {
@@ -37,9 +43,20 @@ public class LocationService {
 	        return locationRepository.save(locationEntity);
 	    }
 	    
-	    public List<LocationEntity> getAllLocations() {
-	        return locationRepository.findAll();
+	    public List<LocationDTO> getAllEntitiesByLocation() {
+	        List<LocationEntity> locations = locationRepository.findAll();
+
+			return locations.stream().map(location -> {
+				LocationDTO dto = new LocationDTO();
+				dto.setLocationId(location.getLocationId());
+				dto.setCity(location.getCity());
+				dto.setState(location.getState());
+				dto.setCountry(location.getCountry());
+				// Add other fields as necessary
+				return dto;
+			}).collect(Collectors.toList());
 	    }
+
 
         public LocationDTO getLocationWithHospitals(Integer id) {
             LocationEntity location = locationRepository.findById(id)

@@ -99,4 +99,12 @@ public class CartItemController {
 			userService.removeFromCartById(cartId);
 			return ResponseEntity.ok("Item successfully deleted from the cart.");
 		}
+	    //get quantity of the cart items
+	    		@GetMapping("/cart/quantity/{userId}")
+	            public ResponseEntity<Integer> getCartQuantity(@PathVariable Integer userId) {
+	    	            List<CartItemsDTO> cartItems = userService.getCart(userId);
+	    	            int quantity = cartItems.stream().mapToInt(CartItemsDTO::getQuantity).sum();
+	    	            return ResponseEntity.ok(quantity);
+	    
+	    			}
 }

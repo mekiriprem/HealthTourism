@@ -170,4 +170,9 @@ public class CartItemService {
 			return "Item not found in the cart.";
 		}
 	}
+	//get quantity of the cart items
+	public int getCartItemCount(Integer userId) {
+		List<CartItemsEntity> cartItems = cartRepository.findByUserId(userId);
+		return cartItems.stream().mapToInt(CartItemsEntity::getQuantity).sum();
+	}
 }
