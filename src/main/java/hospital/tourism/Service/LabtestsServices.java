@@ -56,13 +56,17 @@ public class LabtestsServices {
     }
 
     private String uploadToSupabase(MultipartFile file) throws Exception {
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String originalName = file.getOriginalFilename();
+        String cleanFileName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+        String fileName = UUID.randomUUID() + "_" + cleanFileName;
+
         String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + fileName;
 
         HttpPost post = new HttpPost(uploadUrl);
         post.setHeader("apikey", supabaseApiKey);
         post.setHeader("Authorization", "Bearer " + supabaseApiKey);
         post.setHeader("Content-Type", file.getContentType());
+        post.setHeader("x-upsert", "true");
 
         try (InputStream inputStream = file.getInputStream();
              CloseableHttpClient client = HttpClients.createDefault()) {
@@ -78,6 +82,8 @@ public class LabtestsServices {
 
         return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + fileName;
     }
+
+
     // Get all lab tests
     public List<Labtests> getAllLabtests() {
         return labtestsRepo.findAll();

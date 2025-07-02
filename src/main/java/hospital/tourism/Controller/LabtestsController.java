@@ -23,7 +23,6 @@ import hospital.tourism.Service.LabtestsServices;
 @RestController
 @RequestMapping("/api/labtests")
 public class LabtestsController {
-
 	
 
     @Autowired
