@@ -1,11 +1,18 @@
 package hospital.tourism.Service;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
-import javax.tools.Diagnostic;
-
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.DiagnosticsDTO;
 import hospital.tourism.Entity.Diognstics;
@@ -21,11 +28,63 @@ public class DiagonosticsServices {
 
     @Autowired
     private hospital.tourism.repo.labtestsRepo labtestsRepo;
+    
+    
+    @Value("${supabase.url}")
+    private String supabaseProjectUrl;
 
-    // Save a diagnostics center
-    public Diognstics saveDiagnostics(Diognstics diognstics) {
-        return diagnosticsRepo.save(diognstics);
+    @Value("${supabase.bucket}")
+    private String supabaseBucketName;
+
+    @Value("${supabase.api.key}")
+    private String supabaseApiKey;
+
+   
+    
+    public Diognstics saveDiagnostics(Diognstics diognstics, MultipartFile imageFile) {
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = uploadToSupabase(imageFile);
+                diognstics.setDiognosticsImage(imageUrl);
+            }
+
+            diognstics.setStatus("Active");
+            return diagnosticsRepo.save(diognstics);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save diagnostics with image", e);
+        }
     }
+
+    private String uploadToSupabase(MultipartFile file) throws Exception {
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String uploadUrl = supabaseProjectUrl + "/storage/v1/object/" + supabaseBucketName + "/" + fileName;
+
+        HttpPost post = new HttpPost(uploadUrl);
+        post.setHeader("apikey", supabaseApiKey);
+        post.setHeader("Authorization", "Bearer " + supabaseApiKey);
+        post.setHeader("Content-Type", file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream();
+             CloseableHttpClient client = HttpClients.createDefault()) {
+
+            post.setEntity(new InputStreamEntity(inputStream));
+
+            HttpResponse response = client.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode != 200 && statusCode != 201) {
+                throw new RuntimeException("Image upload failed with HTTP status: " + statusCode);
+            }
+        }
+
+        // Return public URL of uploaded image
+        return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + fileName;
+    }
+
+//    // Save a diagnostics center
+//    public Diognstics saveDiagnostics(Diognstics diognstics) {
+//        return diagnosticsRepo.save(diognstics);
+//    }
 
     // Get all diagnostics centers
     public List<Diognstics> getAllDiagnostics() {
