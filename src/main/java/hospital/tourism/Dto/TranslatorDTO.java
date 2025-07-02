@@ -16,7 +16,9 @@ public class TranslatorDTO {
     private Double price;
     private String translatorAddress;
     private Integer translatorLocIdInteger;
-
+    private String city;
+    private String state;
+    private String country;
     // Optional: Include location name or ID only (avoid full entity to prevent recursion)
     private LocationEntity location;
 

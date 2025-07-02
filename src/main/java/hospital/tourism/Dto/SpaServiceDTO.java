@@ -13,7 +13,9 @@ public class SpaServiceDTO {
     // getters and setters
 	private Long serviceIdLong;
 	private String status;
-
+	private String city;
+    private String state;
+    private String country;
 	public SpaServiceDTO() {
 		this.status = "active"; // Default status is active
 	}

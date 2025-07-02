@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.Dto.LabtestsDTO;
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.Service.LabtestsServices;
 
@@ -52,11 +53,11 @@ public class LabtestsController {
 
 
     // 📋 Get all lab tests
-    @GetMapping
-    public ResponseEntity<List<Labtests>> getAllLabtests() {
+    @GetMapping("/all")
+    public ResponseEntity<List<LabtestsDTO>> getAllLabtests() {
         System.out.println("=== GET ALL LABTESTS REQUEST ===");
         try {
-            List<Labtests> labtests = labtestsServices.getAllLabtests();
+            List<LabtestsDTO> labtests = labtestsServices.getAllLabtestsDTO();
             System.out.println("Found " + labtests.size() + " lab tests");
             return ResponseEntity.ok(labtests);
         } catch (Exception e) {
@@ -68,20 +69,22 @@ public class LabtestsController {
 
     // 🔍 Get lab test by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Labtests> getLabtestById(@PathVariable Long id) {
-        return ResponseEntity.ok(labtestsServices.getLabById(id));
+    public ResponseEntity<LabtestsDTO> getLabtestById(@PathVariable Long id) {
+        return ResponseEntity.ok(labtestsServices.getLabByIdDTO(id));
     }
 
-    // 🧪 Get lab tests by diagnostics center ID
+ // 🧪 Get lab tests by diagnostics center ID
     @GetMapping("/by-diagnostics/{diognosticsId}")
-    public ResponseEntity<List<Labtests>> getLabtestsByDiagnosticsId(@PathVariable Integer diognosticsId) {
-        List<Labtests> tests = labtestsServices
-            .getAllLabtests()
+    public ResponseEntity<List<LabtestsDTO>> getLabtestsByDiagnosticsId(@PathVariable Integer diognosticsId) {
+        List<LabtestsDTO> tests = labtestsServices
+            .getAllLabtestsDTO()
             .stream()
-            .filter(test -> test.getDiognostics().getDiognosticsId().equals(diognosticsId))
+            .filter(test -> test.getDiagnosticsId() != null && test.getDiagnosticsId().equals(diognosticsId))
             .toList();
+
         return ResponseEntity.ok(tests);
     }
+
     @PutMapping("/soft-delete/{id}")
     public void softDeleteLabtest(@PathVariable Long id) {
     	labtestsServices.softDeleteLabtest(id);

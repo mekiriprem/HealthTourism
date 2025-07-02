@@ -51,34 +51,12 @@ public class PhysioController {
 	      return ResponseEntity.status(HttpStatus.SC_CREATED).body(saved);
 	  }
 
-	    @GetMapping
-	    public List<Physio> getAllPhysios() {
-	        return physioService.getallphysios();
+	    @GetMapping("/getall/pysios")
+	    public List<PhysioDTO> getAllPhysios() {
+	        return physioService.getAllPhysios();
 	    }
 	    
-	    @GetMapping("/getall/pysios")
-	    public ResponseEntity<List<PhysioDTO>> getAllPhysio() {
-	        List<Physio> physios = physioService.getallphysios();
-
-	        List<PhysioDTO> dtos = physios.stream().map(physio -> {
-	            PhysioDTO dto = new PhysioDTO();
-	            dto.setPhysioId(physio.getPhysioId());
-	            dto.setPhysioName(physio.getPhysioName());
-	            dto.setPhysioDescription(physio.getPhysioDescription());
-	            dto.setPhysioImage(physio.getPhysioImage());
-	            dto.setRating(physio.getRating());
-	            dto.setAddress(physio.getAddress());
-	            dto.setPrice(physio.getPrice());
-	            dto.setStatus(physio.getStatus());
-	            if (physio.getLocation() != null) {
-	                dto.setLocationId(physio.getLocation().getLocationId());
-	            }
-	            return dto;
-	        }).collect(Collectors.toList());
-
-	        return ResponseEntity.ok(dtos);
-	    }
-
+//	    
 	    @GetMapping("/get/{physioId}")
 		public ResponseEntity<PhysioDTO> getPhysioByIdss(@PathVariable Long physioId) {
 			PhysioDTO dto = physioService.getPhysioById(physioId);

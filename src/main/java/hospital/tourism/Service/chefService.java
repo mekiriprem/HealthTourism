@@ -202,9 +202,13 @@ public class chefService {
             dto.setStyles(chef.getStyles());
             dto.setStatus(chef.getStatus());
             dto.setPrice(chef.getPrice());
-            
 
-           
+            if (chef.getLocation() != null) {
+                dto.setLocationId(chef.getLocation().getLocationId());
+                dto.setCity(chef.getLocation().getCity());
+                dto.setState(chef.getLocation().getState());
+                dto.setCountry(chef.getLocation().getCountry());
+            }
 
             return dto;
         }).toList();
@@ -214,22 +218,28 @@ public class chefService {
         Chefs chef = chefsRepo.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found with ID: " + chefId));
 
-        ChefDTO chefDto = new ChefDTO();
-        chefDto.setChefID(chef.getChefID());
-        chefDto.setChefName(chef.getChefName());
-        chefDto.setChefDescription(chef.getChefDescription());
-        chefDto.setChefImage(chef.getChefImage());
-        chefDto.setChefRating(chef.getChefRating());
-        chefDto.setExperience(chef.getExperience());
-        chefDto.setStyles(chef.getStyles());
-        chefDto.setStatus(chef.getStatus());
-        chefDto.setPrice(chef.getPrice());
+        ChefDTO dto = new ChefDTO();
+        dto.setChefID(chef.getChefID());
+        dto.setChefName(chef.getChefName());
+        dto.setChefDescription(chef.getChefDescription());
+        dto.setChefImage(chef.getChefImage());
+        dto.setChefRating(chef.getChefRating());
+        dto.setExperience(chef.getExperience());
+        dto.setStyles(chef.getStyles());
+        dto.setStatus(chef.getStatus());
+        dto.setPrice(chef.getPrice());
 
-        // Optional: Include location info
-     
+        if (chef.getLocation() != null) {
+            dto.setLocationId(chef.getLocation().getLocationId());
+            dto.setCity(chef.getLocation().getCity());
+            dto.setState(chef.getLocation().getState());
+            dto.setCountry(chef.getLocation().getCountry());
+        }
 
-        return chefDto;
+        
+        return dto;
     }
+
 
     public void softDeleteChef(Long id) {
         Chefs chef = chefsRepo.findById(id)

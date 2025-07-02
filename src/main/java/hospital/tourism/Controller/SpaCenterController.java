@@ -109,20 +109,11 @@ public class SpaCenterController {
     }
     @GetMapping("/all")
     public ResponseEntity<List<SpaCenterDTO>> getAllSpaCenters() {
-        List<SpaCenter> spaCenters = spaCenterService.getAllSpaCenters();
-        List<SpaCenterDTO> dtos = spaCenters.stream().map(spa -> {
-            SpaCenterDTO dto = new SpaCenterDTO();
-            dto.setSpaId(spa.getSpaId());
-            dto.setSpaName(spa.getSpaName());
-            dto.setStatus(spa.getStatus());
-            dto.setRating(spa.getRating());
-            dto.setAddress(spa.getAddress());
-            dto.setSpaDescription(spa.getSpaDescription());
-            dto.setSpaImage(spa.getSpaImage()); // ✅ ADD THIS LINE
-            return dto;
-        }).collect(Collectors.toList());
+        List<SpaCenterDTO> spaCenters = spaCenterService.getAllSpaCenters();
+        
 
-        return ResponseEntity.ok(dtos);
+		return ResponseEntity.ok(spaCenters.stream().filter(spa -> spa.getStatus().equalsIgnoreCase("Active"))
+				.collect(Collectors.toList()));
     }
     
     //update spa center

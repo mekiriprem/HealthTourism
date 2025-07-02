@@ -10,6 +10,8 @@ public interface DoctorsRepo  extends JpaRepository<Doctors, Long>{
     
     List<Doctors> findByHospital_HospitalId(Integer hospitalId);
    
-    List<Doctors> findByStatus(String status);  
+    List<Doctors> findByStatus(String status);
+
+	List<Doctors> findByHospitalHospitalId(int hospitalId);  
 
 }

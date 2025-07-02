@@ -144,4 +144,10 @@ public class DoctorSevice {
 			return dto;
 		}
 
+		// Get doctors by hospital ID
+		public List<Doctors> getDoctorsByHospitalId(Integer hospitalId) {
+			return doctorRepository.findByHospitalHospitalId(hospitalId);
+		}
+
+		
 }

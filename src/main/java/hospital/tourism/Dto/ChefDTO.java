@@ -18,8 +18,13 @@ public class ChefDTO {
     private String Status;
     private double price;
 
-    private Long locationId;  // Instead of whole LocationEntity, just pass location ID
+    private Integer locationId;
+    private String city;
+    private String state;
+    private String country;// Instead of whole LocationEntity, just pass location ID
 
     private LocationEntity location; // Optional: Include full location entity if needed
+
+
 }
 

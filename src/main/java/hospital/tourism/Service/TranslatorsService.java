@@ -51,29 +51,48 @@ public class TranslatorsService {
             dto.setTranslatorLanguages(translator.getTranslatorLanguages());
             dto.setStatus(translator.getStatus());
             dto.setPrice(translator.getPrice());
-			dto.setTranslatorLocIdInteger(translator.getTranslatorLocIdInteger());
-			dto.setTranslatorAddress(translator.getTranslatorAddress());
+            dto.setTranslatorLocIdInteger(translator.getTranslatorLocIdInteger());
+            dto.setTranslatorAddress(translator.getTranslatorAddress());
 
-			
+            // ✅ Map location data if available
+            if (translator.getLocation() != null) {
+                dto.setCity(translator.getLocation().getCity());
+                dto.setState(translator.getLocation().getState());
+                dto.setCountry(translator.getLocation().getCountry());
+                
+            }
+
             return dto;
         }).toList();
     }
 
     public TranslatorDTO getbytraslatorId(Long trId) {
-    	Optional<Translators> translators= translatorsRepo.findById(trId);
-    	TranslatorDTO dto = new TranslatorDTO();
-    	dto.setTranslatorID(translators.get().getTranslatorID());
-    	dto.setTranslatorName(translators.get().getTranslatorName());
-    	dto.setTranslatorDescription(translators.get().getTranslatorDescription());
-    	dto.setTranslatorImage(translators.get().getTranslatorImage());
-    	dto.setTranslatorRating(translators.get().getTranslatorRating());
-    	dto.setTranslatorLanguages(translators.get().getTranslatorLanguages());
-    	dto.setStatus(translators.get().getStatus());
-    	dto.setPrice(translators.get().getPrice());
-    	dto.setTranslatorLocIdInteger(translators.get().getTranslatorLocIdInteger());
-    	dto.setTranslatorAddress(translators.get().getTranslatorAddress());
-    	return dto;
+        Translators translator = translatorsRepo.findById(trId)
+            .orElseThrow(() -> new RuntimeException("Translator not found with ID: " + trId));
+
+        TranslatorDTO dto = new TranslatorDTO();
+        dto.setTranslatorID(translator.getTranslatorID());
+        dto.setTranslatorName(translator.getTranslatorName());
+        dto.setTranslatorDescription(translator.getTranslatorDescription());
+        dto.setTranslatorImage(translator.getTranslatorImage());
+        dto.setTranslatorRating(translator.getTranslatorRating());
+        dto.setTranslatorLanguages(translator.getTranslatorLanguages());
+        dto.setStatus(translator.getStatus());
+        dto.setPrice(translator.getPrice());
+        dto.setTranslatorLocIdInteger(translator.getTranslatorLocIdInteger());
+        dto.setTranslatorAddress(translator.getTranslatorAddress());
+
+        // ✅ Include location details
+        if (translator.getLocation() != null) {
+            dto.setCity(translator.getLocation().getCity());
+            dto.setState(translator.getLocation().getState());
+            dto.setCountry(translator.getLocation().getCountry());
+           // optional
+        }
+
+        return dto;
     }
+
     
     
     public void softDeleteTranslator(Long id) {

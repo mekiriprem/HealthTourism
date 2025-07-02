@@ -10,5 +10,8 @@ public class DiagnosticsDTO {
     private String diognosticsImage;
     private String diognosticsrating;
     private String diognosticsaddress;
+    private String city;
+    private String state;
+    private String country;
 }
 

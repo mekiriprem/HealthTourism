@@ -1,6 +1,7 @@
 package hospital.tourism.Service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,9 +91,35 @@ public class PhysioImpl {
     }
 
     // Get all chefs 
-    public List<Physio> getallphysios() {
-        return  physioRepo.findAll();
+    public List<PhysioDTO> getAllPhysios() {
+        List<Physio> physios = physioRepo.findAll();
+        List<PhysioDTO> dtoList = new ArrayList<>();
+
+        for (Physio physio : physios) {
+            PhysioDTO dto = new PhysioDTO();
+            dto.setPhysioId(physio.getPhysioId());
+            dto.setPhysioName(physio.getPhysioName());
+            dto.setPhysioDescription(physio.getPhysioDescription());
+            dto.setPhysioImage(physio.getPhysioImage());
+            dto.setRating(physio.getRating());
+            dto.setAddress(physio.getAddress());
+            dto.setPrice(physio.getPrice());
+            dto.setStatus(physio.getStatus());
+
+            if (physio.getLocation() != null) {
+                dto.setLocationId(physio.getLocation().getLocationId());
+                dto.setCity(physio.getLocation().getCity());
+                dto.setState(physio.getLocation().getState());
+                dto.setCountry(physio.getLocation().getCountry());
+            }
+
+            dtoList.add(dto);
+        }
+
+        return dtoList;
     }
+
+
 
 
     public PhysioDTO getPhysioById(Long physioId) {
@@ -115,6 +142,9 @@ public class PhysioImpl {
 
         if (physio.getLocation() != null) {
             dto.setLocationId(physio.getLocation().getLocationId());
+            dto.setCity(physio.getLocation().getCity());
+            dto.setState(physio.getLocation().getState());
+            dto.setCountry(physio.getLocation().getCountry());
         }
 
         return dto;

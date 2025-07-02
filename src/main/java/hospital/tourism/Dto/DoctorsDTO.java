@@ -14,5 +14,8 @@ public class DoctorsDTO {
     private String profilepic;
     private String status;
     private Integer hospitalId;
-    private String hospitalName; // optional, useful for display
+    private String hospitalName;
+    private String city;
+    private String state;
+    private String country;// optional, useful for display
 }

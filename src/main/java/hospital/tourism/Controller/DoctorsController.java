@@ -218,4 +218,11 @@ public class DoctorsController {
 		DoctorsDTO doctor = doctorService.getDoctorById(doctorId);
 		return ResponseEntity.ok(doctor);
 	}
+    
+    // Get doctors by hospital ID
+    @GetMapping("/doctors/hospital/{hospitalId}")
+    public ResponseEntity<List<Doctors>> getDoctorsByHospitalId(@PathVariable Integer hospitalId) {
+        List<Doctors> doctors = doctorService.getDoctorsByHospitalId(hospitalId);
+        return ResponseEntity.ok(doctors);
+    }
 }

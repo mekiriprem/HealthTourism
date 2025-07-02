@@ -86,10 +86,28 @@ public class DiagonosticsServices {
 //        return diagnosticsRepo.save(diognstics);
 //    }
 
-    // Get all diagnostics centers
-    public List<Diognstics> getAllDiagnostics() {
-        return diagnosticsRepo.findAll();
+    public List<DiagnosticsDTO> getAllDiagnosticsAsDto() {
+        List<Diognstics> diagnosticsList = diagnosticsRepo.findAll();
+
+        return diagnosticsList.stream().map(diag -> {
+            DiagnosticsDTO dto = new DiagnosticsDTO();
+            dto.setDiognosticsId(diag.getDiognosticsId());
+            dto.setDiognosticsName(diag.getDiognosticsName());
+            dto.setDiognosticsDescription(diag.getDiognosticsDescription());
+            dto.setDiognosticsImage(diag.getDiognosticsImage());
+            dto.setDiognosticsrating(diag.getDiognosticsrating());
+            dto.setDiognosticsaddress(diag.getDiognosticsaddress());
+
+            if (diag.getLocation() != null) {
+                dto.setCity(diag.getLocation().getCity());
+                dto.setState(diag.getLocation().getState());
+                dto.setCountry(diag.getLocation().getCountry());
+            }
+
+            return dto;
+        }).toList();
     }
+
 
     // Get lab tests by diagnostics ID
     public List<Labtests> getLabtestsByDiagnosticsId(Integer diognosticsId) {

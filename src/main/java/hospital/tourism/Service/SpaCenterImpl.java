@@ -35,13 +35,54 @@ public class SpaCenterImpl {
 	    return spaCenterRepo.save(spaCenter);
 	}
 	
-	public SpaCenter getSpaCenterById(Integer id) {
-		return spaCenterRepo.findById(id).orElseThrow(() -> new RuntimeException("Spa Center not found with id " + id));
-	}
+	
     
-    public List<SpaCenter> getAllSpaCenters() {
-        return spaCenterRepo.findAll();
-    }
+	public List<SpaCenterDTO> getAllSpaCenters() {
+	    List<SpaCenter> centers = spaCenterRepo.findAll();
+
+	    return centers.stream().map(spa -> {
+	        SpaCenterDTO dto = new SpaCenterDTO();
+	        dto.setSpaId(spa.getSpaId());
+	        dto.setSpaName(spa.getSpaName());
+	        dto.setSpaDescription(spa.getSpaDescription());
+	        dto.setSpaImage(spa.getSpaImage());
+	        dto.setRating(spa.getRating());
+	        dto.setAddress(spa.getAddress());
+	        dto.setStatus(spa.getStatus());
+
+	        if (spa.getLocation() != null) {
+	            dto.setLocationId(spa.getLocation().getLocationId());
+	            dto.setCity(spa.getLocation().getCity());
+	            dto.setState(spa.getLocation().getState());
+	            dto.setCountry(spa.getLocation().getCountry());
+	        }
+
+	        return dto;
+	    }).toList();
+	}
+	public SpaCenterDTO getSpaCenterById(Integer id) {
+	    SpaCenter spa = spaCenterRepo.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Spa Center not found with id " + id));
+
+	    SpaCenterDTO dto = new SpaCenterDTO();
+	    dto.setSpaId(spa.getSpaId());
+	    dto.setSpaName(spa.getSpaName());
+	    dto.setSpaDescription(spa.getSpaDescription());
+	    dto.setSpaImage(spa.getSpaImage());
+	    dto.setRating(spa.getRating());
+	    dto.setAddress(spa.getAddress());
+	    dto.setStatus(spa.getStatus());
+
+	    if (spa.getLocation() != null) {
+	        dto.setLocationId(spa.getLocation().getLocationId());
+	        dto.setCity(spa.getLocation().getCity());
+	        dto.setState(spa.getLocation().getState());
+	        dto.setCountry(spa.getLocation().getCountry());
+	    }
+
+	    return dto;
+	}
+
     
 	public SpaCenterDTO updateSpaCenter(Integer id, SpaCenterDTO dto) {
 		SpaCenter spaCenter = spaCenterRepo.findById(id)

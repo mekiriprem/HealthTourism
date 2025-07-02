@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import hospital.tourism.Dto.LabtestsDTO;
 import hospital.tourism.Entity.Diognstics;
 import hospital.tourism.Entity.Labtests;
 import hospital.tourism.repo.DiagnosticsRepo;
@@ -83,17 +84,46 @@ public class LabtestsServices {
         return supabaseProjectUrl + "/storage/v1/object/public/" + supabaseBucketName + "/" + fileName;
     }
 
+    public LabtestsDTO getLabByIdDTO(Long id) {
+        Labtests labtest = labtestsRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
+        return convertToDTO(labtest);
+    }
+
+    public List<LabtestsDTO> getAllLabtestsDTO() {
+        List<Labtests> labtestsList = labtestsRepo.findAll();
+
+        return labtestsList.stream().map(this::convertToDTO).toList();
+    }
+
 
     // Get all lab tests
-    public List<Labtests> getAllLabtests() {
-        return labtestsRepo.findAll();
+    private LabtestsDTO convertToDTO(Labtests lab) {
+        LabtestsDTO dto = new LabtestsDTO();
+        dto.setId(lab.getId());
+        dto.setTestTitle(lab.getTestTitle());
+        dto.setTestDescription(lab.getTestDescription());
+        dto.setTestPrice(lab.getTestPrice());
+        dto.setTestDepartment(lab.getTestDepartment());
+        dto.setTestImage(lab.getTestImage());
+        dto.setStatus(lab.getStatus());
+
+        if (lab.getDiognostics() != null) {
+            dto.setDiagnosticsId(lab.getDiognostics().getDiognosticsId());
+            dto.setDiagnosticsName(lab.getDiognostics().getDiognosticsName());
+            dto.setDiagnosticsAddress(lab.getDiognostics().getDiognosticsaddress());
+            dto.setDiagnosticsRating(lab.getDiognostics().getDiognosticsrating());
+
+            if (lab.getDiognostics().getLocation() != null) {
+                dto.setCity(lab.getDiognostics().getLocation().getCity());
+                dto.setState(lab.getDiognostics().getLocation().getState());
+                dto.setCountry(lab.getDiognostics().getLocation().getCountry());
+            }
+        }
+
+        return dto;
     }
 
-    // Get lab test by ID
-    public Labtests getLabById(Long id) {
-        return labtestsRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Lab test not found with ID: " + id));
-    }
     
     public void softDeleteLabtest(Long id) {
         Labtests labtest = labtestsRepo.findById(id)

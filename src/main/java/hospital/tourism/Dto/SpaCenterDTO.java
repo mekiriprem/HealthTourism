@@ -11,7 +11,10 @@ public class SpaCenterDTO {
     private String rating;
     private String address;
     private String Status;
-    private Integer locationId; // only ID, not full LocationEntity
+    private Integer locationId;
+    private String city;
+    private String state;
+    private String country;// only ID, not full LocationEntity
     // getters and setters
 }
 

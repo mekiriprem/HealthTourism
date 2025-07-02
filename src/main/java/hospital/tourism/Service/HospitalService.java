@@ -72,6 +72,8 @@ public class HospitalService {
             if (hospital.getLocation() != null) {
                 dto.setHospitallocationId(hospital.getLocation().getLocationId());
                 dto.setHospitallocationName(hospital.getLocation().getCity());
+                dto.setState(hospital.getLocation().getState());
+                dto.setCountry(hospital.getLocation().getCountry());
             }
 
             return dto;

@@ -18,6 +18,9 @@ public class HospitalDTO {
 	    // Optional: Only include minimal location info to avoid recursion
 	    private Integer hospitallocationId;
 	    private String hospitallocationName;
+		        private String city;
+		                private String state;
+		                private String country; // Only ID, not full LocationEntity
 
 	    
 }
