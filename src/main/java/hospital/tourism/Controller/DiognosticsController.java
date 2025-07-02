@@ -57,8 +57,8 @@ public class DiognosticsController {
 
     // 📋 Get all diagnostics centers
     @GetMapping
-    public ResponseEntity<List<Diognstics>> getAllDiagnostics() {
-        return ResponseEntity.ok(diagonosticsServices.getAllDiagnostics());
+    public ResponseEntity<List<DiagnosticsDTO>> getAllDiagnostics() {
+        return ResponseEntity.ok(diagonosticsServices.getAllDiagnosticsAsDto());
     }
 
     

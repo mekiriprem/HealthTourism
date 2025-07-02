@@ -81,5 +81,15 @@ public class CorsConfig {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
+    
+   
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests()
+            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+            .anyRequest().authenticated()
+            .and().csrf().disable(); // Optional
+    }
+
 }
 
