@@ -360,9 +360,7 @@ public class BookingService {
                 boolean alreadyBooked = !bookingRepository.findDoctorBookingsInTimeRange(doctorId, bookingStartDate, bookingEndDate).isEmpty();
                 if (alreadyBooked) throw new IllegalStateException("Doctor is already booked for this time slot.");
 
-                if (bookingAmount < doctor.getPrice()) {
-                    throw new IllegalArgumentException("Booking amount is less than base price for doctor");
-                }
+               
 
                 booking.setDoctors(doctor);
             }

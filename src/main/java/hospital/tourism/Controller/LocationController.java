@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/locations")
 public class LocationController {
 
+
     @Autowired
     private LocationService locationService;
     
