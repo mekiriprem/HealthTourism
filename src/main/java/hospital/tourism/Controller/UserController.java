@@ -6,13 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.Service.UserService;
 import hospital.tourism.repo.usersrepo;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 
 
@@ -44,7 +55,8 @@ public class UserController {
 
     // ✅ Verify Email
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    @Transactional
+    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
         users user = userRepository.findByVerificationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid verification token."));
 
@@ -52,7 +64,7 @@ public class UserController {
         user.setVerificationToken(null);
         userRepository.save(user);
 
-        return ResponseEntity.ok("Email verified successfully. You can now log in.");
+        response.sendRedirect("https://medi-tailor.com/verify-success");
     }
 
     // ✅ Login User

@@ -3,7 +3,6 @@ package hospital.tourism.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.UsersDTO;
@@ -45,6 +43,9 @@ public class UserService {
 	    
 	    
 	    public users registerUser(users user) {
+	    	   if (!isStrongPassword(user.getPassword())) {
+	    	        throw new IllegalArgumentException("Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@, -, _)");
+	    	    }
 	        user.setVerificationToken(UUID.randomUUID().toString());
 	        user.setEmailVerified(false);
 	        users savedUser = userRepository.save(user);
@@ -61,6 +62,12 @@ public class UserService {
 	        mailSender.send(message);
 	    }
 	    
+	    private boolean isStrongPassword(String password) {
+	        // At least 8 characters, contains letter, digit, and special character (@, -, _)
+	        String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@\\-_]).{8,}$";
+	        return password != null && password.matches(passwordPattern);
+	    }
+	    
 	    public users loginUser(String email, String password) {
 	        users user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new RuntimeException("User not found"));
@@ -70,6 +77,7 @@ public class UserService {
 	            throw new RuntimeException("Please verify your email before logging in.");
 	        }
 
+	        
 	        // ✅ Validate password
 	        if (!user.getPassword().equals(password)) {
 	            throw new RuntimeException("Invalid email or password.");
