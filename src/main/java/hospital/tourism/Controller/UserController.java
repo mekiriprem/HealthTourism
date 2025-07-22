@@ -59,11 +59,9 @@ public class UserController {
     public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
         users user = userRepository.findByVerificationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid verification token."));
-
         user.setEmailVerified(true);
         user.setVerificationToken(null);
         userRepository.save(user);
-
         response.sendRedirect("https://medi-tailor.com/verify-success");
     }
 

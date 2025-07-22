@@ -53,7 +53,7 @@ public class UserService {
 	        return savedUser;
 	    }
 	    private void sendVerificationEmail(String toEmail, String token) {
-	        String verificationUrl = "https://medi-tailor.com/user/verify?token=" + token;
+	        String verificationUrl = "https://meditailor.infororg.com/user/verify?token=" + token;
 	        SimpleMailMessage message = new SimpleMailMessage();
 	        message.setTo(toEmail);
 	        message.setSubject("Verify your email");
