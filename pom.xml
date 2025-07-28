@@ -88,6 +88,12 @@
     <version>4.12.0</version> <!-- latest stable version as of mid-2025 -->
 </dependency>
 
+<dependency>
+  <groupId>com.squareup.okhttp3</groupId>
+  <artifactId>okhttp</artifactId>
+  <version>4.12.0</version>
+</dependency>
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

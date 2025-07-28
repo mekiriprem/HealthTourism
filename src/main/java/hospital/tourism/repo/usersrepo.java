@@ -17,4 +17,6 @@ public interface usersrepo extends JpaRepository<users, Long> {
     
     @Query("SELECT u.country, COUNT(u) FROM users u GROUP BY u.country")
     List<Object[]> countUsersByCountry();
+  
+    Optional<users> findByResetToken(String token);
 }

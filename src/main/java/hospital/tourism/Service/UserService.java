@@ -293,6 +293,46 @@ public class UserService {
 					return dto;
 				}).collect(Collectors.toList());
 			}
-			
+
+			public String initiateResetPassword(String email) {
+			    users user = userRepository.findByEmail(email)
+			            .orElseThrow(() -> new RuntimeException("No user found with email: " + email));
+
+			    String token = UUID.randomUUID().toString();
+			    user.setResetToken(token);
+			    userRepository.save(user);
+
+			    // 🔐 Build the reset link
+			    String resetLink = "https://meditailor.infororg.com/user/reset-password?token=" + token;
+
+			    // 📧 Send the reset link to the user's email
+			    SimpleMailMessage message = new SimpleMailMessage();
+			    message.setTo(user.getEmail());
+			    message.setSubject("Reset your password");
+			    message.setText("Hi " + user.getName() + ",\n\nClick the link below to reset your password:\n" + resetLink +
+			            "\n\nIf you did not request this, you can safely ignore this email.");
+			    message.setFrom("premmekiri22@gmail.com"); // <-- Change this to your verified sender email
+
+			    mailSender.send(message);
+
+			    return "Password reset link has been sent to your email.";
+			}
+
+			    public users resetPassword(String token, String newPassword) {
+			        users user = userRepository.findByResetToken(token)
+			                .orElseThrow(() -> new RuntimeException("Invalid or expired reset token"));
+
+			        if (!isStrongPassword(newPassword)) {
+			            throw new IllegalArgumentException("Password must be at least 8 characters long and contain a letter, number, and special character.");
+			        }
+
+			        user.setPassword(newPassword);
+			        user.setResetToken(null); // clear token
+			        return userRepository.save(user);
+			    }
+
+			    private boolean isStrongPasswords(String password) {
+			        return password != null && password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@-_]).{8,}$");
+			    }
 }
 		

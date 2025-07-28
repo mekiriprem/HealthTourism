@@ -72,6 +72,10 @@ public class users {
 
 	    @Column(name = "package_booking_id")
 	    private String packageBookingId;
+	    
+	    @Column(name = "reset_token")
+	    private String resetToken;
+
 
 
 }

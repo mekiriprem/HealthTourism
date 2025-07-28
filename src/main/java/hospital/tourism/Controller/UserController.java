@@ -135,5 +135,17 @@ public class UserController {
 		}
 	}
 
+	 @PostMapping("/forgot-password")
+	    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+	        String message = userService.initiateResetPassword(email);
+	        return ResponseEntity.ok(message);
+	    }
+
+	    @PostMapping("/reset-password")
+	    public ResponseEntity<String> resetPassword(@RequestParam String token,
+	                                                @RequestParam String newPassword) {
+	        userService.resetPassword(token, newPassword);
+	        return ResponseEntity.ok("Password reset successful!");
+	    }
 	
 }
