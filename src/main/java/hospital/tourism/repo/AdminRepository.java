@@ -21,4 +21,5 @@ public interface AdminRepository extends JpaRepository<AdminEntity, Integer> {
 	//get all where role admin
 	@Query("SELECT a FROM AdminEntity a WHERE a.role = 'subadmin'")
 	public List<AdminEntity> findByAllAdmins();
+	
 }

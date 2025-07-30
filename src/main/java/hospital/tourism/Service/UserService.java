@@ -8,15 +8,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.repo.usersrepo;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,6 +28,8 @@ import okhttp3.Response;
 @Service
 public class UserService {
 	
+	 @Autowired
+	    private BCryptPasswordEncoder passwordEncoder;
 			@Autowired
 			private usersrepo userRepository;
 	 	@Autowired
@@ -78,8 +82,7 @@ public class UserService {
 	        }
 
 	        
-	        // ✅ Validate password
-	        if (!user.getPassword().equals(password)) {
+	        if (!passwordEncoder.matches(password, user.getPassword())) {
 	            throw new RuntimeException("Invalid email or password.");
 	        }
 	    
@@ -334,5 +337,41 @@ public class UserService {
 			    private boolean isStrongPasswords(String password) {
 			        return password != null && password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@-_]).{8,}$");
 			    }
+			    
+			    @Transactional
+			    public String forgotPassword(String email) {
+			        if (email == null || email.trim().isEmpty()) {
+			            throw new IllegalArgumentException("Email is required");
+			        }
+
+			        String normalizedEmail = email.trim().toLowerCase();
+
+			        users user = userRepository.findByEmail(normalizedEmail)
+			            .orElseThrow(() -> new EntityNotFoundException("No user found with email: " + normalizedEmail));
+
+			        // Generate temporary password
+			        String tempPassword = UUID.randomUUID().toString().substring(0, 8);
+
+			        // Encode and update password
+			        user.setPassword(passwordEncoder.encode(tempPassword));
+			        userRepository.save(user);
+
+			        // 📧 Send temporary password to email
+			        try {
+			            SimpleMailMessage message = new SimpleMailMessage();
+			            message.setTo(user.getEmail());
+			            message.setSubject("Temporary Password - MediTailor");
+			            message.setText("Hi " + user.getName() +"\n\n"+user.getEmail()+ ",\n\nYour temporary password is: " + tempPassword +
+			                "\n\nPlease log in using this and change your password immediately.\n\nRegards,\nMediTailor Team");
+			            message.setFrom("premmekiri22@gmail.com");
+
+			            mailSender.send(message);
+			        } catch (Exception e) {
+			            // Optionally log the error
+			        }
+
+			        return "A temporary password has been sent to your email.";
+			    }
+
 }
 		

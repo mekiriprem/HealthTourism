@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import hospital.tourism.Dto.AdminUpdateRequest;
 import hospital.tourism.Entity.AdminEntity;
 import hospital.tourism.Service.AdminServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -169,6 +172,37 @@ public class AdminController {
         }
     	 }
     
+    	 
+    	 
+			/*Update the subAdmin*/
+    	 
+    	 @PutMapping("/profile/{id}")
+    	 public ResponseEntity<AdminEntity> updateSubAdminProfile(
+    	         @PathVariable("id") Integer adminId,
+    	         @RequestBody AdminUpdateRequest request) {
+    	     AdminEntity updatedAdmin = adminServiceimpl.updateSubAdminPersonalDetails(adminId, request);
+    	     return ResponseEntity.ok(updatedAdmin);
+    	 }	
     	
-    
+    	 @PutMapping("/admin/{id}/permissions/remove")
+    	 public ResponseEntity<String> removeAdminPermissions(
+    	         @PathVariable("id") Integer adminId,
+    	         @RequestBody List<String> permissionsToRemove) {
+    		 adminServiceimpl.removeSelectedPermissions(adminId, permissionsToRemove);
+    	     return ResponseEntity.ok("Selected permissions removed successfully.");
+    	 }
+    	 
+    	 
+    	 @PostMapping("/forgot-password")
+    	 public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+    	     try {
+    	         String message = adminServiceimpl.forgotPassword(email);
+    	         return ResponseEntity.ok(Map.of("message", message));
+    	     } catch (IllegalArgumentException e) {
+    	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    	     } catch (Exception e) {
+    	         return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
+    	     }
+    	 }
+
 }

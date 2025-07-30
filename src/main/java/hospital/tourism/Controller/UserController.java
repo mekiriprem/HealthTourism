@@ -1,6 +1,7 @@
 package hospital.tourism.Controller;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import hospital.tourism.Dto.UsersDTO;
 import hospital.tourism.Entity.users;
 import hospital.tourism.Service.UserService;
 import hospital.tourism.repo.usersrepo;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 
@@ -147,5 +149,20 @@ public class UserController {
 	        userService.resetPassword(token, newPassword);
 	        return ResponseEntity.ok("Password reset successful!");
 	    }
+	    
+	    
+	    @PostMapping("/forgotpassword")
+	    public ResponseEntity<?> forgotPasswords(@RequestParam String email) {
+	        try {
+	            String response = userService.forgotPassword(email);
+	            return ResponseEntity.ok(Map.of("message", response));
+	        } catch (IllegalArgumentException | EntityNotFoundException e) {
+	            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body(Map.of("error", "Something went wrong: " + e.getMessage()));
+	        }
+	    }
 	
+	    
 }
