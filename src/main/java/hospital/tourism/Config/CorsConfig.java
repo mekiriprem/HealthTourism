@@ -17,119 +17,69 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebSecurity
 public class CorsConfig {
-//	/*"https://hospital-tourism-fe.vercel.app"*/
-//	// "http://localhost:8081/"
-//	@Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(@NonNull CorsRegistry registry) {
-//                registry.addMapping("/**")  // allow all paths
-//                        .allowedOriginPatterns(
-//                            "https://hospital-tourism-fe.vercel.app",
-//                            "http://localhost:*",
-//                            "http://127.0.0.1:*",
-//                            "https://medi-tailor.com"
-//                        )
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
-//                        .allowedHeaders("*")
-//                        .exposedHeaders("*")
-//                        .allowCredentials(true)
-//                        .maxAge(3600);
-//            }
-//        };
-//    }
-//    @Bean
-//    public BCryptPasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//    @Bean
-//    public AuthenticationManager authenticationManager(
-//            AuthenticationConfiguration authConfig) throws Exception {
-//        return authConfig.getAuthenticationManager();
-//    }
-//
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//            .csrf(csrf -> csrf.disable())
-//            .cors(cors -> cors.configurationSource(request -> {
-//                var corsConfiguration = new CorsConfiguration();
-//                corsConfiguration.setAllowedOriginPatterns(java.util.List.of(
-//                    "https://hospital-tourism-fe.vercel.app",
-//                    "http://localhost:*",
-//                    "http://127.0.0.1:*",
-//                    "https://medi-tailor.com"
-//                ));
-//                corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
-//                corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
-//                corsConfiguration.setExposedHeaders(java.util.List.of("*"));
-//                corsConfiguration.setAllowCredentials(true);
-//                corsConfiguration.setMaxAge(3600L);
-//                return corsConfiguration;
-//            }))
-//            .authorizeHttpRequests(auth -> auth
-//                .anyRequest().permitAll()
-//            )
-//            .formLogin(form -> form.disable())
-//            .httpBasic(httpBasic -> httpBasic.disable());
-//
-//        return http.build();
-//    }
-//
-//    @Bean
-//    public ModelMapper modelMapper() {
-//        return new ModelMapper();
-//    }
-	
-	
+	/*"https://hospital-tourism-fe.vercel.app"*/
+	// "http://localhost:8081/"
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("/**")  // allow all paths
+                        .allowedOriginPatterns(
+                            "https://hospital-tourism-fe.vercel.app",
+                            "http://localhost:*",
+                            "http://127.0.0.1:*",
+                            "https://medi-tailor.com"
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+                        .allowedHeaders("*")
+                        .exposedHeaders("*")
+                        .allowCredentials(true)
+                        .maxAge(3600);
+            }
+        };
+    }
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
-	    @Bean
-	    public WebMvcConfigurer corsConfigurer() {
-	        return new WebMvcConfigurer() {
-	            @Override
-	            public void addCorsMappings(@NonNull CorsRegistry registry) {
-	                registry.addMapping("/**")
-	                        .allowedOrigins("https://medi-tailor.com")
-	                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-	                        .allowedHeaders("*")
-	                        .allowCredentials(true)
-	                        .maxAge(3600);
-	            }
-	        };
-	    }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new CorsConfiguration();
+                corsConfiguration.setAllowedOriginPatterns(java.util.List.of(
+                    "https://hospital-tourism-fe.vercel.app",
+                    "http://localhost:*",
+                    "http://127.0.0.1:*",
+                    "https://medi-tailor.com"
+                ));
+                corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+                corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                corsConfiguration.setExposedHeaders(java.util.List.of("*"));
+                corsConfiguration.setAllowCredentials(true);
+                corsConfiguration.setMaxAge(3600L);
+                return corsConfiguration;
+            }))
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable());
 
-	    @Bean
-	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	        http
-	            .csrf(csrf -> csrf.disable())
-	            .cors() // Enable CORS with above configuration
-	            .and()
-	            .authorizeHttpRequests(auth -> auth
-	                .anyRequest().permitAll()
-	            )
-	            .formLogin(form -> form.disable())
-	            .httpBasic(httpBasic -> httpBasic.disable());
+        return http.build();
+    }
 
-	        return http.build();
-	    }
-
-	    @Bean
-	    public BCryptPasswordEncoder passwordEncoder() {
-	        return new BCryptPasswordEncoder();
-	    }
-
-	    @Bean
-	    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-	        return authConfig.getAuthenticationManager();
-	    }
-
-	    @Bean
-	    public ModelMapper modelMapper() {
-	        return new ModelMapper();
-	    }
-	
-	    
-
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
 
