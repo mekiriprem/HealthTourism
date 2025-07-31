@@ -46,18 +46,42 @@ public class UserService {
 	    private String supabaseApiKey;
 	    
 	    
+		/* public users registerUser(users user) {
+		 	   if (!isStrongPassword(user.getPassword())) {
+		 	        throw new IllegalArgumentException("Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@, -, _)");
+		 	    }
+		     user.setVerificationToken(UUID.randomUUID().toString());
+		     user.setEmailVerified(false);
+		     users savedUser = userRepository.save(user);
+		     sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationToken());
+		     return savedUser;
+		 }*/
+	    
+	  
+
 	    public users registerUser(users user) {
-	    	   if (!isStrongPassword(user.getPassword())) {
-	    	        throw new IllegalArgumentException("Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@, -, _)");
-	    	    }
+	        // ✅ Validate strong password
+	        if (!isStrongPassword(user.getPassword())) {
+	            throw new IllegalArgumentException("Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@, -, _)");
+	        }
+
+	        // ✅ Encode password using BCrypt
+	        String encodedPassword = passwordEncoder.encode(user.getPassword());
+	        user.setPassword(encodedPassword);
+
+	        // ✅ Generate verification token
 	        user.setVerificationToken(UUID.randomUUID().toString());
 	        user.setEmailVerified(false);
+
+	        // ✅ Save user and send verification email
 	        users savedUser = userRepository.save(user);
 	        sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationToken());
+
 	        return savedUser;
 	    }
+
 	    private void sendVerificationEmail(String toEmail, String token) {
-	        String verificationUrl = "https://meditailor.infororg.com/user/verify?token=" + token;
+	        String verificationUrl = "https://meditilor.marketingzynlogic.com/user/verify?token=" + token;
 	        SimpleMailMessage message = new SimpleMailMessage();
 	        message.setTo(toEmail);
 	        message.setSubject("Verify your email");
@@ -306,7 +330,7 @@ public class UserService {
 			    userRepository.save(user);
 
 			    // 🔐 Build the reset link
-			    String resetLink = "https://meditailor.infororg.com/user/reset-password?token=" + token;
+			    String resetLink = "https://meditilor.marketingzynlogic.com/user/reset-password?token=" + token;
 
 			    // 📧 Send the reset link to the user's email
 			    SimpleMailMessage message = new SimpleMailMessage();
