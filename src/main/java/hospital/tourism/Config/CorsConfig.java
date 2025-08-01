@@ -19,26 +19,27 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsConfig implements WebMvcConfigurer{
 	/*"https://hospital-tourism-fe.vercel.app"*/
 	// "http://localhost:8081/"
-	@Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**")  // allow all paths
-                        .allowedOriginPatterns(
-                            "https://hospital-tourism-fe.vercel.app",
-                            "http://localhost:*",
-                            "http://127.0.0.1:*",
-                            "https://medi-tailor.com"
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
-                        .allowedHeaders("*")
-                        .exposedHeaders("*")
-                        .allowCredentials(true)
-                        .maxAge(3600);
-            }
-        };
-    }
+//	@Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings(@NonNull CorsRegistry registry) {
+//                registry.addMapping("/**")  // allow all paths
+//                        .allowedOriginPatterns(
+//                            "https://hospital-tourism-fe.vercel.app",
+//                            "http://localhost:*",
+//                            "http://127.0.0.1:*",
+//                            "https://medi-tailor.com"
+//                        )
+//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+//                        .allowedHeaders("*")
+//                        .exposedHeaders("*")
+//                        .allowCredentials(true)
+//                        .maxAge(3600);
+//            }
+//        };
+//    }
+	
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
