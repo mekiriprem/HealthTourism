@@ -21,7 +21,7 @@ import hospital.tourism.Service.SlotService;
 
 @RestController
 @RequestMapping("/api/services")
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com"},allowCredentials = "true")
 public class SlotController {
 
     @Autowired

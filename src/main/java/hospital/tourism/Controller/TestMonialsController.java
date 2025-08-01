@@ -20,7 +20,7 @@ import hospital.tourism.Service.TestimonialService;
 
 @RestController
 @RequestMapping("/testimonials")
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com"},allowCredentials = "true")
 public class TestMonialsController {
 
 	@Autowired

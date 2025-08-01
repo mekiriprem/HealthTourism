@@ -17,7 +17,7 @@ import hospital.tourism.Service.ServiceWishlistService;
 
 
 
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com"},allowCredentials = "true")
 @RestController
 @RequestMapping("/api/wishlist")
 public class ServiceWishlistController {
