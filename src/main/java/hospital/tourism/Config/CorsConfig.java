@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
-public class CorsConfig {
+public class CorsConfig implements WebMvcConfigurer{
 	/*"https://hospital-tourism-fe.vercel.app"*/
 	// "http://localhost:8081/"
 	@Bean

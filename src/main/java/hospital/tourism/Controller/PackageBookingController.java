@@ -21,7 +21,7 @@ import hospital.tourism.Service.UserPackageBookingService;
 
 
 
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
 @RestController
 @RequestMapping("/api")
 public class PackageBookingController {

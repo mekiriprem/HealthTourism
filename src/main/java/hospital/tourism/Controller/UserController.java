@@ -29,7 +29,7 @@ import jakarta.transaction.Transactional;
 
 
 
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
 @RestController
 @RequestMapping("/user")
 

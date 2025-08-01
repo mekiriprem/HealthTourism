@@ -22,7 +22,7 @@ import hospital.tourism.Entity.LocationEntity;
 import hospital.tourism.Service.DiagonosticsServices;
 
 
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
 @RestController
 @RequestMapping("/api/diagnostics")
 public class DiognosticsController {

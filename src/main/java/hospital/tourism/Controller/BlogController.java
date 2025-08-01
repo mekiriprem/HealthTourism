@@ -24,7 +24,7 @@ import hospital.tourism.Dto.BlogsDTO;
 import hospital.tourism.Service.BlogServiceImpl;
 
 
-@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"})
+@CrossOrigin(origins = {"http://localhost:8081", "http://localhost:4545", "http://localhost:3000","https://medi-tailor.com/"},allowCredentials = "true")
 @RestController
 @RequestMapping("/api/blogs")
 public class BlogController {
